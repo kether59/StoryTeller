@@ -26,17 +26,28 @@ export default function CharacterPanel({ story }) {
 
   async function save() {
     try {
-      await API.post('/api/characters', form)
-      setForm({ story_id: story.id })
+      if (form.id) {
+        await API.put(`/api/characters/${form.id}`, form)
+      }
+      else {
+        await API.post('/api/characters', form)
+      }
+      clearForm()
       fetchList()
     } catch (err) {
       alert('Erreur lors de la sauvegarde.')
     }
   }
 
-  async function del(id) {
+  function clearForm() {
+    setForm({ story_id: story.id })
+  }
+
+    async function del(id) {
     if (!confirm('Supprimer ?')) return
-    await API.delete('/api/characters', { data: { id } })
+
+    await API.delete(`/api/characters/${id}`)
+
     fetchList()
   }
 
@@ -77,15 +88,32 @@ export default function CharacterPanel({ story }) {
               className="input"
             />
           </div>
-          <div className="field">
+        <div className="field">
+          <input
+            value={form.surname || ''}
+            onChange={e => setForm({ ...form, surname: e.target.value })}
+            placeholder="Prénom"
+            className="input"
+          />
+      <div className="field">
+          <input
+            value={form.role || ''}
+            onChange={e => setForm({ ...form, role: e.target.value })}
+            placeholder="Rôle (ex: Protagoniste)"
+            className="input"
+          />
+        </div>
+        </div>
+        <div className="field">
             <input
+              type="number"
               value={form.age || ''}
-              onChange={e => setForm({ ...form, age: e.target.value })}
+              onChange={e => setForm({ ...form, age: parseInt(e.target.value) || null })}
               placeholder="Âge"
               className="input small"
             />
-          </div>
-          <div className="field">
+         </div>
+         <div className="field">
             <input
               value={form.born || ''}
               onChange={e => setForm({ ...form, born: e.target.value })}
@@ -95,29 +123,77 @@ export default function CharacterPanel({ story }) {
           </div>
           <div className="field">
             <textarea
-              value={form.description || ''}
-              onChange={e => setForm({ ...form, description: e.target.value })}
-              placeholder="Description"
+              value={form.physical_description || ''}
+              onChange={e => setForm({ ...form, physical_description: e.target.value })}
+              placeholder="Description physique"
             />
           </div>
           <div className="field">
             <textarea
               value={form.personality || ''}
               onChange={e => setForm({ ...form, personality: e.target.value })}
-              placeholder="Caractère"
+              placeholder="Personnalité"
             />
           </div>
           <div className="field">
             <textarea
               value={form.history || ''}
               onChange={e => setForm({ ...form, history: e.target.value })}
-              placeholder="Histoire"
+              placeholder="Histoire / Passé"
+            />
+          </div>
+          <div className="field">
+            <textarea
+              value={form.motivation || ''}
+              onChange={e => setForm({ ...form, motivation: e.target.value })}
+              placeholder="Motivation (Qu'est-ce qui le fait avancer ?)"
+            />
+          </div>
+          <div className="field">
+            <textarea
+              value={form.goal || ''}
+              onChange={e => setForm({ ...form, goal: e.target.value })}
+              placeholder="Objectif (But concret dans l'histoire)"
+            />
+          </div>
+          <div className="field">
+            <textarea
+              value={form.flaw || ''}
+              onChange={e => setForm({ ...form, flaw: e.target.value })}
+              placeholder="Défaut / Faille principale"
+            />
+          </div>
+          <div className="field">
+            <textarea
+              value={form.character_arc || ''}
+              onChange={e => setForm({ ...form, character_arc: e.target.value })}
+              placeholder="Arc narratif (Comment va-t-il évoluer ?)"
+            />
+          </div>
+           <div className="field">
+            <textarea
+              value={form.skills || ''}
+              onChange={e => setForm({ ...form, skills: e.target.value })}
+              placeholder="Compétences / Pouvoirs"
+            />
+          </div>
+           <div className="field">
+            <textarea
+              value={form.notes || ''}
+              onChange={e => setForm({ ...form, notes: e.target.value })}
+              placeholder="Notes libres"
             />
           </div>
           <div>
             <button className="primary" onClick={save}>
-              Enregistrer
+              {form.id ? 'Mettre à jour' : 'Enregistrer'}
             </button>
+
+            {form.id && (
+              <button style={{marginLeft: 8}} onClick={clearForm}>
+                Annuler
+              </button>
+            )}
           </div>
         </div>
       </div>

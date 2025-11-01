@@ -1,38 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import API from '../api/api'
 
-export default function StoryPanel() {
-  const [story, setStory] = useState({})
-  const [form, setForm] = useState({ story_id: story.id });
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+export default function StoryPanel({ story, onStoryUpdate }) {
 
-  useEffect(() => {
-    async function loadStory() {
-      try {
-        const r = await API.get('/api/story')
-        setStory((r.data && r.data[0]) || {})
-      } catch (err) {
-        console.error('Erreur de chargement de lhistoire :', err)
-        setError("Impossible de charger l'histoire.")
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadStory()
-  }, [])
+if (!story || !story.id) {
+    return <div>Sélectionnez ou créez un roman dans la barre de navigation.</div>;
+  }
 
-  async function save() {
+async function save() {
     try {
-      await API.post('/api/story', story)
-      const r = await API.get('/api/story')
-      setStory((r.data && r.data[0]) || {})
+      await API.put(`/api/stories/${story.id}`, story)
+      alert("Histoire enregistrée !");
+
     } catch (err) {
-      alert("Erreur lors de l'enregistrement.")
+      console.error("Erreur lors de la sauvegarde de l'histoire :", err);
+      alert("Erreur lors de la sauvegarde. Vérifiez le backend.");
     }
   }
 
-  async function exportMD() {
+async function exportMD() {
     try {
       const r = await API.get('/export/markdown', { responseType: 'blob' })
       const blob = new Blob([r.data], { type: 'text/markdown' })
@@ -50,16 +36,15 @@ export default function StoryPanel() {
     window.open('http://127.0.0.1:5000/export/pdf', '_blank')
   }
 
-  if (loading) return <div>Chargement...</div>
-  if (error) return <div>❌ {error}</div>
-
-  return (
+return (
     <div className="panel">
-      <h2>Histoire / Intrigue</h2>
+      <h2>Histoire / Intrigue — <em>{story.title}</em></h2>
+
+      {/* ⚠️ Utilisation de la prop onStoryUpdate pour propager le changement à App.jsx */}
       <div className="field">
         <input
           value={story.title || ''}
-          onChange={e => setStory({ ...story, title: e.target.value })}
+          onChange={e => onStoryUpdate({ ...story, title: e.target.value })}
           placeholder="Titre"
           className="input"
         />
@@ -67,7 +52,7 @@ export default function StoryPanel() {
       <div className="field">
         <textarea
           value={story.synopsis || ''}
-          onChange={e => setStory({ ...story, synopsis: e.target.value })}
+          onChange={e => onStoryUpdate({ ...story, synopsis: e.target.value })}
           placeholder="Synopsis"
           rows={6}
         />
@@ -75,15 +60,22 @@ export default function StoryPanel() {
       <div className="field">
         <textarea
           value={story.blurb || ''}
-          onChange={e => setStory({ ...story, blurb: e.target.value })}
+          onChange={e => onStoryUpdate({ ...story, blurb: e.target.value })}
           placeholder="Quatrième de couverture"
           rows={4}
         />
       </div>
+
       <div>
-        <button className="primary" onClick={save}>Enregistrer</button>
-        <button style={{ marginLeft: 8 }} onClick={exportMD}>Export Markdown</button>
-        <button style={{ marginLeft: 8 }} onClick={exportPDF}>Export PDF</button>
+        <button className="primary" onClick={save}>
+          Enregistrer les modifications
+        </button>
+      </div>
+
+      <div style={{ marginTop: 20 }}>
+        <h3>Exportation</h3>
+        <button onClick={exportMD}>Exporter tout en Markdown</button>
+        <button onClick={exportPDF}>Exporter le manuscrit en PDF</button>
       </div>
     </div>
   )

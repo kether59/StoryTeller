@@ -9,17 +9,17 @@ export default function ProjectSelector({ onSelect }) {
     fetchStories();
   }, []);
 
-  async function fetchStories() {
-    const res = await API.get("/api/story");
+async function fetchStories() {
+    const res = await API.get("/api/stories");
     setStories(res.data);
   }
 
-  async function createStory() {
+async function createStory() {
     if (!newTitle.trim()) return;
-    const res = await API.post("/api/story", { title: newTitle });
+    const res = await API.post("/api/stories", { title: newTitle });
     setNewTitle("");
     fetchStories();
-    onSelect(res.data); // ouvre directement le roman créé
+    onSelect(res.data);
   }
 
   return (

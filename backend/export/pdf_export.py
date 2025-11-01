@@ -16,7 +16,7 @@ def export_to_pdf_bytes():
 
     story = []
 
-    # ⚠️ Correction ici : mauvaise chaîne de split dans ton code original
+
     for line in text.split('\n'):
         if line.strip() == '':
             story.append(Spacer(1, 6))

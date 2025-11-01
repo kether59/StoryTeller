@@ -1,28 +1,32 @@
 import React, { useEffect, useState } from 'react'
 import API from '../api/api'
 
-export default function WorldPanel({ story }) {
+export default function LorePanel({ story }) {
   const [list, setList] = useState([])
   const [form, setForm] = useState({ story_id: story?.id })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
+useEffect(() => {
     if (!story?.id) return
-    fetchWorlds()
+    fetchLore()
   }, [story])
 
-  async function fetchWorlds() {
+  async function fetchLore() {
     try {
       setLoading(true)
-      const r = await API.get(`/api/world/${story.id}`)
+      const r = await API.get(`/api/lore?story_id=${story.id}`)
       setList(r.data)
     } catch (err) {
-      console.error('Erreur de chargement des mondes :', err)
-      setError('Impossible de charger les mondes')
+      console.error('Erreur de chargement du Lore :', err)
+      setError('Impossible de charger les entrées de Lore')
     } finally {
       setLoading(false)
     }
+  }
+
+  function clearForm() {
+    setForm({ story_id: story.id })
   }
 
   async function save() {
@@ -32,19 +36,25 @@ export default function WorldPanel({ story }) {
     }
     try {
       const payload = { ...form, story_id: story.id }
-      await API.post('/api/world', payload)
-      setForm({ story_id: story.id })
-      fetchWorlds()
+
+      if (form.id) {
+        await API.put(`/api/lore/${form.id}`, payload)
+      } else {
+        await API.post('/api/lore', payload)
+      }
+
+      clearForm()
+      fetchLore()
     } catch (err) {
       console.error('Erreur lors de l’enregistrement :', err)
-      alert("Erreur lors de l'enregistrement du monde.")
+      alert("Erreur lors de l'enregistrement de l'entrée de Lore.")
     }
   }
 
   async function del(id) {
     if (!confirm('Supprimer ?')) return
-    await API.delete('/api/world', { data: { id } })
-    fetchWorlds()
+    await API.delete(`/api/lore/${id}`)
+    fetchLore()
   }
 
   function edit(it) {
@@ -54,9 +64,9 @@ export default function WorldPanel({ story }) {
   if (loading) return <div>Chargement...</div>
   if (error) return <div>❌ {error}</div>
 
-  return (
+return (
     <div className="panel">
-      <h2>Monde — <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
+      <h2>Lore / World-Building — <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
 
       {!story?.id && (
         <div style={{ color: 'red', marginBottom: 12 }}>
@@ -77,8 +87,8 @@ export default function WorldPanel({ story }) {
                   marginBottom: 6
                 }}
               >
-                <strong>{it.title}</strong> <small>({it.type})</small>
-                <p style={{ fontSize: '0.9em', marginTop: 4 }}>{it.summary}</p>
+          <strong>{it.title}</strong> <small>({it.category})</small> {/* ⚠️ type -> category */}
+                <p style={{ fontSize: '0.9em', marginTop: 4 }}>{it.content}</p> {/* ⚠️ summary -> content */}
                 <div>
                   <button onClick={() => edit(it)}>Éditer</button>{' '}
                   <button onClick={() => del(it.id)}>Supprimer</button>
@@ -98,26 +108,31 @@ export default function WorldPanel({ story }) {
               className="input"
             />
           </div>
-          <div className="field">
-            <input
-              value={form.type || ''}
-              onChange={e => setForm({ ...form, type: e.target.value })}
-              placeholder="Type (lieu, peuple, objet, etc.)"
-              className="input small"
-            />
-          </div>
-          <div className="field">
-            <textarea
-              value={form.summary || ''}
-              onChange={e => setForm({ ...form, summary: e.target.value })}
-              placeholder="Résumé"
-            />
-          </div>
-          <button className="primary" onClick={save}>
-            Enregistrer
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+         <div className="field">
+             <input
+               value={form.category || ''}
+               onChange={e => setForm({ ...form, category: e.target.value })}
+               placeholder="Catégorie (Magie, Faction, Lieu...)"
+               className="input small"
+             />
+           </div>
+           <div className="field">
+             <textarea
+               value={form.content || ''} //
+               onChange={e => setForm({ ...form, content: e.target.value })}
+               placeholder="Contenu / Description complète"
+             />
+           </div>
+           <button className="primary" onClick={save}>
+              {form.id ? 'Mettre à jour' : 'Enregistrer'}
+           </button>
+           {form.id && (
+             <button style={{marginLeft: 8}} onClick={clearForm}>
+                 Annuler
+             </button>
+           )}
+         </div>
+       </div>
+     </div>
+   )
+ }

@@ -48,6 +48,7 @@ def create_or_update_manuscript():
     m.title = data.get('title')
     m.chapter = int(data.get('chapter') or 1)
     m.text = data.get('text')
+    m.status = data.get('status')
     db.session.commit()
     return jsonify(m.to_dict())
 
@@ -73,14 +74,11 @@ def analyze_manuscript(mid):
     nlp = get_nlp()
     doc = nlp(m.text or '')
 
-    # extract entities
     ents = []
     for ent in doc.ents:
         ents.append({'text': ent.text, 'label': ent.label_, 'start': ent.start_char, 'end': ent.end_char, 'sent': ent.sent.text})
 
-    # quick summary (fast mode)
     summary = []
-    # find mentions of characters by name (simple substring match)
     characters = Character.query.all()
     char_names = [(c.id, (c.name or '').strip()) for c in characters]
     mentions = []
@@ -90,7 +88,6 @@ def analyze_manuscript(mid):
     if mentions:
         summary.append({'type':'mentions', 'count': len(mentions), 'items': mentions})
 
-    # temporal incoherence check: for each TimelineEvent with ISO date, see if a character mentioned was born after event
     timeline = TimelineEvent.query.all()
     conflicts = []
     for ev in timeline:
@@ -100,7 +97,6 @@ def analyze_manuscript(mid):
             ev_date = datetime.fromisoformat(ev.date)
         except Exception:
             continue
-        # for each character mentioned in this manuscript, check born
         for cid, name in char_names:
             if name and name in (m.text or ''):
                 ch = next((c for c in characters if c.id == cid), None)
@@ -121,6 +117,7 @@ def analyze_manuscript(mid):
         'chapter': m.chapter,
         'mode': mode,
         'summary': summary,
+        'Status': m.status,
         'entities': ents,
         'text_length': len(m.text or ''),
     }

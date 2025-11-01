@@ -1,7 +1,8 @@
 import React from "react";
 import ProjectSelector from "./components/ProjectSelector";
 import CharacterPanel from "./components/CharacterPanel";
-import WorldPanel from "./components/WorldPanel";
+import LocationPanel from "./components/LocationPanel";
+import LorePanel from "./components/LorePanel";
 import TimelinePanel from "./components/TimelinePanel";
 import StoryPanel from "./components/StoryPanel";
 import AiPanel from "./components/AiPanel";
@@ -10,6 +11,10 @@ import ManuscriptPanel from "./components/ManuscriptPanel";
 export default function App() {
   const [selectedStory, setSelectedStory] = React.useState(null);
   const [tab, setTab] = React.useState("story");
+
+  const handleStoryUpdate = (updatedStory) => {
+    setSelectedStory(updatedStory);
+  };
 
   if (!selectedStory) {
     return <ProjectSelector onSelect={setSelectedStory} />;
@@ -35,9 +40,14 @@ export default function App() {
           >
             Personnages
           </button>
-          <button onClick={() => setTab("world")} className={tab === "world" ? "active" : ""}>
-            Monde
+
+          <button onClick={() => setTab("locations")} className={tab === "locations" ? "active" : ""}>
+            Lieux
           </button>
+          <button onClick={() => setTab("lore")} className={tab === "lore" ? "active" : ""}>
+            Lore
+          </button>
+
           <button
             onClick={() => setTab("timeline")}
             className={tab === "timeline" ? "active" : ""}
@@ -48,13 +58,22 @@ export default function App() {
             Assistant IA
           </button>
         </nav>
+        <button className="secondary" onClick={() => setSelectedStory(null)} style={{marginLeft: 16}}>
+          Changer de roman
+        </button>
       </header>
 
       <main>
-        {tab === "story" && <StoryPanel story={selectedStory} />}
+        {tab === "story" && (
+          <StoryPanel
+            story={selectedStory}
+            onStoryUpdate={handleStoryUpdate}
+          />
+        )}
         {tab === "manuscript" && <ManuscriptPanel story={selectedStory} />}
         {tab === "characters" && <CharacterPanel story={selectedStory} />}
-        {tab === "world" && <WorldPanel story={selectedStory} />}
+        {tab === "locations" && <LocationPanel story={selectedStory} />}
+        {tab === "lore" && <LorePanel story={selectedStory} />}
         {tab === "timeline" && <TimelinePanel story={selectedStory} />}
         {tab === "ai" && <AiPanel story={selectedStory} />}
       </main>

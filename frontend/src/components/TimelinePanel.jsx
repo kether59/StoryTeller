@@ -10,40 +10,50 @@ export default function TimelinePanel({ story }) {
     if (story?.id) fetchAll()
   }, [story])
 
-  async function fetchAll() {
+  function clearForm() {
+      setForm({ characters: [], story_id: story.id })
+    }
+
+    async function fetchAll() {
     try {
-      // 🧩 On charge les événements et personnages liés au roman sélectionné
       const [r, c] = await Promise.all([
-        API.get(`/api/timeline/${story.id}`),
-        API.get(`/api/characters/${story.id}`)
+        API.get(`/api/timeline?story_id=${story.id}`),
+        API.get(`/api/characters?story_id=${story.id}`)
       ])
       setList(r.data)
       setChars(c.data)
     } catch (err) {
-      console.error('Erreur de chargement de la chronologie :', err)
+        console.error('Erreur de chargement de la chronologie :', err)
+      }
     }
-  }
 
-  async function save() {
-    try {
-      const payload = { ...form, story_id: story.id }
-      await API.post('/api/timeline', payload)
-      setForm({ characters: [] })
-      fetchAll()
-    } catch (err) {
-      console.error('Erreur enregistrement événement :', err)
-    }
-  }
+    async function save() {
+      try {
+        const payload = { ...form, story_id: story.id }
 
-  async function del(id) {
-    if (!confirm('Supprimer ?')) return
-    try {
-      await API.delete('/api/timeline', { data: { id } })
-      fetchAll()
-    } catch (err) {
-      console.error('Erreur suppression événement :', err)
+        if (form.id) {
+          await API.put(`/api/timeline/${form.id}`, payload)
+        } else {
+          await API.post('/api/timeline', payload)
+        }
+
+        clearForm()
+        fetchAll()
+      } catch (err) {
+        console.error('Erreur enregistrement événement :', err)
+      }
     }
-  }
+
+    async function del(id) {
+      if (!confirm('Supprimer ?')) return
+      try {
+        // ⚠️ Correction de la route DELETE
+        await API.delete(`/api/timeline/${id}`)
+        fetchAll()
+      } catch (err) {
+        console.error('Erreur suppression événement :', err)
+      }
+    }
 
   function toggleChar(id) {
     let arr = form.characters || []
@@ -91,8 +101,17 @@ export default function TimelinePanel({ story }) {
             <input
               value={form.date || ''}
               onChange={e => setForm({ ...form, date: e.target.value })}
-              placeholder="Date (YYYY-MM-DD)"
+              placeholder="Date affichée (ex: Année 120)"
               className="input"
+            />
+          </div>
+          <div className="field">
+            <input
+              type="number"
+              value={form.sort_order || 0}
+              onChange={e => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })}
+              placeholder="Ordre de tri (nombre)"
+              className="input small"
             />
           </div>
           <div className="field">
@@ -120,8 +139,13 @@ export default function TimelinePanel({ story }) {
           </div>
 
           <button className="primary" onClick={save}>
-            Enregistrer
+            {form.id ? 'Mettre à jour' : 'Enregistrer'}
           </button>
+          {form.id && (
+            <button style={{marginLeft: 8}} onClick={clearForm}>
+                Annuler
+            </button>
+          )}
         </div>
       </div>
     </div>

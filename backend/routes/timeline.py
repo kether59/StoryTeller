@@ -4,15 +4,20 @@ from ..models import TimelineEvent
 
 bp = Blueprint('timeline', __name__, url_prefix='/api/timeline')
 
-# --- LISTE des événements par story_id ---
-@bp.route('/<int:story_id>', methods=['GET'])
-def list_timeline(story_id):
-    """Retourne la chronologie pour un roman spécifique"""
-    items = TimelineEvent.query.filter_by(story_id=story_id).order_by(TimelineEvent.date).all()
+@bp.route('', methods=['GET'])
+def list_timeline_events():
+    """Récupère la liste de tous les événements pour une histoire."""
+    story_id = request.args.get('story_id')
+
+    if not story_id:
+        return jsonify({'error': 'story_id parameter is required'}), 400
+
+    query = TimelineEvent.query.filter_by(story_id=int(story_id)).order_by(TimelineEvent.sort_order)
+    items = query.all()
+
     return jsonify([e.to_dict() for e in items])
 
 
-# --- CRÉATION ou MISE À JOUR d’un événement ---
 @bp.route('', methods=['POST'])
 def create_or_update_event():
     data = request.get_json() or {}
@@ -33,7 +38,9 @@ def create_or_update_event():
     e.story_id = data.get('story_id')
     e.title = data.get('title')
     e.date = data.get('date')
+    e.sort_order= data.get('sort_order')
     e.summary = data.get('summary')
+    e.location_id= data.get('location_id')
 
     chars = data.get('characters') or []
     e.set_characters(chars)
@@ -42,7 +49,7 @@ def create_or_update_event():
     return jsonify(e.to_dict())
 
 
-# --- SUPPRESSION d’un événement ---
+
 @bp.route('', methods=['DELETE'])
 def delete_event():
     data = request.get_json() or {}
