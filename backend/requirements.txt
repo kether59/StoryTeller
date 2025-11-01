@@ -1,0 +1,7 @@
+Flask>=2.0
+Flask-SQLAlchemy>=2.5
+Flask-Migrate>=3.0
+Flask-Cors>=3.0
+SQLAlchemy>=1.4
+reportlab>=3.6
+spacy>=3.5

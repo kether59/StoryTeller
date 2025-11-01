@@ -1,0 +1,1 @@
+# Placeholder for shared utilities. Add helpers here as project grows.
