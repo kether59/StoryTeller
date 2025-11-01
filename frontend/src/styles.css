@@ -1,0 +1,13 @@
+body{font-family:Inter,system-ui,Arial,sans-serif;margin:0;background:#f4f6f8}
+.app-header{background:#2c3e50;color:white;padding:12px;display:flex;align-items:center;justify-content:space-between}
+.app-header h1{margin:0}
+nav button{margin-left:8px;padding:8px 10px;border-radius:6px;border:none;background:#fff;color:#333;cursor:pointer}
+nav button.active{background:#f1c40f}
+main{padding:16px}
+.panel{background:white;padding:16px;border-radius:8px;border:1px solid #e6e6e6}
+.field{margin-bottom:8px}
+.input,textarea,select{width:100%;padding:8px;border:1px solid #ccc;border-radius:6px}
+.list{border:1px solid #eee;padding:8px;border-radius:6px}
+.item{padding:8px;border-bottom:1px solid #f2f2f2}
+button.primary{background:#3498db;color:white;border:none;padding:8px 12px;border-radius:6px}
+.small{width:140px}
