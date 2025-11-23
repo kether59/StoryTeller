@@ -127,17 +127,17 @@ La barre de navigation permet de basculer entre les panneaux du roman sélection
 
 ### **Navigation principale**
 
-![img.png](img.png)
+![img.png](public/img.png)
 
 ### **Liste des Personnages**
 
-![img_1.png](img_1.png)
+![img_1.png](public/img_1.png)
 
 ### **Édition d'un chapitre manuscrit**
 
-![img_2.png](img_2.png)
+![img_2.png](public/img_2.png)
 
 ### **Assistant IA**
 
-![img_3.png](img_3.png)
+![img_3.png](public/img_3.png)
 
