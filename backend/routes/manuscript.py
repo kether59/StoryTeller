@@ -1,95 +1,145 @@
-from flask import Blueprint, request, jsonify, current_app
-from ..database import db
-from ..models import Manuscript, Character, TimelineEvent
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from typing import List, Optional
 from datetime import datetime
-import spacy
+import logging
 
-bp = Blueprint('manuscript', __name__, url_prefix='/api/manuscript')
+from ..database import get_db
+from ..models import Manuscript as ManuscriptModel, Character, TimelineEvent
+from ..schemas import Manuscript, ManuscriptCreate, ManuscriptUpdate
 
-# lazy load spaCy model to reduce startup cost
+router = APIRouter(prefix="/api/manuscript", tags=["manuscript"])
+logger = logging.getLogger(__name__)
+
+# Lazy load spaCy
 _nlp = None
 
 def get_nlp():
     global _nlp
     if _nlp is None:
         try:
+            import spacy
             _nlp = spacy.load('fr_core_news_md')
         except Exception as e:
-            current_app.logger.error('spaCy model not found. Run: python -m spacy download fr_core_news_md')
-            raise
+            logger.error('spaCy model not found. Run: python -m spacy download fr_core_news_md')
+            raise HTTPException(
+                status_code=500,
+                detail="NLP model not available. Install with: python -m spacy download fr_core_news_md"
+            )
     return _nlp
 
-@bp.route('', methods=['GET'])
-def list_manuscripts():
-    story_id = request.args.get('story_id')
-    query = Manuscript.query
+
+@router.get("", response_model=List[Manuscript])
+def list_manuscripts(
+        story_id: Optional[int] = Query(None, description="ID de l'histoire"),
+        db: Session = Depends(get_db)
+):
+    """Récupère la liste de tous les manuscrits."""
+    query = db.query(ManuscriptModel)
     if story_id:
-        query = query.filter_by(story_id=int(story_id))
-    items = query.order_by(Manuscript.chapter).all()
-    return jsonify([m.to_dict() for m in items])
+        query = query.filter(ManuscriptModel.story_id == story_id)
 
-@bp.route('', methods=['POST'])
-def create_or_update_manuscript():
-    data = request.get_json() or {}
-    mid = data.get('id')
-    if mid:
-        m = Manuscript.query.get(mid)
-        if not m:
-            return jsonify({'error':'Not found'}), 404
-    else:
-        m = Manuscript()
-        db.session.add(m)
+    manuscripts = query.order_by(ManuscriptModel.chapter).all()
+    return manuscripts
 
-        # 🧩 Association à un roman
-    if not data.get('story_id'):
-        return jsonify({'error': 'story_id is required'}), 400
 
-    m.story_id = data.get('story_id')
-    m.title = data.get('title')
-    m.chapter = int(data.get('chapter') or 1)
-    m.text = data.get('text')
-    m.status = data.get('status')
-    db.session.commit()
-    return jsonify(m.to_dict())
+@router.post("", response_model=Manuscript, status_code=201)
+def create_manuscript(manuscript: ManuscriptCreate, db: Session = Depends(get_db)):
+    """Crée un nouveau manuscrit."""
+    db_manuscript = ManuscriptModel(**manuscript.dict())
+    db.add(db_manuscript)
+    db.commit()
+    db.refresh(db_manuscript)
+    return db_manuscript
 
-@bp.route('', methods=['DELETE'])
-def delete_manuscript():
-    data = request.get_json() or {}
-    mid = data.get('id')
-    if not mid:
-        return jsonify({'error':'id required'}), 400
-    m = Manuscript.query.get(mid)
-    if not m:
-        return jsonify({'error':'not found'}), 404
-    db.session.delete(m)
-    db.session.commit()
-    return jsonify({'ok': True})
 
-@bp.route('/analyze/<int:mid>')
-def analyze_manuscript(mid):
-    mode = (request.args.get('mode') or 'fast').lower()
-    m = Manuscript.query.get(mid)
-    if not m:
-        return jsonify({'error':'not found'}), 404
+@router.get("/{manuscript_id}", response_model=Manuscript)
+def get_manuscript(manuscript_id: int, db: Session = Depends(get_db)):
+    """Récupère un manuscrit par son ID."""
+    manuscript = db.query(ManuscriptModel).filter(ManuscriptModel.id == manuscript_id).first()
+    if not manuscript:
+        raise HTTPException(status_code=404, detail="Manuscript not found")
+    return manuscript
+
+
+@router.put("/{manuscript_id}", response_model=Manuscript)
+def update_manuscript(
+        manuscript_id: int,
+        manuscript_update: ManuscriptUpdate,
+        db: Session = Depends(get_db)
+):
+    """Met à jour un manuscrit existant."""
+    manuscript = db.query(ManuscriptModel).filter(ManuscriptModel.id == manuscript_id).first()
+    if not manuscript:
+        raise HTTPException(status_code=404, detail="Manuscript not found")
+
+    update_data = manuscript_update.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(manuscript, key, value)
+
+    db.commit()
+    db.refresh(manuscript)
+    return manuscript
+
+
+@router.delete("/{manuscript_id}")
+def delete_manuscript(manuscript_id: int, db: Session = Depends(get_db)):
+    """Supprime un manuscrit."""
+    manuscript = db.query(ManuscriptModel).filter(ManuscriptModel.id == manuscript_id).first()
+    if not manuscript:
+        raise HTTPException(status_code=404, detail="Manuscript not found")
+
+    db.delete(manuscript)
+    db.commit()
+    return {"ok": True}
+
+
+@router.get("/{manuscript_id}/analyze")
+def analyze_manuscript(
+        manuscript_id: int,
+        mode: str = Query("fast", description="Mode d'analyse: 'fast' ou 'detailed'"),
+        db: Session = Depends(get_db)
+):
+    """Analyse un manuscrit avec NLP (détection d'entités, mentions de personnages, etc.)."""
+    manuscript = db.query(ManuscriptModel).filter(ManuscriptModel.id == manuscript_id).first()
+    if not manuscript:
+        raise HTTPException(status_code=404, detail="Manuscript not found")
+
     nlp = get_nlp()
-    doc = nlp(m.text or '')
+    doc = nlp(manuscript.text or '')
 
-    ents = []
+    # Extraction des entités nommées
+    entities = []
     for ent in doc.ents:
-        ents.append({'text': ent.text, 'label': ent.label_, 'start': ent.start_char, 'end': ent.end_char, 'sent': ent.sent.text})
+        entities.append({
+            'text': ent.text,
+            'label': ent.label_,
+            'start': ent.start_char,
+            'end': ent.end_char,
+            'sentence': ent.sent.text
+        })
 
+    # Détection des mentions de personnages
     summary = []
-    characters = Character.query.all()
+    characters = db.query(Character).all()
     char_names = [(c.id, (c.name or '').strip()) for c in characters]
     mentions = []
-    for cid, name in char_names:
-        if name and name in (m.text or ''):
-            mentions.append({'character_id': cid, 'name': name})
-    if mentions:
-        summary.append({'type':'mentions', 'count': len(mentions), 'items': mentions})
 
-    timeline = TimelineEvent.query.all()
+    for cid, name in char_names:
+        if name and name in (manuscript.text or ''):
+            mentions.append({'character_id': cid, 'name': name})
+
+    if mentions:
+        summary.append({
+            'type': 'mentions',
+            'count': len(mentions),
+            'items': mentions
+        })
+
+    # Détection des conflits chronologiques
+    timeline = db.query(TimelineEvent).all()
     conflicts = []
+
     for ev in timeline:
         if not ev.date:
             continue
@@ -97,40 +147,57 @@ def analyze_manuscript(mid):
             ev_date = datetime.fromisoformat(ev.date)
         except Exception:
             continue
+
         for cid, name in char_names:
-            if name and name in (m.text or ''):
+            if name and name in (manuscript.text or ''):
                 ch = next((c for c in characters if c.id == cid), None)
                 if ch and ch.born:
                     try:
                         born = datetime.fromisoformat(ch.born)
                         if born > ev_date:
-                            conflicts.append({'event_id': ev.id, 'character_id': cid, 'reason': 'Character born after event', 'event_date': ev.date, 'born': ch.born})
+                            conflicts.append({
+                                'event_id': ev.id,
+                                'character_id': cid,
+                                'reason': 'Character born after event',
+                                'event_date': ev.date,
+                                'born': ch.born
+                            })
                     except Exception:
                         pass
-    if conflicts:
-        summary.append({'type':'conflicts','items':conflicts})
 
-    # build detailed report
+    if conflicts:
+        summary.append({'type': 'conflicts', 'items': conflicts})
+
+    # Rapport de base
     report = {
-        'id': m.id,
-        'title': m.title,
-        'chapter': m.chapter,
+        'id': manuscript.id,
+        'title': manuscript.title,
+        'chapter': manuscript.chapter,
         'mode': mode,
         'summary': summary,
-        'Status': m.status,
-        'entities': ents,
-        'text_length': len(m.text or ''),
+        'status': manuscript.status,
+        'entities': entities,
+        'text_length': len(manuscript.text or '')
     }
 
-    # in detailed mode add tokenized sentences + entity positions
+    # Mode détaillé : ajouter les phrases tokenisées
     if mode == 'detailed':
-        sents = []
+        sentences = []
         for i, sent in enumerate(doc.sents):
-            sent_ents = [
-                {'text': ent.text, 'label': ent.label_, 'start': ent.start_char - sent.start_char, 'end': ent.end_char - sent.start_char}
+            sent_entities = [
+                {
+                    'text': ent.text,
+                    'label': ent.label_,
+                    'start': ent.start_char - sent.start_char,
+                    'end': ent.end_char - sent.start_char
+                }
                 for ent in sent.ents
             ]
-            sents.append({'index': i, 'text': sent.text, 'entities': sent_ents})
-        report['sentences'] = sents
+            sentences.append({
+                'index': i,
+                'text': sent.text,
+                'entities': sent_entities
+            })
+        report['sentences'] = sentences
 
-    return jsonify(report)
+    return report

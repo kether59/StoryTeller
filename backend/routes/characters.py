@@ -1,94 +1,73 @@
-from flask import Blueprint, request, jsonify
-from ..database import db
-from ..models import Character
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from typing import List
 
-bp = Blueprint('characters', __name__, url_prefix='/api/characters')
+from ..database import get_db
+from ..models import Character as CharacterModel
+from ..schemas import Character, CharacterCreate, CharacterUpdate
 
-# --- Helper Function (pour éviter la duplication de code) ---
-
-def _populate_character_from_data(ch: Character, data: dict):
-    """Remplit un objet Character à partir d'un dictionnaire de données."""
-
-    try:
-        age_raw = data.get('age')
-        ch.age = int(age_raw) if age_raw not in (None, '', 'null') else None
-    except (ValueError, TypeError):
-        ch.age = None
-
-    # --- Champs de base ---
-    ch.name = data.get('name')
-    ch.surname = data.get('surname')
-    ch.story_id = data.get('story_id')
-    ch.born = data.get('born')
+router = APIRouter(prefix="/api/characters", tags=["characters"])
 
 
-    ch.role = data.get('role')
-    ch.physical_description = data.get('physical_description')
-    ch.personality = data.get('personality')
-    ch.history = data.get('history')
-    ch.motivation = data.get('motivation')
-    ch.goal = data.get('goal')
-    ch.flaw = data.get('flaw')
-    ch.character_arc = data.get('character_arc')
-    ch.skills = data.get('skills')
-    ch.notes = data.get('notes')
-
-    return ch
-
-# --- ROUTES API (RESTful) ---
-
-@bp.route('', methods=['GET'])
-def list_characters():
+@router.get("", response_model=List[Character])
+def list_characters(
+        story_id: int = Query(..., description="ID de l'histoire"),
+        db: Session = Depends(get_db)
+):
     """Récupère la liste de tous les personnages pour une histoire."""
-    story_id = request.args.get('story_id')
-    if not story_id:
-        return jsonify({'error': 'story_id parameter is required'}), 400
+    characters = db.query(CharacterModel) \
+        .filter(CharacterModel.story_id == story_id) \
+        .order_by(CharacterModel.name) \
+        .all()
+    return characters
 
-    query = Character.query.filter_by(story_id=int(story_id)).order_by(Character.name)
-    items = query.all()
 
-    return jsonify([c.to_dict() for c in items])
-
-@bp.route('', methods=['POST'])
-def create_character():
+@router.post("", response_model=Character, status_code=201)
+def create_character(character: CharacterCreate, db: Session = Depends(get_db)):
     """Crée un nouveau personnage."""
-    data = request.get_json() or {}
+    db_character = CharacterModel(**character.dict())
+    db.add(db_character)
+    db.commit()
+    db.refresh(db_character)
+    return db_character
 
-    # --- Validation ---
-    if not data.get('story_id'):
-        return jsonify({'error': 'story_id is required'}), 400
-    if not data.get('name'):
-        return jsonify({'error': 'name is required'}), 400
 
-    ch = Character()
-    ch = _populate_character_from_data(ch, data)
+@router.get("/{character_id}", response_model=Character)
+def get_character(character_id: int, db: Session = Depends(get_db)):
+    """Récupère un personnage par son ID."""
+    character = db.query(CharacterModel).filter(CharacterModel.id == character_id).first()
+    if not character:
+        raise HTTPException(status_code=404, detail="Character not found")
+    return character
 
-    db.session.add(ch)
-    db.session.commit()
 
-    # 201 = "Created" (Bonne pratique)
-    return jsonify(ch.to_dict()), 201
-
-@bp.route('/<int:character_id>', methods=['PUT'])
-def update_character(character_id):
+@router.put("/{character_id}", response_model=Character)
+def update_character(
+        character_id: int,
+        character_update: CharacterUpdate,
+        db: Session = Depends(get_db)
+):
     """Met à jour un personnage existant."""
-    ch = Character.query.get(character_id)
-    if not ch:
-        return jsonify({'error': 'Character not found'}), 404
+    character = db.query(CharacterModel).filter(CharacterModel.id == character_id).first()
+    if not character:
+        raise HTTPException(status_code=404, detail="Character not found")
 
-    data = request.get_json() or {}
-    ch = _populate_character_from_data(ch, data)
+    update_data = character_update.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(character, key, value)
 
-    db.session.commit()
-    return jsonify(ch.to_dict())
+    db.commit()
+    db.refresh(character)
+    return character
 
-@bp.route('/<int:character_id>', methods=['DELETE'])
-def delete_character(character_id):
+
+@router.delete("/{character_id}")
+def delete_character(character_id: int, db: Session = Depends(get_db)):
     """Supprime un personnage."""
-    ch = Character.query.get(character_id)
-    if not ch:
-        return jsonify({'error': 'Character not found'}), 404
+    character = db.query(CharacterModel).filter(CharacterModel.id == character_id).first()
+    if not character:
+        raise HTTPException(status_code=404, detail="Character not found")
 
-    db.session.delete(ch)
-    db.session.commit()
-    return jsonify({'ok': True})
+    db.delete(character)
+    db.commit()
+    return {"ok": True}

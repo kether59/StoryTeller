@@ -38,7 +38,7 @@ coverage.xml
 .hypothesis/
 
 # Django / Flask
-instance/
+backend/instance/
 *.log
 db.sqlite3
 

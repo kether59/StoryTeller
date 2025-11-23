@@ -13,7 +13,7 @@
 *   Git (optionnel)
     
 
-### **Backend (Flask + SQLite)**
+### **Backend (FastAPI + SQLite)**
 
 1.  Cloner le dépôt ou télécharger les fichiers.
     
@@ -38,9 +38,9 @@ python -m spacy download fr\_core\_news\_md
 \# Aucune commande 'flask db' n'est nécessaire avec la configuration actuelle de SQLAlchemy.# Les tables sont créées lors du premier lancement du serveur.
 
 1.  **Lancer le serveur backend :**
-    
 
-python -m backend.app
+
+python run.py
 
 Le backend sera accessible sur http://127.0.0.1:5000/.
 
@@ -127,27 +127,17 @@ La barre de navigation permet de basculer entre les panneaux du roman sélection
 
 ### **Navigation principale**
 
-+------------------------------------------------------------------+| 📖 StoryTeller — Le Sceptre des Échos                            || Histoire Manuscrit Personnages Lieux Lore Chronologie Assistant IA |+------------------------------------------------------------------+
+![img.png](img.png)
 
 ### **Liste des Personnages**
 
-Elara Vancian — 25 ans \[Éditer\] \[Supprimer\]Kellan Fogg — 35 ans \[Éditer\] \[Supprimer\]
+![img_1.png](img_1.png)
 
 ### **Édition d'un chapitre manuscrit**
 
-Titre: Chapitre 1 - Écho et Argent\[Éditeur Markdown enrichi\]Sauvegarder  Analyse rapide  Analyse détaillée  Export MD annoté
+![img_2.png](img_2.png)
 
 ### **Assistant IA**
 
-\[Trouver liens personnages\] \[Vérifier chronologie\]{JSON output des suggestions et incohérences}
+![img_3.png](img_3.png)
 
-**4\. Notes et bonnes pratiques**
----------------------------------
-
-*   Toujours lancer le backend avant le frontend.
-    
-*   Les exports PDF et Markdown nécessitent que le backend soit actif.
-    
-*   Pour la production : sécuriser l'API, gérer les utilisateurs et l'authentification.
-    
-*   Sauvegardes régulières de storyteller.db recommandées.

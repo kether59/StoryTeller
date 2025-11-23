@@ -1,79 +1,73 @@
-from flask import Blueprint, request, jsonify
-from ..database import db
-from ..models import Location
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from typing import List
 
-bp = Blueprint('locations', __name__, url_prefix='/api/locations')
+from ..database import get_db
+from ..models import Location as LocationModel
+from ..schemas import Location, LocationCreate, LocationUpdate
 
-# --- Helper Function ---
-def _populate_location_from_data(loc: Location, data: dict):
-    """Remplit un objet Location à partir des données de la requête."""
+router = APIRouter(prefix="/api/locations", tags=["locations"])
 
 
-    if not data.get('story_id'):
-        raise ValueError('story_id is required')
+@router.get("", response_model=List[Location])
+def list_locations(
+        story_id: int = Query(..., description="ID de l'histoire"),
+        db: Session = Depends(get_db)
+):
+    """Récupère la liste de tous les lieux pour une histoire."""
+    locations = db.query(LocationModel) \
+        .filter(LocationModel.story_id == story_id) \
+        .order_by(LocationModel.name) \
+        .all()
+    return locations
 
-    loc.story_id = data.get('story_id')
-    loc.name = data.get('name')
-    loc.type = data.get('type')
-    loc.summary = data.get('summary')
 
-    return loc
-
-# --- Routes ---
-
-@bp.route('', methods=['GET'])
-def list_locations():
-    """Récupère la liste de tous les lieux (Locations) pour une histoire."""
-    story_id = request.args.get('story_id')
-    if not story_id:
-        return jsonify({'error': 'story_id parameter is required'}), 400
-
-    query = Location.query.filter_by(story_id=int(story_id)).order_by(Location.name)
-    items = query.all()
-
-    return jsonify([item.to_dict() for item in items])
-
-@bp.route('', methods=['POST'])
-def create_location():
+@router.post("", response_model=Location, status_code=201)
+def create_location(location: LocationCreate, db: Session = Depends(get_db)):
     """Crée un nouveau lieu."""
-    data = request.get_json() or {}
+    db_location = LocationModel(**location.dict())
+    db.add(db_location)
+    db.commit()
+    db.refresh(db_location)
+    return db_location
 
-    try:
-        loc = Location()
-        loc = _populate_location_from_data(loc, data)
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
 
-    db.session.add(loc)
-    db.session.commit()
+@router.get("/{location_id}", response_model=Location)
+def get_location(location_id: int, db: Session = Depends(get_db)):
+    """Récupère un lieu par son ID."""
+    location = db.query(LocationModel).filter(LocationModel.id == location_id).first()
+    if not location:
+        raise HTTPException(status_code=404, detail="Location not found")
+    return location
 
-    return jsonify(loc.to_dict()), 201
 
-@bp.route('/<int:location_id>', methods=['PUT'])
-def update_location(location_id):
+@router.put("/{location_id}", response_model=Location)
+def update_location(
+        location_id: int,
+        location_update: LocationUpdate,
+        db: Session = Depends(get_db)
+):
     """Met à jour un lieu existant."""
-    loc = Location.query.get(location_id)
-    if not loc:
-        return jsonify({'error': 'Location not found'}), 404
+    location = db.query(LocationModel).filter(LocationModel.id == location_id).first()
+    if not location:
+        raise HTTPException(status_code=404, detail="Location not found")
 
-    data = request.get_json() or {}
+    update_data = location_update.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(location, key, value)
 
-    try:
-        # Note: On conserve l'appel, même si story_id ne devrait pas changer
-        loc = _populate_location_from_data(loc, data)
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+    db.commit()
+    db.refresh(location)
+    return location
 
-    db.session.commit()
-    return jsonify(loc.to_dict())
 
-@bp.route('/<int:location_id>', methods=['DELETE'])
-def delete_location(location_id):
+@router.delete("/{location_id}")
+def delete_location(location_id: int, db: Session = Depends(get_db)):
     """Supprime un lieu."""
-    loc = Location.query.get(location_id)
-    if not loc:
-        return jsonify({'error': 'Location not found'}), 404
+    location = db.query(LocationModel).filter(LocationModel.id == location_id).first()
+    if not location:
+        raise HTTPException(status_code=404, detail="Location not found")
 
-    db.session.delete(loc)
-    db.session.commit()
-    return jsonify({'ok': True})
+    db.delete(location)
+    db.commit()
+    return {"ok": True}

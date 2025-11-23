@@ -1,6 +1,12 @@
-from flask import Blueprint
+# Expose all routers for easy import
+from . import stories, characters, locations, lore, timeline, manuscript, ai
 
-# This file is intentionally minimal; individual route modules register their blueprints.
-
-# Helper import to make package importable
-from . import story, characters, locations, timeline, ai
+__all__ = [
+    'stories',
+    'characters',
+    'locations',
+    'lore',
+    'timeline',
+    'manuscript',
+    'ai'
+]
