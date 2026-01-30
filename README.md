@@ -1,143 +1,128 @@
-**StoryTeller - Installation et guide d'utilisation**
-=====================================================
+# **StoryTeller - Installation and User Guide**
 
-**1\. Installation du projet**
-------------------------------
+## **1. Project Installation**
 
-### **Prérequis**
+### **Prerequisites**
 
-*   Python 3.10+ ou 3.11
-    
-*   Node.js 18+ et npm
-    
-*   Git (optionnel)
-    
+* Python 3.10+ or 3.11 ( Spacy droken in 3.12 and higher )
+* Node.js 18+ and npm
+* Git (optional)
 
 ### **Backend (FastAPI + SQLite)**
 
-1.  Cloner le dépôt ou télécharger les fichiers.
-    
-2.  Créer un environnement virtuel et l'activer :
-    
+1. Clone the repository or download the files.
 
-python -m venv .venvsource .venv/bin/activate  # Windows : .venv\\Scripts\\activate
+2. Create a virtual environment and activate it:
 
-1.  Installer les dépendances :
-    
+```
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+```
 
+3. Install dependencies:
+
+place you in backend folder
+
+```
 pip install -r requirements.txt
+```
 
-1.  Installer le modèle spaCy français (nécessaire pour l'Assistant IA) :
-    
+4. Install the French spaCy model (required for the AI Assistant):
 
-python -m spacy download fr\_core\_news\_md
+```
+python -m spacy download fr_core_news_md
+```
 
-1.  Initialiser la base de données :(La création des tables et le lancement des données de test sont désormais automatiques au démarrage du serveur si la DB est vide.)
-    
+5. Initialize the database:
+   (The creation of tables and loading of test data are now automatic at server startup if the DB is empty.)
 
-\# Aucune commande 'flask db' n'est nécessaire avec la configuration actuelle de SQLAlchemy.# Les tables sont créées lors du premier lancement du serveur.
+```
+# No 'flask db' command is required with the current SQLAlchemy configuration.
+# Tables are created on the first server launch.
+```
 
-1.  **Lancer le serveur backend :**
+6. **Start the backend server:**
 
-
+```
 python run.py
+```
 
-Le backend sera accessible sur http://127.0.0.1:5000/.
+The backend will be available at [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
 
 ### **Frontend (React + Vite)**
 
-1.  Se placer dans le dossier frontend/ :
-    
+1. Go to the frontend/ folder:
 
+```
 cd frontend
+```
 
-1.  Installer les dépendances :
-    
+2. Install dependencies:
 
+```
 npm install
+```
 
-1.  Lancer l'application React :
-    
+3. Start the React application:
 
+```
 npm run dev
+```
 
-1.  Ouvrir le navigateur sur l'URL affichée par Vite (ex: http://localhost:5173/).
-    
+4. Open your browser at the URL shown by Vite (e.g. [http://localhost:5173/](http://localhost:5173/)).
 
-**2\. Utilisation**
--------------------
+## **2. Usage**
 
 ### **2.1 Navigation**
 
-La barre de navigation permet de basculer entre les panneaux du roman sélectionné :
+The navigation bar lets you switch between the panels of the selected novel:
 
-*   **Histoire** : Synopsis, Quatrième de couverture.
-    
-*   **Manuscrit** : Édition des chapitres.
-    
-*   **Personnages** : Fiches détaillées.
-    
-*   **Lieux** : Lieux clés de l'histoire.
-    
-*   **Lore** : Entrées encyclopédiques (factions, magie, objets).
-    
-*   **Chronologie** : Événements ordonnés.
-    
-*   **Assistant IA** : Outils d'aide à la cohérence.
-    
+* **Story**: Synopsis, Back cover.
+* **Manuscript**: Chapter editing.
+* **Characters**: Detailed profiles.
+* **Locations**: Key places in the story.
+* **Lore**: Encyclopedic entries (factions, magic, objects).
+* **Timeline**: Ordered events.
+* **AI Assistant**: Consistency assistance tools.
 
-### **2.2 Gestion des Fiches (Personnages, Lieux, Lore)**
+### **2.2 Managing Sheets (Characters, Locations, Lore)**
 
-*   **Ajouter / Éditer :** Remplir les champs du formulaire et cliquer sur Enregistrer ou Mettre à jour.
-    
-*   **Sélection :** Cliquer sur un élément de la liste pour charger son formulaire d'édition.
-    
-*   **Supprimer :** Cliquer sur Supprimer sur l'élément souhaité.
-    
+* **Add / Edit:** Fill in the form fields and click Save or Update.
+* **Select:** Click an item in the list to load its edit form.
+* **Delete:** Click Delete on the desired item.
 
-### **2.3 Chronologie**
+### **2.3 Timeline**
 
-*   Ajouter un événement et l'associer à une date et à des personnages/lieux.
-    
-*   La liste s'affiche de manière ordonnée.
-    
+* Add an event and associate it with a date and characters/locations.
+* The list is displayed in chronological order.
 
-### **2.4 Histoire / Manuscrit**
+### **2.4 Story / Manuscript**
 
-*   Le panneau **Histoire** permet de modifier le titre, le synopsis et le blurb du roman.
-    
-*   Le panneau **Manuscrit** fournit un éditeur Markdown enrichi pour les chapitres.
-    
-*   **Sauvegarde :** Automatique toutes les 10 secondes (ou via bouton Sauvegarder).
-    
-*   **Export :** Export Markdown ou PDF via les boutons dans le panneau Histoire.
-    
+* The **Story** panel lets you edit the novel title, synopsis, and blurb.
+* The **Manuscript** panel provides an enhanced Markdown editor for chapters.
+* **Saving:** Automatic every 10 seconds (or via the Save button).
+* **Export:** Markdown or PDF export via the buttons in the Story panel.
 
-### **2.5 Assistant IA**
+### **2.5 AI Assistant**
 
-*   **Trouver liens personnages :** Suggère des relations basées sur les données.
-    
-*   **Vérifier chronologie :** Détecte les incohérences temporelles (âge, dates de naissance vs événements).
-    
-*   Le panneau **Manuscrit** utilise également l'IA pour l'analyse rapide ou détaillée du texte.
-    
+* **Find character links:** Suggests relationships based on the data.
+* **Check timeline:** Detects temporal inconsistencies (age, birth dates vs events).
+* The **Manuscript** panel also uses AI for quick or detailed text analysis.
 
-**3\. Copies d'écran (exemple)**
---------------------------------
+## **3. Screenshots (example)**
 
-### **Navigation principale**
+### **Main navigation**
 
 ![img.png](public/img.png)
 
-### **Liste des Personnages**
+### **Character list**
 
-![img_1.png](public/img_1.png)
+![img\_1.png](public/img_1.png)
 
-### **Édition d'un chapitre manuscrit**
+### **Editing a manuscript chapter**
 
-![img_2.png](public/img_2.png)
+![img\_2.png](public/img_2.png)
 
-### **Assistant IA**
+### **AI Assistant**
 
-![img_3.png](public/img_3.png)
-
+![img\_3.png](public/img_3.png)

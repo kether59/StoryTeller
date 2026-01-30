@@ -10,7 +10,8 @@ pydantic>=2.5.0
 pydantic-settings>=2.1.0
 
 # NLP (optionnel, pour analyse de manuscrits)
-spacy>=3.7.0
+spacy>=3.8.11
+
 
 # Pour le développement
 python-multipart>=0.0.6

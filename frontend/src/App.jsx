@@ -7,6 +7,8 @@ import TimelinePanel from "./components/TimelinePanel";
 import StoryPanel from "./components/StoryPanel";
 import AiPanel from "./components/AiPanel";
 import ManuscriptPanel from "./components/ManuscriptPanel";
+import WritingAssistantPanel from "./components/WritingAssistantPanel";
+import ExtractionPanel from "./components/ExtractionPanel";
 
 export default function App() {
   const [selectedStory, setSelectedStory] = React.useState(null);
@@ -40,22 +42,26 @@ export default function App() {
           >
             Personnages
           </button>
-
           <button onClick={() => setTab("locations")} className={tab === "locations" ? "active" : ""}>
             Lieux
           </button>
           <button onClick={() => setTab("lore")} className={tab === "lore" ? "active" : ""}>
             Lore
           </button>
-
           <button
             onClick={() => setTab("timeline")}
             className={tab === "timeline" ? "active" : ""}
           >
             Chronologie
           </button>
+          <button onClick={() => setTab("writing")} className={tab === "writing" ? "active" : ""}>
+            ✍️ Assistant
+          </button>
+          <button onClick={() => setTab("extraction")} className={tab === "extraction" ? "active" : ""}>
+            🔍 Extraction
+          </button>
           <button onClick={() => setTab("ai")} className={tab === "ai" ? "active" : ""}>
-            Assistant IA
+            🤖 Analyse
           </button>
         </nav>
         <button className="secondary" onClick={() => setSelectedStory(null)} style={{marginLeft: 16}}>
@@ -75,6 +81,8 @@ export default function App() {
         {tab === "locations" && <LocationPanel story={selectedStory} />}
         {tab === "lore" && <LorePanel story={selectedStory} />}
         {tab === "timeline" && <TimelinePanel story={selectedStory} />}
+        {tab === "writing" && <WritingAssistantPanel story={selectedStory} />}
+        {tab === "extraction" && <ExtractionPanel story={selectedStory} />}
         {tab === "ai" && <AiPanel story={selectedStory} />}
       </main>
     </div>
