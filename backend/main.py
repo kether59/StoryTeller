@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import Base, engine
-from .routes import stories, characters, locations, lore, timeline, manuscript, ai, llm
+from .routes import stories, characters, locations, lore, timeline, manuscript, ai, llm, extraction
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -45,6 +45,7 @@ app.include_router(timeline.router)
 app.include_router(manuscript.router)
 app.include_router(ai.router)
 app.include_router(llm.router)
+app.include_router(extraction.router)
 
 @app.get("/")
 def root():

@@ -1,0 +1,33 @@
+# ===== Core FastAPI Dependencies =====
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+sqlalchemy>=2.0.23
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+python-multipart>=0.0.6
+
+# ===== AI/ML Dependencies =====
+spacy>=3.7.0
+
+# ===== LLM Providers =====
+# For Ollama (FREE, local, recommended)
+httpx>=0.26.0
+
+# For Anthropic Claude (paid, cloud)
+# anthropic>=0.18.0
+
+# For OpenAI GPT (paid, cloud)  
+# openai>=1.10.0
+
+# ===== Optional: If you need nested async support =====
+# nest-asyncio>=1.5.8
+
+# ===== Database =====
+# If using PostgreSQL
+# psycopg2-binary>=2.9.9
+
+# If using MySQL
+# pymysql>=1.1.0
+
+# ===== Utilities =====
+python-dotenv>=1.0.0

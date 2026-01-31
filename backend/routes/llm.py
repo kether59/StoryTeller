@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import Optional, List, Literal
+from dotenv import load_dotenv
 import os
 import json
 
@@ -10,11 +11,14 @@ from ..models import Story, Character, Location, TimelineEvent, LoreEntry, Manus
 
 router = APIRouter(prefix="/api/llm", tags=["llm"])
 
+load_dotenv()
+
 # ===== Configuration =====
 # Vous pouvez utiliser différents LLMs
-LLM_PROVIDER = os.getenv("LLM_PROVIDER", "anthropic")  # anthropic, openai, ollama
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "anthropic")  # anthropic, openai, openrouter, ollama
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 
 
@@ -184,6 +188,49 @@ async def call_openai(system_prompt: str, user_prompt: str, max_tokens: int = 20
     return response.choices[0].message.content
 
 
+async def call_openrouter(system_prompt: str, user_prompt: str, max_tokens: int = 2000) -> str:
+    """Appelle l'API OpenRouter"""
+    if not OPENROUTER_API_KEY:
+        raise HTTPException(503, "OPENROUTER_API_KEY non configurée")
+
+    try:
+        import openai
+    except ImportError:
+        raise HTTPException(503, "Module 'openai' non installé. Exécutez: pip install openai")
+
+    # OpenRouter utilise une API compatible OpenAI
+    client = openai.OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=OPENROUTER_API_KEY,
+    )
+
+    # Choix du modèle (configurable via variable d'environnement)
+    # Modèles GRATUITS:
+    #   - meta-llama/llama-3.1-8b-instruct:free (Très bon, gratuit)
+    #   - google/gemma-2-9b-it:free (Gratuit)
+    #   - mistralai/mistral-7b-instruct:free (Gratuit)
+    # Modèles PAYANTS (meilleurs):
+    #   - anthropic/claude-3.5-sonnet (~$3/M tokens)
+    #   - openai/gpt-4-turbo (~$10/M tokens)
+    #   - google/gemini-pro-1.5 (~$1.25/M tokens)
+    model = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3.1-8b-instruct:free")
+
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        max_tokens=max_tokens,
+        extra_headers={
+            "HTTP-Referer": "http://localhost:8000",  # Optionnel - pour le classement
+            "X-Title": "StoryTeller App",  # Optionnel - s'affiche dans le dashboard OpenRouter
+        }
+    )
+
+    return response.choices[0].message.content
+
+
 async def call_ollama(system_prompt: str, user_prompt: str, model: str = "mistral") -> str:
     """Appelle Ollama local"""
     try:
@@ -214,6 +261,8 @@ async def generate_text(system_prompt: str, user_prompt: str, max_tokens: int = 
         return await call_anthropic(system_prompt, user_prompt, max_tokens)
     elif LLM_PROVIDER == "openai":
         return await call_openai(system_prompt, user_prompt, max_tokens)
+    elif LLM_PROVIDER == "openrouter":
+        return await call_openrouter(system_prompt, user_prompt, max_tokens)
     elif LLM_PROVIDER == "ollama":
         return await call_ollama(system_prompt, user_prompt)
     else:
@@ -424,6 +473,10 @@ def llm_health():
         status["configured"] = bool(ANTHROPIC_API_KEY)
     elif LLM_PROVIDER == "openai":
         status["configured"] = bool(OPENAI_API_KEY)
+    elif LLM_PROVIDER == "openrouter":
+        status["configured"] = bool(OPENROUTER_API_KEY)
+        if status["configured"]:
+            status["model"] = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3.1-8b-instruct:free")
     elif LLM_PROVIDER == "ollama":
         status["configured"] = True
         status["url"] = OLLAMA_URL

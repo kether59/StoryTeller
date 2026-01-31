@@ -1,24 +1,19 @@
-import json
-import logging
-import os
-from typing import List, Optional, Dict, Any
-
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+import json
+import os
 
 from ..database import get_db
-from ..models import Character, Location, TimelineEvent, LoreEntry, Manuscript
+from ..models import Story, Character, Location, TimelineEvent, LoreEntry, Manuscript
 
 router = APIRouter(prefix="/api/extraction", tags=["extraction"])
-
-logger = logging.getLogger(__name__)
 
 # Configuration LLM
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "anthropic")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 
 
@@ -125,43 +120,6 @@ async def call_llm(system_prompt: str, user_prompt: str, max_tokens: int = 4000)
         )
         return response.choices[0].message.content
 
-    elif LLM_PROVIDER == "openrouter":
-        if not OPENROUTER_API_KEY:
-            raise HTTPException(503, "OPENROUTER_API_KEY non configurée")
-
-        try:
-            import openai
-        except ImportError:
-            raise HTTPException(503, "Module 'openai' non installé")
-
-        client = openai.OpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=OPENROUTER_API_KEY,
-        )
-
-        model = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3.1-8b-instruct:free")
-
-        # LOGS : Visualiser l'envoi
-        print(f"--- APPEL OPENROUTER ---")
-        print(f"Modèle: {model}")
-
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            max_tokens=max_tokens
-        )
-
-        # CORRECTION ICI : Accès correct au contenu
-        content = response.choices[0].message.content
-
-        # LOGS : Voir la réponse brute
-        print(f"Réponse reçue (tronquée): {content[:100]}...")
-
-        return content
-
     elif LLM_PROVIDER == "ollama":
         try:
             import httpx
@@ -169,7 +127,7 @@ async def call_llm(system_prompt: str, user_prompt: str, max_tokens: int = 4000)
             raise HTTPException(503, "Module 'httpx' non installé. Exécutez: pip install httpx")
 
         import asyncio
-
+        
         async def call_ollama_async():
             async with httpx.AsyncClient(timeout=300.0) as client:
                 response = await client.post(
@@ -180,19 +138,19 @@ async def call_llm(system_prompt: str, user_prompt: str, max_tokens: int = 4000)
                         "stream": False
                     }
                 )
-
+                
                 if response.status_code != 200:
                     raise HTTPException(503, f"Ollama error: {response.text}")
-
+                
                 return response.json()["response"]
-
+        
         # Run async function in sync context
         loop = asyncio.get_event_loop()
         if loop.is_running():
             # If we're already in an async context, just await
             import nest_asyncio
             nest_asyncio.apply()
-
+        
         return asyncio.run(call_ollama_async())
 
     else:
