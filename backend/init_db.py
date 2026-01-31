@@ -5,11 +5,9 @@ Script d'initialisation standalone de la base de données.
 import sys
 from pathlib import Path
 
-# Ajouter le dossier backend au path
 backend_path = Path(__file__).parent / "backend"
 sys.path.insert(0, str(backend_path))
 
-# Maintenant on peut importer
 from datetime import datetime
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine, Base

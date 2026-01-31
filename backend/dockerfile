@@ -1,65 +1,42 @@
 # ================================
 # Stage 1: Builder
 # ================================
-FROM python:3.11-slim as builder
-
+FROM python:3.13-slim as builder
 WORKDIR /app
 
-# Installer les dépendances système nécessaires pour la compilation
 RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+    gcc g++ build-essential && rm -rf /var/lib/apt/lists/*
 
-# Copier les requirements et installer les dépendances
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Télécharger le modèle spaCy (optionnel, pour analyse NLP)
-RUN python -m spacy download fr_core_news_md || echo "spaCy model download skipped"
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+RUN python -m spacy download fr_core_news_md --prefix=/install || echo "spaCy model download skipped" [cite: 3]
 
 # ================================
 # Stage 2: Runtime
 # ================================
-FROM python:3.11-slim
+FROM python:3.13-slim
 
-# Métadonnées
-LABEL maintainer="your-email@example.com"
-LABEL version="2.0"
-LABEL description="StoryTeller API Backend"
+# 1. Create user first
+RUN useradd -m -u 1000 appuser
 
-# Variables d'environnement
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PATH=/root/.local/bin:$PATH \
-    DATABASE_URL=sqlite:///./data/storyteller.db
+# 2. Set WORKDIR to root to allow 'backend' to be a package
+WORKDIR /
 
-# Créer un utilisateur non-root pour la sécurité
-RUN useradd -m -u 1000 appuser && \
-    mkdir -p /app/data && \
-    chown -R appuser:appuser /app
+# 3. Copy dependencies
+COPY --from=builder /install /usr/local
 
-WORKDIR /app
+# 4. Copy the app into the /backend folder
+COPY --chown=appuser:appuser . /backend
 
-# Copier les dépendances Python depuis le builder
-COPY --from=builder /root/.local /root/.local
+# 5. Create the data directory inside the package folder
+RUN mkdir -p /backend/data && chown -R appuser:appuser /backend
 
-# Copier le code de l'application
-COPY --chown=appuser:appuser . .
-
-# Créer le répertoire pour la base de données avec les bonnes permissions
-RUN mkdir -p /app/data && chown -R appuser:appuser /app/data
-
-# Exposer le port
-EXPOSE 8000
-
-# Passer à l'utilisateur non-root
+# 6. Set environment variables
+ENV PYTHONPATH=/
+ENV PYTHONUNBUFFERED=1
 USER appuser
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/', timeout=5)" || exit 1
-
-# Commande par défaut
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 7. Use the package-style entrypoint
+ENTRYPOINT ["/bin/sh", "/backend/docker-entrypoint.sh"]

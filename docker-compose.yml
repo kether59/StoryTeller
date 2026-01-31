@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+# Backend Service
+  storyteller-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: storyteller-backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:////backend/data/storyteller.db
+      - CORS_ORIGINS=["http://localhost:5173", "http://localhost:8080"]
+    volumes:
+      - storyteller-data:/backend/data
+    restart: unless-stopped
+    networks:
+      - storyteller-network
+
+  # Frontend Service
+  storyteller-ui:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: storyteller-frontend
+    ports:
+      - "8080:80"  # Access the app at http://localhost:8080
+    depends_on:
+      - storyteller-api
+    networks:
+      - storyteller-network
+
+networks:
+  storyteller-network:
+    driver: bridge
+
+volumes:
+  storyteller-data:
+    driver: local
