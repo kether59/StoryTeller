@@ -1,10 +1,11 @@
 import json
 import logging
 import os
+import re
 from typing import List, Optional, Dict, Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -43,6 +44,22 @@ class ExtractedCharacter(BaseModel):
     motivation: Optional[str] = None
     confidence: float = Field(default=0.0, description="Niveau de confiance de l'extraction (0-1)")
 
+    @field_validator('age', mode='before')
+    @classmethod
+    def parse_age(cls, v):
+        """Convertir l'âge depuis string vers int
+        Le LLM peut retourner "30 ans", "environ 25", etc.
+        Cette fonction extrait le premier nombre trouvé.
+        """
+        if v is None or v == "":
+            return None
+        if isinstance(v, int):
+            return v
+        if isinstance(v, str):
+            # Extraire les chiffres de la chaîne (ex: "30 ans" -> 30)
+            digits = re.findall(r'\d+', v)
+            return int(digits[0]) if digits else None
+        return None
 
 class ExtractedLocation(BaseModel):
     name: str
@@ -86,7 +103,10 @@ class ValidationRequest(BaseModel):
 # ===== Helper Functions =====
 
 async def call_llm(system_prompt: str, user_prompt: str, max_tokens: int = 4000) -> str:
-    """Appelle le LLM configuré"""
+    """
+    Appelle le LLM configuré et retourne la réponse.
+    Supporte: Anthropic, OpenAI, OpenRouter, Ollama
+    """
     if LLM_PROVIDER == "anthropic":
         if not ANTHROPIC_API_KEY:
             raise HTTPException(503, "ANTHROPIC_API_KEY non configurée")
@@ -94,7 +114,7 @@ async def call_llm(system_prompt: str, user_prompt: str, max_tokens: int = 4000)
         try:
             import anthropic
         except ImportError:
-            raise HTTPException(503, "Module 'anthropic' non installé")
+            raise HTTPException(503, "Module 'anthropic' non installé. Exécutez: pip install anthropic")
 
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
         message = client.messages.create(
@@ -235,8 +255,12 @@ async def analyze_manuscript(request: ExtractionRequest, db: Session = Depends(g
     # Construire le prompt système
     system_prompt = """Tu es un assistant expert en analyse narrative. 
 Tu extrais des informations structurées depuis des textes littéraires.
-Tu dois identifier précisément les personnages, lieux, événements chronologiques et éléments de lore (world-building).
-Réponds UNIQUEMENT en JSON valide, sans texte supplémentaire."""
+Tu dois identifier précisément les personnages, lieux, événements chronologiques et éléments de lore.
+
+IMPORTANT : 
+1. Tu dois rédiger TOUTES les descriptions et contenus en FRANÇAIS.
+2. Même si le format est en JSON, les valeurs textuelles doivent être en français littéraire.
+3. Réponds UNIQUEMENT en JSON valide, sans texte supplémentaire."""
 
     # Construire le prompt utilisateur
     extract_instructions = []
@@ -247,7 +271,7 @@ Réponds UNIQUEMENT en JSON valide, sans texte supplémentaire."""
 - name (prénom ou nom complet)
 - surname (nom de famille si différent)
 - role (protagoniste, antagoniste, secondaire, etc.)
-- age (si mentionné ou déductible)
+- age (NOMBRE ENTIER uniquement, par exemple: 25, pas "25 ans" ni "environ 25")
 - physical_description (apparence physique)
 - personality (traits de caractère observés)
 - motivation (ce qui les pousse à agir)
@@ -295,6 +319,8 @@ INSTRUCTIONS D'EXTRACTION :
 {''.join(extract_instructions)}
 
 IMPORTANT :
+- Tout le contenu textuel (descriptions, rôles, résumés) doit impérativement être en FRANÇAIS.
+- Pour l'âge, utilise UNIQUEMENT un nombre entier (par exemple: 25), PAS "25 ans" ou "environ 25"
 - Sois précis et factuel
 - N'invente pas d'informations qui ne sont pas dans le texte
 - Si tu n'es pas sûr d'une information, mets confidence à 0.5 ou moins
@@ -306,7 +332,7 @@ IMPORTANT :
       "name": "...",
       "surname": "...",
       "role": "...",
-      "age": null,
+      "age": 25,
       "physical_description": "...",
       "personality": "...",
       "motivation": "...",
@@ -356,6 +382,8 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre.
             data = json.loads(cleaned)
         except json.JSONDecodeError as e:
             # Si le parsing échoue, retourner la réponse brute
+            logger.error(f"Erreur de parsing JSON: {e}")
+            logger.error(f"Réponse brute: {cleaned[:500]}")
             return ExtractionResult(raw_response=raw_response)
 
         # Construire le résultat structuré
@@ -370,6 +398,7 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre.
         return result
 
     except Exception as e:
+        logger.error(f"Erreur lors de l'extraction: {str(e)}")
         raise HTTPException(500, f"Erreur lors de l'extraction: {str(e)}")
 
 
@@ -395,12 +424,22 @@ async def validate_and_create(request: ValidationRequest, db: Session = Depends(
             if existing:
                 return {"status": "duplicate", "message": f"Le personnage '{request.item_data.get('name')}' existe déjà"}
 
+            # Nettoyer l'âge (au cas où une chaîne serait passée)
+            raw_age = request.item_data.get("age")
+            clean_age = None
+            if raw_age:
+                if isinstance(raw_age, int):
+                    clean_age = raw_age
+                elif isinstance(raw_age, str):
+                    digits = re.findall(r'\d+', raw_age)
+                    clean_age = int(digits[0]) if digits else None
+
             char = Character(
                 story_id=request.story_id,
                 name=request.item_data.get("name"),
                 surname=request.item_data.get("surname"),
                 role=request.item_data.get("role"),
-                age=request.item_data.get("age"),
+                age=clean_age,
                 physical_description=request.item_data.get("physical_description"),
                 personality=request.item_data.get("personality"),
                 motivation=request.item_data.get("motivation"),
@@ -438,39 +477,21 @@ async def validate_and_create(request: ValidationRequest, db: Session = Depends(
 
         # ÉVÉNEMENT CHRONOLOGIQUE
         elif request.item_type == "timeline":
-            event = TimelineEvent(
+            evt = TimelineEvent(
                 story_id=request.story_id,
                 title=request.item_data.get("title"),
                 date=request.item_data.get("date"),
-                sort_order=request.item_data.get("sort_order", 0),
-                summary=request.item_data.get("summary")
+                summary=request.item_data.get("summary"),
+                sort_order=request.item_data.get("sort_order", 0)
             )
-
-            # Associer le lieu si mentionné
-            if request.item_data.get("location_name"):
-                loc = db.query(Location).filter(
-                    Location.story_id == request.story_id,
-                    Location.name == request.item_data.get("location_name")
-                ).first()
-                if loc:
-                    event.location_id = loc.id
-
-            db.add(event)
-            db.flush()
-
-            # Associer les personnages si mentionnés
-            if request.item_data.get("character_names"):
-                for char_name in request.item_data["character_names"]:
-                    char = db.query(Character).filter(
-                        Character.story_id == request.story_id,
-                        Character.name.ilike(f"%{char_name}%")
-                    ).first()
-                    if char:
-                        event.characters.append(char)
-
+            db.add(evt)
             db.commit()
-            db.refresh(event)
-            return {"status": "created", "item_type": "timeline", "id": event.id, "data": event.to_dict()}
+            db.refresh(evt)
+
+            # TODO: Associer les personnages et lieux si nécessaire
+            # Nécessite de récupérer les IDs depuis les noms
+
+            return {"status": "created", "item_type": "timeline", "id": evt.id, "data": evt.to_dict()}
 
         # LORE
         elif request.item_type == "lore":
@@ -480,7 +501,7 @@ async def validate_and_create(request: ValidationRequest, db: Session = Depends(
             ).first()
 
             if existing:
-                return {"status": "duplicate", "message": f"L'entrée de lore '{request.item_data.get('title')}' existe déjà"}
+                return {"status": "duplicate", "message": f"L'entrée lore '{request.item_data.get('title')}' existe déjà"}
 
             lore = LoreEntry(
                 story_id=request.story_id,
@@ -498,38 +519,19 @@ async def validate_and_create(request: ValidationRequest, db: Session = Depends(
 
     except Exception as e:
         db.rollback()
+        logger.error(f"Erreur lors de la création: {str(e)}")
         raise HTTPException(500, f"Erreur lors de la création: {str(e)}")
 
 
-@router.post("/batch-validate")
-async def batch_validate_and_create(
-        story_id: int,
-        items: List[ValidationRequest],
-        db: Session = Depends(get_db)
-):
-    """
-    Valide et crée plusieurs éléments en une seule fois.
-    Utile pour valider tous les personnages d'un coup, par exemple.
-    """
-    results = []
-
-    for item in items:
-        if item.approved:
-            try:
-                result = await validate_and_create(item, db)
-                results.append(result)
-            except Exception as e:
-                results.append({
-                    "status": "error",
-                    "item_type": item.item_type,
-                    "message": str(e)
-                })
-
+@router.get("/health")
+async def health_check():
+    """Vérifie que le LLM est configuré correctement"""
     return {
-        "total": len(items),
-        "approved": len([r for r in results if r.get("status") == "created"]),
-        "rejected": len([i for i in items if not i.approved]),
-        "duplicates": len([r for r in results if r.get("status") == "duplicate"]),
-        "errors": len([r for r in results if r.get("status") == "error"]),
-        "results": results
+        "provider": LLM_PROVIDER,
+        "configured": bool(
+            (LLM_PROVIDER == "anthropic" and ANTHROPIC_API_KEY) or
+            (LLM_PROVIDER == "openai" and OPENAI_API_KEY) or
+            (LLM_PROVIDER == "openrouter" and OPENROUTER_API_KEY) or
+            (LLM_PROVIDER == "ollama")
+        )
     }
