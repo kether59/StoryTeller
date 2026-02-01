@@ -66,7 +66,7 @@ useEffect(() => {
 
 return (
     <div className="panel">
-      <h2>Lore / World-Building — <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
+      <h2>Lore / World-Building : <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
 
       {!story?.id && (
         <div style={{ color: 'red', marginBottom: 12 }}>
@@ -87,8 +87,8 @@ return (
                   marginBottom: 6
                 }}
               >
-          <strong>{it.title}</strong> <small>({it.category})</small> {/* ⚠️ type -> category */}
-                <p style={{ fontSize: '0.9em', marginTop: 4 }}>{it.content}</p> {/* ⚠️ summary -> content */}
+          <strong>{it.title}</strong> <small>({it.category})</small>
+                <p style={{ fontSize: '0.9em', marginTop: 4 }}>{it.content}</p>
                 <div>
                   <button onClick={() => edit(it)}>Éditer</button>{' '}
                   <button onClick={() => del(it.id)}>Supprimer</button>

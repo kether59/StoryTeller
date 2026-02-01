@@ -156,7 +156,7 @@ export default function StoryPanel({ story, onStoryUpdate }) {
 
   return (
     <div className="panel">
-      <h2>📖 Histoire / Intrigue — <em>{story.title}</em></h2>
+      <h2>📖 Histoire / Intrigue : <em>{story.title}</em></h2>
 
       <div className="field">
         <label><strong>Titre du roman</strong></label>

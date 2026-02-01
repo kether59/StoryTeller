@@ -193,9 +193,8 @@ export default function WritingAssistantPanel({ story }) {
 
   return (
     <div className="panel">
-      <h2>✍️ Assistant d'écriture IA — <em>{story.title}</em></h2>
+      <h2>✍️ Assistant d'écriture IA : <em>{story.title}</em></h2>
 
-      {/* Status LLM */}
       {llmHealth && (
         <div style={{ 
           padding: 12, 
@@ -214,7 +213,6 @@ export default function WritingAssistantPanel({ story }) {
         </div>
       )}
 
-      {/* Sélection du mode */}
       <div style={{ marginBottom: 20 }}>
         <h3>Mode d'assistance</h3>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -245,7 +243,6 @@ export default function WritingAssistantPanel({ story }) {
         </div>
       </div>
 
-      {/* GÉNÉRATION DE CHAPITRE */}
       {mode === 'generate' && (
         <div>
           <h3>📝 Générer un nouveau chapitre</h3>
@@ -341,7 +338,6 @@ export default function WritingAssistantPanel({ story }) {
             </select>
           </div>
 
-          {/* Sélection personnages */}
           {characters.length > 0 && (
             <div className="field">
               <label><strong>Personnages à inclure</strong></label>
@@ -366,7 +362,6 @@ export default function WritingAssistantPanel({ story }) {
             </div>
           )}
 
-          {/* Sélection lieux */}
           {locations.length > 0 && (
             <div className="field">
               <label><strong>Lieux à utiliser</strong></label>
@@ -402,7 +397,6 @@ export default function WritingAssistantPanel({ story }) {
         </div>
       )}
 
-      {/* CONTINUATION */}
       {mode === 'continue' && (
         <div>
           <h3>➡️ Continuer l'écriture d'un manuscrit</h3>
@@ -461,7 +455,6 @@ export default function WritingAssistantPanel({ story }) {
         </div>
       )}
 
-      {/* RÉÉCRITURE */}
       {mode === 'rewrite' && (
         <div>
           <h3>🔄 Réécrire un texte</h3>
@@ -499,7 +492,6 @@ export default function WritingAssistantPanel({ story }) {
         </div>
       )}
 
-      {/* SUGGESTIONS */}
       {mode === 'suggest' && (
         <div>
           <h3>💡 Suggérer la prochaine scène</h3>
@@ -526,7 +518,6 @@ export default function WritingAssistantPanel({ story }) {
         </div>
       )}
 
-      {/* ERREUR */}
       {error && (
         <div style={{ 
           marginTop: 20,
@@ -540,12 +531,10 @@ export default function WritingAssistantPanel({ story }) {
         </div>
       )}
 
-      {/* RÉSULTATS */}
       {result && (
         <div style={{ marginTop: 20 }}>
           <h3>✨ Résultat</h3>
 
-          {/* Génération de chapitre */}
           {mode === 'generate' && result.text && (
             <div>
               <div style={{ 
@@ -574,7 +563,6 @@ export default function WritingAssistantPanel({ story }) {
             </div>
           )}
 
-          {/* Continuation */}
           {mode === 'continue' && result.continuation && (
             <div>
               <div style={{ 
@@ -600,7 +588,6 @@ export default function WritingAssistantPanel({ story }) {
             </div>
           )}
 
-          {/* Réécriture */}
           {mode === 'rewrite' && result.rewritten && (
             <div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -639,7 +626,6 @@ export default function WritingAssistantPanel({ story }) {
             </div>
           )}
 
-          {/* Suggestions */}
           {mode === 'suggest' && result.suggestions && (
             <div>
               {result.suggestions.map((sugg, idx) => (
@@ -667,7 +653,6 @@ export default function WritingAssistantPanel({ story }) {
             </div>
           )}
 
-          {/* Réponse brute si JSON invalide */}
           {result.raw_response && (
             <div style={{ 
               padding: 16, 

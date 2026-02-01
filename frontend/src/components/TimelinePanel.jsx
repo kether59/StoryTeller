@@ -82,14 +82,14 @@ export default function TimelinePanel({ story }) {
 
   return (
     <div className="panel">
-      <h2>Chronologie — <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
+      <h2>Chronologie : <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
       <div style={{ display: 'flex', gap: 16 }}>
         <div style={{ flex: 1 }}>
           <div className="list">
             {list.length === 0 && <div>Aucun événement enregistré pour ce roman.</div>}
             {list.map(it => (
               <div key={it.id} className="item">
-                <strong>{it.title}</strong> — {it.date}
+                <strong>{it.title}</strong> : {it.date}
                 <p style={{ fontSize: '0.9em', color: '#666' }}>{it.summary}</p>
                 {it.characters && it.characters.length > 0 && (
                   <div style={{ fontSize: '0.85em', color: '#999' }}>

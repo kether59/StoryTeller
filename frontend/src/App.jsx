@@ -25,7 +25,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>📖 StoryTeller — {selectedStory.title}</h1>
+        <h1>📖 StoryTeller : {selectedStory.title}</h1>
         <nav>
           <button onClick={() => setTab("story")} className={tab === "story" ? "active" : ""}>
             Histoire

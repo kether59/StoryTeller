@@ -63,7 +63,7 @@ export default function AiPanel({ story }) {
 
   return (
     <div className="panel">
-      <h2>🤖 Assistant IA — <em>{story.title}</em></h2>
+      <h2>🤖 Assistant IA : <em>{story.title}</em></h2>
 
       <div style={{ marginBottom: 20, padding: 16, background: '#f0f9ff', borderRadius: 6 }}>
         <h3 style={{ marginTop: 0 }}>💡 À propos de l'assistant</h3>
@@ -74,12 +74,10 @@ export default function AiPanel({ story }) {
         </p>
       </div>
 
-      {/* Sélection du type d'analyse */}
       <div style={{ marginBottom: 20 }}>
         <h3>Type d'analyse</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
 
-          {/* Analyse 1 */}
           <label
             style={{
               padding: 12,
@@ -103,7 +101,6 @@ export default function AiPanel({ story }) {
             </div>
           </label>
 
-          {/* Analyse 2 */}
           <label
             style={{
               padding: 12,
@@ -127,7 +124,6 @@ export default function AiPanel({ story }) {
             </div>
           </label>
 
-          {/* Analyse 3 */}
           <label
             style={{
               padding: 12,
@@ -151,7 +147,6 @@ export default function AiPanel({ story }) {
             </div>
           </label>
 
-          {/* Analyse 4 */}
           <label
             style={{
               padding: 12,
@@ -175,7 +170,6 @@ export default function AiPanel({ story }) {
             </div>
           </label>
 
-          {/* Analyse 5 */}
           <label
             style={{
               padding: 12,
@@ -201,7 +195,6 @@ export default function AiPanel({ story }) {
         </div>
       </div>
 
-      {/* Sélection du manuscrit (si nécessaire) */}
       {needsManuscript && (
         <div style={{ marginBottom: 20 }}>
           <h3>Manuscrit à analyser</h3>
@@ -226,7 +219,6 @@ export default function AiPanel({ story }) {
         </div>
       )}
 
-      {/* Bouton d'analyse */}
       <div style={{ marginBottom: 20 }}>
         <button
           className="primary"
@@ -242,7 +234,6 @@ export default function AiPanel({ story }) {
         </button>
       </div>
 
-      {/* Erreur */}
       {error && (
         <div style={{
           padding: 16,
@@ -265,12 +256,10 @@ export default function AiPanel({ story }) {
         </div>
       )}
 
-      {/* Résultats */}
       {result && (
         <div style={{ marginTop: 20 }}>
           <h3>📊 Résultats de l'analyse</h3>
 
-          {/* LINK CHARACTERS */}
           {analysisType === 'link_characters' && result.suggestions && (
             <div>
               <h4>🔗 Suggestions de liens ({result.suggestions.length})</h4>
@@ -309,7 +298,6 @@ export default function AiPanel({ story }) {
             </div>
           )}
 
-          {/* TIMELINE CONFLICTS */}
           {analysisType === 'timeline_conflicts' && result.conflicts && (
             <div>
               <h4>⏰ Conflits chronologiques ({result.conflicts.length})</h4>
@@ -348,7 +336,6 @@ export default function AiPanel({ story }) {
             </div>
           )}
 
-          {/* SCRIPT CONSISTENCY */}
           {analysisType === 'script_consistency' && (
             <div>
               {result.mentions && (
@@ -406,7 +393,6 @@ export default function AiPanel({ story }) {
             </div>
           )}
 
-          {/* CHARACTER BEHAVIOR */}
           {analysisType === 'character_behavior' && result.behavior_issues && (
             <div>
               <h4>👤 Problèmes de comportement ({result.behavior_issues.length})</h4>
@@ -457,7 +443,6 @@ export default function AiPanel({ story }) {
             </div>
           )}
 
-          {/* LORE CHECK */}
           {analysisType === 'lore_check' && result.lore_analysis && (
             <div>
               <h4>📚 Analyse du Lore ({result.lore_analysis.length})</h4>
@@ -489,7 +474,7 @@ export default function AiPanel({ story }) {
             </div>
           )}
 
-          {/* JSON brut (pour debug) */}
+          {/* JSON brut for debug */}
           <details style={{ marginTop: 20 }}>
             <summary style={{ cursor: 'pointer', fontWeight: 'bold', padding: 8 }}>
               🔍 Voir les données brutes (JSON)

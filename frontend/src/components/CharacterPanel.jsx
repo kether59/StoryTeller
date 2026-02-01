@@ -60,13 +60,13 @@ export default function CharacterPanel({ story }) {
 
   return (
     <div className="panel">
-      <h2>Personnages — <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
+      <h2>Personnages : <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
       <div style={{ display: 'flex', gap: 16 }}>
         <div style={{ flex: 1 }}>
           <div className="list">
             {list.map(it => (
               <div key={it.id} className="item">
-                <strong>{it.name}</strong> — {it.age} ans
+                <strong>{it.name}</strong> : {it.age} ans
                 <div style={{ marginTop: 6 }}>
                   <button onClick={() => edit(it)}>Éditer</button>
                   <button onClick={() => del(it.id)} style={{ marginLeft: 8 }}>

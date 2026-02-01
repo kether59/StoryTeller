@@ -67,7 +67,7 @@ export default function LocationPanel({ story }) {
 
   return (
     <div className="panel">
-      <h2>Lieux (Locations) — <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
+      <h2>Lieux (Locations) : <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
 
       {!story?.id && (
         <div style={{ color: 'red', marginBottom: 12 }}>
@@ -83,7 +83,7 @@ export default function LocationPanel({ story }) {
                 key={it.id}
                 className="item"
                 style={{
-                  borderLeft: '3px solid #63b3ed', /* Couleur pour les lieux */
+                  borderLeft: '3px solid #63b3ed',
                   paddingLeft: 6,
                   marginBottom: 6
                 }}

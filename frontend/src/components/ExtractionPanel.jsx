@@ -228,7 +228,7 @@ export default function ExtractionPanel({ story }) {
 
   return (
     <div className="panel">
-      <h2>🔍 Extraction automatique — <em>{story.title}</em></h2>
+      <h2>🔍 Extraction automatique : <em>{story.title}</em></h2>
 
       <div style={{
         padding: 16,
@@ -246,7 +246,6 @@ export default function ExtractionPanel({ story }) {
         </ol>
       </div>
 
-      {/* ÉTAPE 1: SÉLECTION */}
       {currentStep === 'select' && (
         <div>
           <h3>📝 1. Sélection du manuscrit</h3>
@@ -355,7 +354,6 @@ export default function ExtractionPanel({ story }) {
         </div>
       )}
 
-      {/* ERREUR */}
       {error && (
         <div style={{
           marginTop: 20,
@@ -369,7 +367,6 @@ export default function ExtractionPanel({ story }) {
         </div>
       )}
 
-      {/* ÉTAPE 2: VALIDATION */}
       {currentStep === 'validate' && results && (
         <div style={{ marginTop: 20 }}>
           <h3>✅ 2. Validation des éléments extraits</h3>
@@ -385,7 +382,6 @@ export default function ExtractionPanel({ story }) {
             Vous pouvez modifier les informations et décocher celles qui sont incorrectes.
           </div>
 
-          {/* Résumé */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
@@ -414,7 +410,6 @@ export default function ExtractionPanel({ story }) {
             </div>
           </div>
 
-          {/* PERSONNAGES */}
           {results.characters && results.characters.length > 0 && (
             <div style={{ marginBottom: 30 }}>
               <h4>👥 Personnages ({results.characters.length})</h4>
@@ -492,7 +487,6 @@ export default function ExtractionPanel({ story }) {
             </div>
           )}
 
-          {/* LIEUX */}
           {results.locations && results.locations.length > 0 && (
             <div style={{ marginBottom: 30 }}>
               <h4>📍 Lieux ({results.locations.length})</h4>
@@ -544,7 +538,6 @@ export default function ExtractionPanel({ story }) {
             </div>
           )}
 
-          {/* TIMELINE */}
           {results.timeline && results.timeline.length > 0 && (
             <div style={{ marginBottom: 30 }}>
               <h4>⏰ Événements ({results.timeline.length})</h4>
@@ -614,7 +607,6 @@ export default function ExtractionPanel({ story }) {
             </div>
           )}
 
-          {/* LORE */}
           {results.lore && results.lore.length > 0 && (
             <div style={{ marginBottom: 30 }}>
               <h4>📚 Lore ({results.lore.length})</h4>
@@ -666,7 +658,6 @@ export default function ExtractionPanel({ story }) {
             </div>
           )}
 
-          {/* Boutons d'action */}
           <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
             <button
               className="primary"
@@ -688,7 +679,6 @@ export default function ExtractionPanel({ story }) {
         </div>
       )}
 
-      {/* ÉTAPE 3: CRÉATION */}
       {currentStep === 'create' && (
         <div style={{ textAlign: 'center', padding: 40 }}>
           <div style={{ fontSize: '4em', marginBottom: 20 }}>⏳</div>

@@ -142,9 +142,8 @@ export default function ManuscriptPanel({ story }) {
 
   return (
     <div className="panel">
-      <h2>Manuscrit — <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
+      <h2>Manuscrit : <em>{story?.title || 'Aucun roman sélectionné'}</em></h2>
       <div style={{ display: 'flex', gap: 12 }}>
-        {/* Liste des chapitres */}
         <div style={{ width: 300 }}>
           <button onClick={newChapter} className="primary" style={{ width: '100%' }}>
             + Nouveau chapitre
@@ -178,7 +177,6 @@ export default function ManuscriptPanel({ story }) {
           </div>
         </div>
 
-        {/* Éditeur */}
         <div style={{ flex: 1 }}>
           {!current && (
             <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>
@@ -188,7 +186,6 @@ export default function ManuscriptPanel({ story }) {
 
           {current && (
             <div>
-              {/* Barre d'outils */}
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
                 <input
                   style={{ flex: 1 }}
@@ -224,7 +221,6 @@ export default function ManuscriptPanel({ story }) {
                 </button>
               </div>
 
-              {/* Éditeur Markdown */}
               <div style={{ border: '1px solid #ddd', borderRadius: 4 }}>
                 <MdEditor
                   value={current.text || ''}
@@ -238,7 +234,6 @@ export default function ManuscriptPanel({ story }) {
                 />
               </div>
 
-              {/* Actions d'analyse */}
               <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
                 <button onClick={() => runAnalyze('fast')}>
                   🔍 Analyse rapide
@@ -251,7 +246,6 @@ export default function ManuscriptPanel({ story }) {
                 </button>
               </div>
 
-              {/* Résultats d'analyse */}
               {current.analysis && (
                 <div style={{ marginTop: 12 }}>
                   <h3>Résultat d'analyse</h3>
@@ -262,7 +256,6 @@ export default function ManuscriptPanel({ story }) {
                     maxHeight: '300px',
                     overflowY: 'auto'
                   }}>
-                    {/* Résumé */}
                     {current.analysis.summary && current.analysis.summary.length > 0 && (
                       <div style={{ marginBottom: 12 }}>
                         <h4>📊 Résumé</h4>
@@ -281,7 +274,6 @@ export default function ManuscriptPanel({ story }) {
                       </div>
                     )}
 
-                    {/* Entités */}
                     {current.analysis.entities && current.analysis.entities.length > 0 && (
                       <div>
                         <h4>🏷️ Entités détectées ({current.analysis.entities.length})</h4>
@@ -300,7 +292,6 @@ export default function ManuscriptPanel({ story }) {
                       </div>
                     )}
 
-                    {/* Détails complets */}
                     <details style={{ marginTop: 12 }}>
                       <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>
                         Voir les détails JSON

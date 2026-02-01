@@ -136,7 +136,7 @@ def init_database():
         print("   • 1 manuscrit")
         print("\n🚀 Lancez le serveur:")
         print("   cd backend")
-        print("   uvicorn main:app --reload")
+        print("   uvicorn main:app -reload")
         print("   Puis ouvrez: http://localhost:8000/docs")
         print("=" * 60 + "\n")
 
