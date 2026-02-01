@@ -12,7 +12,7 @@ StoryTeller is a comprehensive novel writing and management tool with AI-powered
 
 1. **Clone or download the project**
    ```bash
-   git clone <repository-url>
+   git clone [<repository-url>](https://github.com/kether59/StoryTeller)
    cd storyteller
    ```
 
