@@ -9,7 +9,7 @@ export default function ExtractionPanel({ story }) {
   const [results, setResults] = useState(null)
   const [error, setError] = useState(null)
 
-  // États de validation par type
+
   const [validationState, setValidationState] = useState({
     characters: {},
     locations: {},
@@ -17,7 +17,7 @@ export default function ExtractionPanel({ story }) {
     lore: {}
   })
 
-  const [currentStep, setCurrentStep] = useState('select') // select, extract, validate, create
+  const [currentStep, setCurrentStep] = useState('select')
 
   useEffect(() => {
     if (story?.id) {
@@ -50,7 +50,7 @@ export default function ExtractionPanel({ story }) {
 
       setResults(r.data)
 
-      // Initialiser les états de validation
+
       const newState = {
         characters: {},
         locations: {},
