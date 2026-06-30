@@ -21,7 +21,7 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 # ===== Models Pydantic =====
 
 class ExtractionRequest(BaseModel):
-    manuscript_id: int
+    manuscript_id: int = Field(..., gt=0, description="ID > 0")
     extract_types: List[str] = Field(
         default=["characters", "locations", "timeline", "lore"],
         description="Types d'éléments à extraire"

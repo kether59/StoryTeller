@@ -1,0 +1,69 @@
+server:
+  port: 0  # Port aléatoire pour éviter les conflits
+
+  # ─── Base de données H2 en mémoire pour les tests ────────────────
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop              # Crée et supprime à chaque test
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  # ─── Threads virtuels ────────────────────────────────────────────
+  threads:
+    virtual:
+      enabled: true
+
+  # ─── Serialisation JSON ──────────────────────────────────────────
+  jackson:
+    serialization:
+      indent-output: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+
+# ─── Actuator ────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+# ─── Configuration LLM (mode test) ───────────────────────────────────
+storyteller:
+  llm:
+    config-file: llm_config_test.json  # Fichier séparé pour les tests
+    default-provider: ollama           # Par défaut pour les tests
+    anthropic-api-key: ${ANTHROPIC_API_KEY:sk-ant-test}
+    openai-api-key: ${OPENAI_API_KEY:sk-test}
+    openrouter-api-key: ${OPENROUTER_API_KEY:sk-or-test}
+    ollama-url: http://localhost:11434  # Local Ollama (optionnel)
+  nlp:
+    models-path: classpath:nlp/         # Modèles OpenNLP (si présents)
+  cors:
+    allowed-origins: http://localhost:3000,http://localhost:5173
+
+logging:
+  level:
+    com.kether.storyteller: DEBUG
+    org.hibernate.SQL: WARN
+    org.springframework.test.context: WARN
+    org.testcontainers: WARN
+    root: WARN

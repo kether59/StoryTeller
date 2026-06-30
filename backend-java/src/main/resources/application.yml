@@ -1,0 +1,71 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: storyteller-api
+
+  # ─── Base de données SQLite ───────────────────────────────────────
+  datasource:
+    url: jdbc:sqlite:${DATABASE_URL:./storyteller.db}
+    driver-class-name: org.sqlite.JDBC
+    hikari:
+      maximum-pool-size: 1          # SQLite : connexion unique
+      connection-timeout: 30000
+
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update              # crée/met à jour les tables au démarrage
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  # ─── Threads virtuels (équivalent asyncio Python) ────────────────
+  threads:
+    virtual:
+      enabled: true
+
+  # ─── Serialisation JSON ──────────────────────────────────────────
+  jackson:
+    serialization:
+      indent-output: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+
+# ─── Actuator ────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# ─── Configuration LLM (valeurs par défaut) ──────────────────────────
+storyteller:
+  llm:
+    config-file: ${LLM_CONFIG_PATH:llm_config.json}
+    default-provider: ${LLM_PROVIDER:ollama}
+    anthropic-api-key: ${ANTHROPIC_API_KEY:}
+    openai-api-key: ${OPENAI_API_KEY:}
+    openrouter-api-key: ${OPENROUTER_API_KEY:}
+    ollama-url: ${OLLAMA_URL:http://localhost:11434}
+  nlp:
+    # Modèles OpenNLP à télécharger et placer dans src/main/resources/nlp/
+    # https://opennlp.sourceforge.net/models-1.5/
+    models-path: ${NLP_MODELS_PATH:classpath:nlp/}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:8080,http://localhost:3000}
+
+logging:
+  level:
+    com.kether.storyteller: INFO
+    org.hibernate.SQL: WARN
+    root: WARN

@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  storyteller-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: storyteller-backend-java
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVER_PORT=8000
+      - DATABASE_URL=./data/storyteller.db
+      - LLM_PROVIDER=llama
+      - OLLAMA_URL=http://llama-cpp:8080   # Point to llama.cpp
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:8080
+    volumes:
+      - storyteller-data:/app/data
+      - storyteller-config:/app/config
+    restart: unless-stopped
+    networks:
+      - storyteller-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─── Lightweight French LLM (llama.cpp) ─────────────────────────────
+  llama-cpp:
+    image: ghcr.io/ggerganov/llama.cpp:server
+    container_name: storyteller-llama
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./models:/models
+    command: >
+      -m /models/Phi-3-mini-4k-instruct-q4_K_M.gguf
+      --host 0.0.0.0
+      --port 8080
+      --ctx-size 4096
+      -c 4096
+      --n-gpu-layers 24
+      --threads 4
+    profiles:
+      - llm
+    networks:
+      - storyteller-net
+
+  # Frontend (optional)
+  storyteller-ui:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"   # Changed to avoid conflict with llama.cpp
+    depends_on:
+      storyteller-api:
+        condition: service_healthy
+    networks:
+      - storyteller-net
+
+networks:
+  storyteller-net:
+    driver: bridge
+
+volumes:
+  storyteller-data:
+  storyteller-config:
