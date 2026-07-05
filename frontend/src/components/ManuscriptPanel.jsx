@@ -33,7 +33,7 @@ export default function ManuscriptPanel({ story }) {
 
   async function fetchList() {
     try {
-      const r = await API.get(`/api/manuscript?story_id=${story.id}`)
+      const r = await API.get(`/api/manuscript?storyId=${story.id}`)
       setList(r.data)
     } catch (err) {
       console.error('Erreur chargement manuscrits:', err)
@@ -42,7 +42,7 @@ export default function ManuscriptPanel({ story }) {
 
   async function newChapter() {
     const payload = {
-      story_id: story.id,
+      storyId: story.id,
       title: 'Nouveau chapitre',
       chapter: list.length ? Math.max(...list.map(m => m.chapter)) + 1 : 1,
       text: '',
@@ -70,7 +70,7 @@ export default function ManuscriptPanel({ story }) {
         chapter: current.chapter,
         text: current.text,
         status: current.status,
-        story_id: story.id
+        storyId: story.id
       })
 
       setCurrent({ ...current, _dirty: false })

@@ -27,7 +27,7 @@ export default function ExtractionPanel({ story }) {
 
   async function fetchManuscripts() {
     try {
-      const r = await API.get(`/api/manuscript?story_id=${story.id}`)
+      const r = await API.get(`/api/manuscript?storyId=${story.id}`)
       setManuscripts(r.data)
       if (r.data.length > 0 && !selectedManuscript) {
         setSelectedManuscript(r.data[0].id)
@@ -126,7 +126,7 @@ export default function ExtractionPanel({ story }) {
         if (validationState.characters[i]?.approved) {
           try {
             const r = await API.post('/api/extraction/validate-and-create', {
-              story_id: story.id,
+              storyId: story.id,
               item_type: 'character',
               item_data: results.characters[i],
               approved: true
@@ -143,7 +143,7 @@ export default function ExtractionPanel({ story }) {
         if (validationState.locations[i]?.approved) {
           try {
             const r = await API.post('/api/extraction/validate-and-create', {
-              story_id: story.id,
+              storyId: story.id,
               item_type: 'location',
               item_data: results.locations[i],
               approved: true
@@ -160,7 +160,7 @@ export default function ExtractionPanel({ story }) {
         if (validationState.lore[i]?.approved) {
           try {
             const r = await API.post('/api/extraction/validate-and-create', {
-              story_id: story.id,
+              storyId: story.id,
               item_type: 'lore',
               item_data: results.lore[i],
               approved: true
@@ -177,7 +177,7 @@ export default function ExtractionPanel({ story }) {
         if (validationState.timeline[i]?.approved) {
           try {
             const r = await API.post('/api/extraction/validate-and-create', {
-              story_id: story.id,
+              storyId: story.id,
               item_type: 'timeline',
               item_data: results.timeline[i],
               approved: true

@@ -15,7 +15,7 @@ PORT=${SERVER_PORT:-8000}
 JAR="target/storyteller-api-2.0.0.jar"
 
 echo "════════════════════════════════════════════════════════════"
-echo "  StoryTeller API 2.0 – Java 25 / Spring Boot 4.1.0"
+echo "  StoryTeller API 2.0 – Java 25 / Spring Boot 4.0.1"
 echo "════════════════════════════════════════════════════════════"
 
 # ── Vérification Java 25 ──────────────────────────────────────────

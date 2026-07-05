@@ -28,11 +28,11 @@ export default function StoryPanel({ story, onStoryUpdate }) {
     try {
       // Récupérer toutes les données du roman
       const [characters, locations, lore, timeline, manuscripts] = await Promise.all([
-        API.get(`/api/characters?story_id=${story.id}`),
-        API.get(`/api/locations?story_id=${story.id}`),
-        API.get(`/api/lore?story_id=${story.id}`),
-        API.get(`/api/timeline?story_id=${story.id}`),
-        API.get(`/api/manuscript?story_id=${story.id}`)
+        API.get(`/api/characters?storyId=${story.id}`),
+        API.get(`/api/locations?storyId=${story.id}`),
+        API.get(`/api/lore?storyId=${story.id}`),
+        API.get(`/api/timeline?storyId=${story.id}`),
+        API.get(`/api/manuscript?storyId=${story.id}`)
       ])
 
       // Créer un objet JSON complet
@@ -67,11 +67,11 @@ export default function StoryPanel({ story, onStoryUpdate }) {
   async function exportMarkdown() {
     try {
       const [characters, locations, lore, timeline, manuscripts] = await Promise.all([
-        API.get(`/api/characters?story_id=${story.id}`),
-        API.get(`/api/locations?story_id=${story.id}`),
-        API.get(`/api/lore?story_id=${story.id}`),
-        API.get(`/api/timeline?story_id=${story.id}`),
-        API.get(`/api/manuscript?story_id=${story.id}`)
+        API.get(`/api/characters?storyId=${story.id}`),
+        API.get(`/api/locations?storyId=${story.id}`),
+        API.get(`/api/lore?storyId=${story.id}`),
+        API.get(`/api/timeline?storyId=${story.id}`),
+        API.get(`/api/manuscript?storyId=${story.id}`)
       ])
 
       // Générer le Markdown

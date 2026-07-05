@@ -3,7 +3,7 @@ import API from '../api/api'
 
 export default function LorePanel({ story }) {
   const [list, setList] = useState([])
-  const [form, setForm] = useState({ story_id: story?.id })
+  const [form, setForm] = useState({ storyId: story?.id })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -15,7 +15,7 @@ useEffect(() => {
   async function fetchLore() {
     try {
       setLoading(true)
-      const r = await API.get(`/api/lore?story_id=${story.id}`)
+      const r = await API.get(`/api/lore?storyId=${story.id}`)
       setList(r.data)
     } catch (err) {
       console.error('Erreur de chargement du Lore :', err)
@@ -26,7 +26,7 @@ useEffect(() => {
   }
 
   function clearForm() {
-    setForm({ story_id: story.id })
+    setForm({ storyId: story.id })
   }
 
   async function save() {
@@ -35,7 +35,7 @@ useEffect(() => {
       return
     }
     try {
-      const payload = { ...form, story_id: story.id }
+      const payload = { ...form, storyId: story.id }
 
       if (form.id) {
         await API.put(`/api/lore/${form.id}`, payload)
@@ -58,7 +58,7 @@ useEffect(() => {
   }
 
   function edit(it) {
-    setForm({ ...it, story_id: story.id })
+    setForm({ ...it, storyId: story.id })
   }
 
   if (loading) return <div>Chargement...</div>

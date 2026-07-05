@@ -189,6 +189,18 @@ public final class Responses {
     public record ValidationResult(String status, String itemType, Long id, String message) {}
 
     // ══════════════════════════════════════════════════════════════
+    //  Relationship Analysis
+    // ══════════════════════════════════════════════════════════════
+
+    public record CharacterRelationship(
+            String character1, String character2,
+            String type, String description,
+            double confidence, String evidence
+    ) {}
+
+    public record RelationshipAnalysisResult(List<CharacterRelationship> relationships, String rawResponse) {}
+
+    // ══════════════════════════════════════════════════════════════
     //  NLP / Manuscript analysis
     // ══════════════════════════════════════════════════════════════
 

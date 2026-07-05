@@ -22,7 +22,7 @@ public class RootController {
         return Map.of(
                 "message",  "StoryTeller API",
                 "version",  "2.0",
-                "language", "Java 25 / Spring Boot 4.1.0",
+                "language", "Java 25 / Spring Boot 4.0.1",
                 "features", List.of("AI Analysis", "LLM Writing Assistant",
                         "NLP Extraction", "Virtual Threads"),
                 "endpoints", Map.of(

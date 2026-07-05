@@ -1,42 +1,82 @@
 version: '3.8'
 
 services:
-# Backend Service
   storyteller-api:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-    container_name: storyteller-backend
-    env_file:
-      - ./backend/.env
+    container_name: storyteller-backend-java
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:////backend/data/storyteller.db
-      - CORS_ORIGINS=["http://localhost:5173", "http://localhost:8080"]
+      - SERVER_PORT=8000
+      - DATABASE_URL=./data/storyteller.db
+      - LLM_PROVIDER=llama
+      # ✅ FIX: Point to internal Docker hostname:port
+      - OLLAMA_URL=http://llama-cpp:8080
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:8000
     volumes:
-      - storyteller-data:/backend/data
+      - storyteller-data:/app/data
+      - storyteller-config:/app/config
     restart: unless-stopped
     networks:
-      - storyteller-network
+      - storyteller-net
+    depends_on:
+      - llama-cpp
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # Frontend Service
+  # Lightweight French LLM (llama.cpp)
+  llama-cpp:
+    image: ghcr.io/ggerganov/llama.cpp:server
+    container_name: storyteller-llama
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./models:/models
+    environment:
+      # Make llama.cpp listen on all interfaces for inter-container communication
+      - HOST=0.0.0.0
+      - PORT=8080
+    command: >
+      -m /models/Phi-3-mini-4k-instruct-q4_K_M.gguf
+      --host 0.0.0.0
+      --port 8080
+      --ctx-size 4096
+      -c 4096
+      --n-gpu-layers 24
+      --threads 4
+      --log-disable
+    profiles:
+      - llm
+    networks:
+      - storyteller-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Frontend (optional)
   storyteller-ui:
     build:
-      context: ./frontend
+      context: ../frontend
       dockerfile: Dockerfile
-    container_name: storyteller-frontend
     ports:
-      - "8080:80"  # Access the app at http://localhost:8080
+      - "5173:80"  # Changed to avoid port conflicts
     depends_on:
-      - storyteller-api
+      storyteller-api:
+        condition: service_healthy
     networks:
-      - storyteller-network
+      - storyteller-net
 
 networks:
-  storyteller-network:
+  storyteller-net:
     driver: bridge
 
 volumes:
   storyteller-data:
-    driver: local
+  storyteller-config:

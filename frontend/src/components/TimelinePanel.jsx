@@ -5,22 +5,22 @@ export default function TimelinePanel({ story }) {
   const [list, setList] = useState([])
   const [chars, setChars] = useState([])
   const [locations, setLocations] = useState([])
-  const [form, setForm] = useState({ characters: [], story_id: story?.id })
+  const [form, setForm] = useState({ characters: [], storyId: story?.id })
 
   useEffect(() => {
     if (story?.id) fetchAll()
   }, [story])
 
   function clearForm() {
-    setForm({ characters: [], story_id: story.id })
+    setForm({ characters: [], storyId: story.id })
   }
 
   async function fetchAll() {
     try {
       const [r, c, l] = await Promise.all([
-        API.get(`/api/timeline?story_id=${story.id}`),
-        API.get(`/api/characters?story_id=${story.id}`),
-        API.get(`/api/locations?story_id=${story.id}`)
+        API.get(`/api/timeline?storyId=${story.id}`),
+        API.get(`/api/characters?storyId=${story.id}`),
+        API.get(`/api/locations?storyId=${story.id}`)
       ])
       setList(r.data)
       setChars(c.data)
@@ -32,7 +32,7 @@ export default function TimelinePanel({ story }) {
 
   async function save() {
     try {
-      const payload = { ...form, story_id: story.id }
+      const payload = { ...form, storyId: story.id }
 
       if (form.id) {
         // Mise à jour

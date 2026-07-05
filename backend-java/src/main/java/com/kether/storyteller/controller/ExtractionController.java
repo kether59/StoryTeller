@@ -40,6 +40,15 @@ public class ExtractionController {
     }
 
     /**
+     * POST /api/extraction/analyze-relationships
+     * Analyse les relations entre personnages dans un manuscrit.
+     */
+    @PostMapping("/analyze-relationships")
+    public RelationshipAnalysisResult analyzeRelationships(@RequestParam Long manuscriptId) {
+        return extractionService.analyzeRelationships(manuscriptId);
+    }
+
+    /**
      * POST /api/extraction/validate-and-create
      * Valide et crée un élément extrait en base de données.
      */

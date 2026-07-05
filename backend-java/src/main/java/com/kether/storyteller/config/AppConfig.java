@@ -4,6 +4,9 @@ import com.kether.storyteller.service.llm.LLMProviders.AnthropicProvider;
 import com.kether.storyteller.service.llm.LLMProviders.OpenAIProvider;
 import com.kether.storyteller.service.llm.LLMProviders.OpenRouterProvider;
 import com.kether.storyteller.service.llm.LLMProviders.OllamaProvider;
+import com.kether.storyteller.service.llm.LLMProviders.GeminiProvider;
+import com.kether.storyteller.service.llm.LLMProviders.LMStudioProvider;
+import com.kether.storyteller.service.llm.LLMProviders.LlamaCPPProvider;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,6 +49,9 @@ public class AppConfig {
     @Bean public OpenAIProvider     openAIProvider()     { return new OpenAIProvider(); }
     @Bean public OpenRouterProvider openRouterProvider() { return new OpenRouterProvider(); }
     @Bean public OllamaProvider     ollamaProvider()     { return new OllamaProvider(); }
+    @Bean public GeminiProvider     geminiProvider()     { return new GeminiProvider(); }
+    @Bean public LMStudioProvider   lMStudioProvider()   { return new LMStudioProvider(); }
+    @Bean public LlamaCPPProvider   llamaCPPProvider()   { return new LlamaCPPProvider(); }
 
     @Bean
     public ApplicationRunner startupRunner() {

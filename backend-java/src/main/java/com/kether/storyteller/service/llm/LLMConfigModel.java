@@ -2,6 +2,8 @@ package com.kether.storyteller.service.llm;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Modèle de configuration LLM persisté dans llm_config.json.
@@ -17,8 +19,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class LLMConfigModel {
 
+    /* ── Getters / Setters ── */
     private String provider    = "anthropic";
     private String model       = "claude-sonnet-4-5";
 
@@ -33,30 +38,21 @@ public class LLMConfigModel {
     @JsonProperty("max_tokens")
     private int maxTokens      = 4000;
 
-    /* ── Constructeur par défaut requis par Jackson ── */
-    public LLMConfigModel() {}
+    @JsonProperty("gemini_api_key")
+    private String geminiApiKey;
+
+    @JsonProperty("lmstudio_url")
+    private String lmstudioUrl = "http://localhost:1234";
+
+    @JsonProperty("llamacpp_url")
+    private String llamacppUrl = "http://127.0.0.1:8080";
+
 
     /* ── Factory method ── */
     public static LLMConfigModel defaults() {
         return new LLMConfigModel();
     }
 
-    /* ── Getters / Setters ── */
-    public String getProvider()     { return provider; }
-    public String getModel()        { return model; }
-    public String getApiKey()       { return apiKey; }
-    public String getOllamaUrl()    { return ollamaUrl; }
-    public double getTemperature()  { return temperature; }
-    public int    getMaxTokens()    { return maxTokens; }
-
-    public void setProvider(String provider)       { this.provider = provider; }
-    public void setModel(String model)             { this.model = model; }
-    public void setApiKey(String apiKey)           { this.apiKey = apiKey; }
-    public void setOllamaUrl(String ollamaUrl)     { this.ollamaUrl = ollamaUrl; }
-    public void setTemperature(double temperature) { this.temperature = temperature; }
-    public void setMaxTokens(int maxTokens)        { this.maxTokens = maxTokens; }
-
-    /** Masque la clé API pour l'affichage (équivalent Python masked = ...). */
     public String maskedApiKey() {
         if (apiKey == null || apiKey.length() <= 10) return apiKey;
         return apiKey.substring(0, 6) + "…" + apiKey.substring(apiKey.length() - 4);

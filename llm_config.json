@@ -1,0 +1,11 @@
+{
+  "api_key" : "",
+  "configured" : false,
+  "llamacpp_url" : "http://127.0.0.1:8080",
+  "lmstudio_url" : "http://localhost:1234",
+  "max_tokens" : 2000,
+  "model" : "Dolphin3.0 Llama3.1 8B",
+  "ollama_url" : "http://localhost:1234",
+  "provider" : "lmstudio",
+  "temperature" : 0.7
+}

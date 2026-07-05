@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
- * Point d'entrée StoryTeller – migration Python/FastAPI → Java 25 / Spring Boot 4.1.0
+ * Point d'entrée StoryTeller – migration Python/FastAPI → Java 25 / Spring Boot 4.0.1
  *
  * <p>Équivalents fonctionnels :
  * <ul>

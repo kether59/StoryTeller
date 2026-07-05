@@ -1,5 +1,6 @@
 package com.kether.storyteller.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -158,9 +159,11 @@ public final class Requests {
 
     public record LLMTestRequest(
             @NotBlank String provider,
-            @NotBlank String model,
+            String model,
             String apiKey,
-            String ollamaUrl
+            String ollamaUrl,
+            String lmstudioUrl,
+            String geminiApiKey
     ) {}
 
     // ══════════════════════════════════════════════════════════════
@@ -202,6 +205,7 @@ public final class Requests {
 
     public record AIAnalysisRequest(
             @NotBlank String intent,   // link_characters | timeline_conflicts | script_consistency | …
+            @JsonProperty("manuscript_id")
             Long manuscriptId
     ) {}
 
@@ -210,7 +214,10 @@ public final class Requests {
     // ══════════════════════════════════════════════════════════════
 
     public record ExtractionRequest(
-            @NotNull Long manuscriptId,
+            @NotNull
+            @JsonProperty("manuscript_id")
+            Long manuscriptId,
+            @JsonProperty("extract_types")
             List<String> extractTypes  // characters | locations | timeline | lore
     ) {}
 

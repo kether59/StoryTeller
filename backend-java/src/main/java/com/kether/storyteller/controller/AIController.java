@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * Route : POST /api/ai/suggest
  *
- * Le paramètre {@code storyId} est ajouté en query param car la version Java
+ * Le paramètre {@code storyYd} est ajouté en query param car la version Java
  * ne dispose pas du contexte de session Python – le frontend doit le passer.
  * Pour conserver la compatibilité totale avec le frontend React existant,
  * storyId peut aussi être extrait de manuscriptId via le service.

@@ -52,9 +52,9 @@ export default function WritingAssistantPanel({ story }) {
   async function fetchData() {
     try {
       const [chars, locs, mss] = await Promise.all([
-        API.get(`/api/characters?story_id=${story.id}`),
-        API.get(`/api/locations?story_id=${story.id}`),
-        API.get(`/api/manuscript?story_id=${story.id}`)
+        API.get(`/api/characters?storyId=${story.id}`),
+        API.get(`/api/locations?storyId=${story.id}`),
+        API.get(`/api/manuscript?storyId=${story.id}`)
       ])
       setCharacters(chars.data)
       setLocations(locs.data)
@@ -86,7 +86,7 @@ export default function WritingAssistantPanel({ story }) {
     try {
       const payload = {
         ...generateForm,
-        story_id: story.id
+        storyId: story.id
       }
       const r = await API.post('/api/llm/generate-chapter', payload)
       setResult(r.data)
@@ -135,7 +135,7 @@ export default function WritingAssistantPanel({ story }) {
     try {
       const payload = {
         ...suggestForm,
-        story_id: story.id
+        storyId: story.id
       }
       const r = await API.post('/api/llm/suggest-next-scene', payload)
       setResult(r.data)
@@ -169,7 +169,7 @@ export default function WritingAssistantPanel({ story }) {
     
     try {
       await API.post('/api/manuscript', {
-        story_id: story.id,
+        storyId: story.id,
         title: generateForm.chapter_title || 'Chapitre généré par IA',
         chapter: generateForm.chapter_number || manuscripts.length + 1,
         text: result.text,

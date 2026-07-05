@@ -1,49 +1,30 @@
-# ══════════════════════════════════════════════════════════════════
-#  Dockerfile – StoryTeller Backend Java 25 / Spring Boot 4.1.0
-#  Build multi-stage : compile avec Maven, run avec JRE minimal
-# ══════════════════════════════════════════════════════════════════
-
-# ── Étape 1 : Build Maven ──────────────────────────────────────────
-FROM eclipse-temurin:25-jdk-alpine AS builder
+FROM eclipse-temurin:25-jdk AS builder
 WORKDIR /build
 
-# Cache des dépendances Maven (couche indépendante du code source)
 COPY pom.xml .
-RUN mvn dependency:go-offline -B 2>/dev/null || true
+COPY .mvn .mvn
+COPY mvnw .
 
-# Copier les sources et compiler
+RUN chmod +x mvnw
+
+RUN ./mvnw dependency:go-offline -B --no-transfer-progress || true
+
 COPY src ./src
-RUN mvn package -DskipTests -B --no-transfer-progress
+RUN ./mvnw package -DskipTests -B --no-transfer-progress
 
-# ── Étape 2 : Runtime minimal ─────────────────────────────────────
-FROM eclipse-temurin:25-jre-alpine AS runtime
+FROM eclipse-temurin:25-jre
 WORKDIR /app
 
-# Dossiers de données persistées
-RUN mkdir -p /app/data /app/config /app/nlp
+RUN mkdir -p /app/data /app/config /models
 
-# Copier le JAR depuis l'étape builder
-COPY --from=builder /build/target/storyteller-api-*.jar app.jar
+COPY --from=builder /build/target/*.jar app.jar
 
-# Optionnel : copier les modèles OpenNLP pré-téléchargés
-# COPY nlp-models/ /app/nlp/
+RUN echo '{"provider":"llama","model":"phi-3","temperature":0.7,"max_tokens":2000}' > /app/config/llm_config.json
 
-# Variables d'environnement par défaut
 ENV SERVER_PORT=8000
 ENV DATABASE_URL=./data/storyteller.db
-ENV LLM_CONFIG_PATH=/app/config/llm_config.json
-ENV NLP_MODELS_PATH=file:/app/nlp/
-ENV JAVA_OPTS="-XX:+UseVirtualThreads -Xmx512m"
+ENV JAVA_OPTS="-Xmx1g"
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD wget -qO- http://localhost:8000/actuator/health || exit 1
-
-# Lancement avec virtual threads activés
-ENTRYPOINT ["sh", "-c", \
-  "java $JAVA_OPTS \
-   -Dspring.datasource.url=jdbc:sqlite:${DATABASE_URL} \
-   -Dstoryteller.llm.config-file=${LLM_CONFIG_PATH} \
-   -Dstoryteller.nlp.models-path=${NLP_MODELS_PATH} \
-   -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

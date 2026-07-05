@@ -42,7 +42,7 @@ public class LLMConfigService {
     @PostConstruct
     public void init() {
         this.current = loadConfig();
-        log.info("LLM configuré : provider={} model={}", current.getProvider(), current.getModel());
+        log.info("LLM configuré : provider={} model={} ollamaUrl={}", current.getProvider(), current.getModel(), current.getOllamaUrl());
     }
 
     // ── Chargement ────────────────────────────────────────────────

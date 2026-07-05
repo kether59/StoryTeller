@@ -3,7 +3,7 @@ import API from '../api/api'
 
 export default function CharacterPanel({ story }) {
   const [list, setList] = useState([])
-  const [form, setForm] = useState({ story_id: story.id })
+  const [form, setForm] = useState({ storyId: story.id })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -14,7 +14,7 @@ export default function CharacterPanel({ story }) {
   async function fetchList() {
     try {
       setLoading(true)
-      const r = await API.get(`/api/characters?story_id=${story.id}`)
+      const r = await API.get(`/api/characters?storyId=${story.id}`)
       setList(r.data)
     } catch (err) {
       console.error('Erreur chargement personnages :', err)
@@ -40,7 +40,7 @@ export default function CharacterPanel({ story }) {
   }
 
   function clearForm() {
-    setForm({ story_id: story.id })
+    setForm({ storyId: story.id })
   }
 
     async function del(id) {

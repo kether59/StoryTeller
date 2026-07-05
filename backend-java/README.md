@@ -1,178 +1,218 @@
-**Here is the full English translation in clean Markdown:**
+# StoryTeller Backend – Java 25 + Spring Boot 4.0.1
+
+**Version** : 2.0.0  
+**Stack** : Java 25 • Spring Boot 4.0.1 • Maven • SQLite • OpenNLP • Virtual Threads
+
+Outil complet de gestion et d'écriture de romans avec assistance IA (LLM + Extraction automatique).
 
 ---
 
-# StoryTeller Java Backend Module – Architecture & Technology
+## Table des matières
 
-## Architecture Overview
+1. [Démarrage rapide](#démarrage-rapide)
+2. [Prérequis](#prérequis)
+3. [Lancement en mode développement](#lancement-en-mode-développement)
+4. [Compilation Maven détaillée](#compilation-maven-détaillée)
+5. [Lancement avec Docker (recommandé)](#lancement-avec-docker)
+6. [Configuration complète (Backend + DB + LLM)](#configuration-complète)
+7. [Variables d’environnement importantes](#variables-denvironnement-importantes)
+8. [Structure du projet](#structure-du-projet)
+9. [Configuration Spring Boot](#configuration-spring-boot)
+10. [Fonctionnement du LLM](#fonctionnement-du-llm)
+11. [Ajouter un nouveau Provider LLM](#ajouter-un-nouveau-provider-llm)
 
-The **StoryTeller** module is a Java 25 backend application built with **Spring Boot 4.1.0**. It represents a complete migration from a previous Python/FastAPI system to Java. The architecture follows modern Spring Boot principles with a well-defined modular structure.
+---
 
-## Detailed Technology Stack
+## Prérequis
 
-| Component              | Technology                          | Python Equivalent (Legacy) |
-|------------------------|-------------------------------------|----------------------------|
-| **Runtime**            | OpenJDK 25                          | -                          |
-| **Web Framework**      | Spring Boot 4.1.0                   | FastAPI                    |
-| **Persistence**        | Hibernate 7 + Spring Data JPA       | SQLAlchemy                 |
-| **Validation**         | Bean Validation (jakarta.validation)| Pydantic                   |
-| **NLP/Text**           | Apache OpenNLP                      | spaCy                      |
-| **Async Threads**      | Virtual Threads (Java 21+)          | asyncio                    |
-| **HTTP Client**        | HttpClient / Spring RestClient      | httpx                      |
-| **Markdown**           | react-markdown, markdown-it         | -                          |
-| **Package Management** | Maven                               | pip                        |
+- **Java 25** (Temurin recommandé)
+- **Maven 3.9+**
+- **Docker + Docker Compose** (pour une installation complète)
+- **Git**
 
-## Source Code Structure
+---
 
-The application follows standard Spring Boot conventions:
+## Démarrage rapide
+
+### Mode Développement
 
 ```bash
-com.kether.storyteller/
-├── StoryTellerApplication.java          # Main entry point
-├── entity/                              # JPA Entities (SQLAlchemy models)
-├── repository/                          # JPA Repositories
-├── controller/                          # REST Controllers
-├── service/                             # Business Logic
-└── configuration/                       # Configuration & Beans
+# Depuis la racine du backend
+./mvnw spring-boot:run
 ```
 
-## Main Entry Point Analysis (`StoryTellerApplication.java`)
-
-### Key Annotations and Their Roles
-
-| Annotation                    | Purpose                                      | FastAPI Equivalent          |
-|-------------------------------|----------------------------------------------|-----------------------------|
-| `@EnableJpaRepositories`      | Auto-discovers JPA repositories              | -                           |
-| `@EntityScan`                 | Scans JPA entities                           | SQLAlchemy metadata         |
-| `@SpringBootApplication`      | Bootstraps the entire Spring Boot app        | FastAPI()                   |
-| `@EnableAsync`                | Enables asynchronous processing              | asyncio                     |
-| `@EnableConfigurationProperties` | Enables configurable properties            | -                           |
-| `@ConfigurationPropertiesScan` | Scans `@ConfigurationProperties` classes   | -                           |
-
-
-## Application Flow
-
-### Startup Sequence
-1. `SpringApplication.run()` bootstraps the app
-2. Component scanning (entities, repositories, services)
-3. Property loading (`application.properties` / YAML)
-4. Database initialization (Hibernate)
-5. Virtual threads activation for async tasks
-
-### HTTP Request Lifecycle
-```
-Client → DispatcherServlet → Controller → Service → Repository → JPA/Hibernate → Database
-```
+API disponible sur : **http://localhost:8000**
 
 ---
 
-## How to Extend the Code
-
-### 1. Add a New Entity
-
-```java
-package com.kether.storyteller.entity;
-
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "story_content")
-public class StoryContent {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, length = 500)
-    private String title;
-
-    @Lob
-    private String content;
-}
-```
-
-### 2. Create a Repository
-
-```java
-@Repository
-public interface StoryContentRepository extends JpaRepository<StoryContent, Long> {
-    List<StoryContent> findByTitleContaining(String term);
-    boolean existsByTitle(String title);
-}
-```
-
-### 3. Implement a Service
-
-```java
-@Service
-@Transactional
-public class StoryContentService {
-    private final StoryContentRepository repository;
-
-    public StoryContentService(StoryContentRepository repository) {
-        this.repository = repository;
-    }
-
-    @Async
-    public void processStory(String content) {
-        // Async processing with virtual threads
-    }
-}
-```
-
-### 4. Create a REST Controller
-
-```java
-@RestController
-@RequestMapping("/api/stories")
-public class StoryController {
-    private final StoryContentService service;
-
-    public StoryController(StoryContentService service) {
-        this.service = service;
-    }
-
-    @GetMapping
-    public List<StoryContent> getAll() {
-        return service.getAll();
-    }
-}
-```
-
----
-
-## Best Practices
-
-**✅ Do's**
-- Use standard JPA annotations
-- Prefer constructor injection
-- Use `@Transactional` for services
-- Enable proper logging (`DEBUG` level)
-- Leverage Virtual Threads for I/O
-
-**❌ Don'ts**
-- Don't use `final` on JPA entity constructors
-- Avoid N+1 query problems
-- Never expose raw entities in production without DTOs
-
-
----
-
-## Start the stack
-
-Bash# Start with LLM
+## Compilation Maven détaillée
 
 ```bash
+# 1. Nettoyer + compiler
+./mvnw clean compile
+
+# 2. Compiler + tests
+./mvnw test
+
+# 3. Package complet (JAR exécutable)
+./mvnw package -DskipTests
+
+# Le JAR se trouve dans : target/storyteller-api-2.0.0.jar
+```
+
+**Lancement du JAR compilé :**
+
+```bash
+java -jar target/storyteller-api-2.0.0.jar
+```
+
+---
+
+## Lancement avec Docker (Recommandé)
+
+```bash
+# Sans LLM (léger)
+docker compose up -d
+
+# Avec LLM complet (Ollama + llama.cpp)
 docker compose --profile llm up -d --build
 ```
 
-Or without LLM first (for testing)
+**URLs après démarrage :**
 
-```bash
-docker compose up -d --build
+- Backend API → `http://localhost:8000`
+- LLM (llama.cpp) → `http://localhost:8080`
+- Frontend (optionnel) → `http://localhost:8080`
+
+---
+
+## Configuration complète (Backend + DB + LLM)
+
+Le `docker-compose.yml` lance tout :
+
+- **Backend Java** (Spring Boot)
+- **SQLite** (volume persistant)
+- **LLM** via llama.cpp ou Ollama
+
+**Fichier `docker-compose.yml` recommandé** (déjà présent) :
+
+```yaml
+services:
+  storyteller-api:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      - LLM_PROVIDER=ollama
+      - OLLAMA_URL=http://llama-cpp:8080
+    volumes:
+      - storyteller-data:/app/data
+    profiles: ["default"]
+
+  llama-cpp:
+    image: ghcr.io/ggerganov/llama.cpp:server
+    ports: ["8080:8080"]
+    volumes: ["./models:/models"]
+    profiles: ["llm"]
 ```
 
-Access
+---
 
-- Backend API: http://localhost:8000
-- Swagger: http://localhost:8000/swagger-ui.html
-- LLM (llama.cpp): http://localhost:8080
+## Variables d’environnement importantes
+
+| Variable                    | Description                              | Valeur par défaut              |
+|----------------------------|------------------------------------------|--------------------------------|
+| `SERVER_PORT`              | Port de l’API                            | 8000                           |
+| `DATABASE_URL`             | Chemin SQLite                            | `./data/storyteller.db`        |
+| `LLM_PROVIDER`             | Provider LLM                             | `ollama`                       |
+| `OLLAMA_URL`               | URL Ollama                               | `http://localhost:11434`       |
+| `ANTHROPIC_API_KEY`        | Clé Anthropic                            | -                              |
+| `OPENAI_API_KEY`           | Clé OpenAI                               | -                              |
+| `LLM_CONFIG_PATH`          | Chemin du fichier de config LLM          | `/app/config/llm_config.json`  |
+| `NLP_MODELS_PATH`          | Chemin des modèles OpenNLP               | `classpath:nlp/`               |
+
+---
+
+## Structure du Projet
+
+```
+backend/
+├── src/main/java/com/kether/storyteller/
+│   ├── StoryTellerApplication.java
+│   ├── config/
+│   ├── controller/
+│   ├── dto/
+│   ├── entity/
+│   ├── exception/
+│   ├── repository/
+│   └── service/llm/
+├── src/main/resources/
+│   ├── application.yml
+│   └── llm_config.json
+├── pom.xml
+├── Dockerfile
+├── docker-compose.yml
+├── run.sh
+└── README.md
+```
+
+---
+
+## Configuration Spring Boot (`application.yml`)
+
+Points clés configurés :
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:sqlite:${DATABASE_URL:./data/storyteller.db}
+  jpa:
+    hibernate:
+      ddl-auto: update
+  threads:
+    virtual:
+      enabled: true
+storyteller:
+  llm:
+    config-file: ${LLM_CONFIG_PATH:llm_config.json}
+    default-provider: ${LLM_PROVIDER:ollama}
+```
+
+---
+
+## Fonctionnement du LLM
+
+Le système est modulaire :
+
+1. `LLMConfigService` → gère `llm_config.json`
+2. `LLMService` → choisit le provider (`AnthropicProvider`, `OllamaProvider`, etc.)
+3. Chaque provider implémente l’interface `LLMProvider`
+
+---
+
+## Ajouter un nouveau Provider LLM
+
+### Étape 1 : Créer une nouvelle classe
+
+```java
+// src/main/java/com/kether/storyteller/service/llm/LLMProviders.java
+public static class GrokProvider implements LLMProvider {
+    @Override
+    public String call(...) { ... }
+}
+```
+
+### Étape 2 : L’enregistrer dans `AppConfig.java`
+
+```java
+@Bean
+public GrokProvider grokProvider() {
+    return new GrokProvider();
+}
+```
+
+### Étape 3 : Mettre à jour `resolveProvider()` dans `LLMService.java`
+
+```java
+case "grok" -> grokProvider;
+```
+

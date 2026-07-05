@@ -8,5 +8,7 @@ import java.util.List;
 @Repository
 public interface ManuscriptRepository extends JpaRepository<Manuscript, Long> {
     List<Manuscript> findByStoryIdOrderByChapterAsc(Long storyId);
+    List<Manuscript> findByStoryIdOrderByChapterDesc(Long storyId);
     List<Manuscript> findByStoryId(Long storyId);
 }
+

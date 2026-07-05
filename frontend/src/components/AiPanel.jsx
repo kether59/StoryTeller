@@ -17,7 +17,7 @@ export default function AiPanel({ story }) {
 
   async function fetchManuscripts() {
     try {
-      const r = await API.get(`/api/manuscript?story_id=${story.id}`)
+      const r = await API.get(`/api/manuscript?storyId=${story.id}`)
       setManuscripts(r.data)
       if (r.data.length > 0 && !selectedManuscript) {
         setSelectedManuscript(r.data[0].id)

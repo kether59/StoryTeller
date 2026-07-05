@@ -12,21 +12,24 @@ services:
       - SERVER_PORT=8000
       - DATABASE_URL=./data/storyteller.db
       - LLM_PROVIDER=llama
-      - OLLAMA_URL=http://llama-cpp:8080   # Point to llama.cpp
-      - CORS_ORIGINS=http://localhost:5173,http://localhost:8080
+      # ✅ FIX: Point to internal Docker hostname:port
+      - OLLAMA_URL=http://llama-cpp:8080
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:8000
     volumes:
       - storyteller-data:/app/data
       - storyteller-config:/app/config
     restart: unless-stopped
     networks:
       - storyteller-net
+    depends_on:
+      - llama-cpp
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8000/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  # ─── Lightweight French LLM (llama.cpp) ─────────────────────────────
+  # Lightweight French LLM (llama.cpp)
   llama-cpp:
     image: ghcr.io/ggerganov/llama.cpp:server
     container_name: storyteller-llama
@@ -34,6 +37,10 @@ services:
       - "8080:8080"
     volumes:
       - ./models:/models
+    environment:
+      # Make llama.cpp listen on all interfaces for inter-container communication
+      - HOST=0.0.0.0
+      - PORT=8080
     command: >
       -m /models/Phi-3-mini-4k-instruct-q4_K_M.gguf
       --host 0.0.0.0
@@ -42,10 +49,16 @@ services:
       -c 4096
       --n-gpu-layers 24
       --threads 4
+      --log-disable
     profiles:
       - llm
     networks:
       - storyteller-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   # Frontend (optional)
   storyteller-ui:
@@ -53,7 +66,7 @@ services:
       context: ../frontend
       dockerfile: Dockerfile
     ports:
-      - "8080:80"   # Changed to avoid conflict with llama.cpp
+      - "5173:80"  # Changed to avoid port conflicts
     depends_on:
       storyteller-api:
         condition: service_healthy

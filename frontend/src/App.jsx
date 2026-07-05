@@ -9,7 +9,7 @@ import AiPanel from "./components/AiPanel";
 import ManuscriptPanel from "./components/ManuscriptPanel";
 import WritingAssistantPanel from "./components/WritingAssistantPanel";
 import ExtractionPanel from "./components/ExtractionPanel";
-import LLMConfigPanel from "./components/LLMConfigPanel";
+import LlmConfigpanel from "./components/LlmConfigpanel";
 
 export default function App() {
   const [selectedStory, setSelectedStory] = React.useState(null);
@@ -74,7 +74,7 @@ export default function App() {
           {tab === "writing" && <WritingAssistantPanel story={selectedStory} />}
           {tab === "extraction" && <ExtractionPanel story={selectedStory} />}
           {tab === "ai" && <AiPanel story={selectedStory} />}
-          {tab === "llm" && <LLMConfigPanel />}
+          {tab === "llm" && <LlmConfigpanel />}
         </main>
       </div>
   );

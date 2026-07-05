@@ -3,7 +3,7 @@ import API from '../api/api'
 
 export default function LocationPanel({ story }) {
   const [list, setList] = useState([])
-  const [form, setForm] = useState({ story_id: story?.id })
+  const [form, setForm] = useState({ storyId: story?.id })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -15,7 +15,7 @@ export default function LocationPanel({ story }) {
   async function fetchLocations() {
     try {
       setLoading(true)
-      const r = await API.get(`/api/locations?story_id=${story.id}`)
+      const r = await API.get(`/api/locations?storyId=${story.id}`)
       setList(r.data)
     } catch (err) {
       console.error('Erreur de chargement des lieux :', err)
@@ -26,7 +26,7 @@ export default function LocationPanel({ story }) {
   }
 
   function clearForm() {
-    setForm({ story_id: story.id })
+    setForm({ storyId: story.id })
   }
 
   async function save() {
@@ -35,7 +35,7 @@ export default function LocationPanel({ story }) {
       return
     }
     try {
-      const payload = { ...form, story_id: story.id }
+      const payload = { ...form, storyId: story.id }
 
       // Gestion POST (création) vs. PUT (mise à jour)
       if (form.id) {
@@ -59,7 +59,7 @@ export default function LocationPanel({ story }) {
   }
 
   function edit(it) {
-    setForm({ ...it, story_id: story.id })
+    setForm({ ...it, storyId: story.id })
   }
 
   if (loading) return <div>Chargement...</div>

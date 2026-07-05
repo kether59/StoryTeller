@@ -263,6 +263,93 @@ public class ExtractionService {
         return sb.toString();
     }
 
+    public RelationshipAnalysisResult analyzeRelationships(Long manuscriptId) {
+        Manuscript manuscript = manuscriptRepo.findById(manuscriptId)
+                .orElseThrow(() -> ResourceNotFoundException.of("Manuscrit", manuscriptId));
+
+        Story story = manuscript.getStory();
+        String text = manuscript.getText();
+
+        if (text == null || text.length() < 100) {
+            throw new IllegalArgumentException("Le manuscrit est trop court pour analyser les relations");
+        }
+
+        List<StoryCharacter> characters = characterRepo.findByStoryId(story.getId());
+        String charSummary = characters.stream()
+                .map(c -> c.getName() + (c.getSurname() != null ? " " + c.getSurname() : ""))
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("(aucun)");
+
+        String systemPrompt = """
+                Tu es un expert en analyse narrative et en relations sociales.
+                Tu analyses les textes pour identifier les relations entre personnages,
+                les conflits, les alliances et les dynamiques sociales.
+                
+                Réponds UNIQUEMENT en JSON valide, sans texte supplémentaire.
+                """;
+
+        String userPrompt = """
+                Analyse ce texte et identifie les relations entre personnages.
+
+                PERSONNAGES CONNUS :
+                %s
+
+                TEXTE À ANALYSER :
+                ---
+                %s
+                ---
+
+                Identifie pour chaque paire de personnages :
+                - Si une relation existe dans le texte
+                - Le type de relation (ally, rival, family, romantic, mentor, enemy, neutral)
+                - Une description brève du type de relation
+                - Un niveau de confiance (0.0-1.0)
+
+                Format JSON requis :
+                {
+                  "relationships": [
+                    {
+                      "character_1": "Nom Complet",
+                      "character_2": "Nom Complet",
+                      "type": "ally|rival|family|romantic|mentor|enemy|neutral",
+                      "description": "...",
+                      "confidence": 0.9,
+                      "evidence": "citation du texte"
+                    }
+                  ]
+                }
+
+                Réponds UNIQUEMENT avec le JSON.
+                """.formatted(charSummary, truncateText(text, 6000));
+
+        try {
+            String raw = llmService.callLLM(systemPrompt, userPrompt, 3000);
+            String cleaned = cleanJson(raw);
+            Map<String, Object> data = mapper.readValue(cleaned, new TypeReference<>() {});
+
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> rels = (List<Map<String, Object>>) data.getOrDefault("relationships", List.of());
+
+            List<CharacterRelationship> relationships = rels.stream().map(r -> new CharacterRelationship(
+                    str(r, "character_1"),
+                    str(r, "character_2"),
+                    str(r, "type"),
+                    str(r, "description"),
+                    num(r, "confidence"),
+                    str(r, "evidence")
+            )).toList();
+
+            return new RelationshipAnalysisResult(relationships, raw);
+        } catch (Exception e) {
+            log.error("Erreur lors de l'analyse des relations : {}", e.getMessage());
+            return new RelationshipAnalysisResult(List.of(), "Erreur : " + e.getMessage());
+        }
+    }
+
+    private String truncateText(String text, int maxChars) {
+        return text.length() > maxChars ? text.substring(0, maxChars) + "..." : text;
+    }
+
     // ══════════════════════════════════════════════════════════════
     //  Parsing de la réponse JSON
     // ══════════════════════════════════════════════════════════════
