@@ -18,7 +18,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Contrôleur LLM
+ * Contrôleur LLM – fusionne les routes de llm.py et llm_config.py Python.
+ *
+ * Routes :
+ *   GET  /api/llm/config            → read_config()
+ *   POST /api/llm/config            → save_config()
+ *   POST /api/llm/test              → test_connection()
+ *   GET  /api/llm/health            → health()
+ *   POST /api/llm/generate-chapter  → generate_chapter()
+ *   POST /api/llm/continue-writing  → continue_writing()
+ *   POST /api/llm/rewrite           → rewrite_text()
+ *   POST /api/llm/suggest-next-scene → suggest_next_scene()
  */
 @RestController
 @RequestMapping("/api/llm")
