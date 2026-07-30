@@ -1,22 +1,25 @@
-package com.kether.storyteller.domain.service;
+
+package com.kether.storyteller.infrastructure.llm.parser;
 
 import com.kether.storyteller.domain.model.ExtractedCharacter;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kether.storyteller.domain.port.out.CharacterExtractionParserPort;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 
 @Component
-public class CharacterExtractionParser {
+public class JacksonCharacterExtractionParser implements CharacterExtractionParserPort {
 
     private final ObjectMapper mapper;
 
-    public CharacterExtractionParser(ObjectMapper mapper) {
+    public JacksonCharacterExtractionParser(ObjectMapper mapper) {
         this.mapper = mapper;
     }
 
+    @Override
     public List<ExtractedCharacter> parse(String rawJson) {
         try {
             String cleaned = rawJson.strip()

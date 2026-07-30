@@ -2,7 +2,7 @@ package com.kether.storyteller.infrastructure.persistence.adapter;
 
 import com.kether.storyteller.domain.model.Manuscript;
 import com.kether.storyteller.domain.port.out.ManuscriptRepositoryPort;
-import com.kether.storyteller.infrastructure.persistence.repository.ManuscriptRepository;
+import com.kether.storyteller.repository.ManuscriptRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,8 +12,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JpaManuscriptRepositoryAdapter implements ManuscriptRepositoryPort {
 
-    // ← TON REPOSITORY EXISTANT, on y touche pas
-    private final ManuscriptRepository existingRepo;
+     private final ManuscriptRepository existingRepo;
 
     @Override
     public Optional<Manuscript> findById(Long id) {
@@ -21,7 +20,7 @@ public class JpaManuscriptRepositoryAdapter implements ManuscriptRepositoryPort 
                 .map(this::toDomain);
     }
 
-    private Manuscript toDomain(com.kether.storyteller.infrastructure.persistence.entity.Manuscript jpa) {
+    private Manuscript toDomain(com.kether.storyteller.entity.Manuscript jpa) {
         return new Manuscript(
                 jpa.getId(),
                 jpa.getStory().getId(),

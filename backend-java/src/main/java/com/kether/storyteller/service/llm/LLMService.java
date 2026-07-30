@@ -2,9 +2,9 @@ package com.kether.storyteller.service.llm;
 
 import com.kether.storyteller.dto.request.Requests.*;
 import com.kether.storyteller.dto.response.Responses.*;
+import com.kether.storyteller.entity.*;
 import com.kether.storyteller.exception.ResourceNotFoundException;
-import com.kether.storyteller.infrastructure.persistence.entity.*;
-import com.kether.storyteller.infrastructure.persistence.repository.*;
+import com.kether.storyteller.repository.*;
 import com.kether.storyteller.service.llm.LLMProviders.AnthropicProvider;
 import com.kether.storyteller.service.llm.LLMProviders.OpenAIProvider;
 import com.kether.storyteller.service.llm.LLMProviders.OpenRouterProvider;

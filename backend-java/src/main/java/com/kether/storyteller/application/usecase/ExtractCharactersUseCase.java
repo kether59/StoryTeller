@@ -2,10 +2,10 @@ package com.kether.storyteller.application.usecase;
 
 import com.kether.storyteller.domain.model.ExtractedCharacter;
 import com.kether.storyteller.domain.model.Manuscript;
+import com.kether.storyteller.domain.port.out.CharacterExtractionParserPort;
 import com.kether.storyteller.domain.port.out.CharacterRepositoryPort;
 import com.kether.storyteller.domain.port.out.LLMPort;
 import com.kether.storyteller.domain.port.out.ManuscriptRepositoryPort;
-import com.kether.storyteller.domain.service.CharacterExtractionParser;
 import com.kether.storyteller.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class ExtractCharactersUseCase {
     private final ManuscriptRepositoryPort manuscriptRepo;
     private final LLMPort llmPort;
     private final CharacterRepositoryPort characterRepo;
-    private final CharacterExtractionParser parser;
+    private final CharacterExtractionParserPort parser;
 
     public List<ExtractedCharacter> execute(Long manuscriptId) {
         // 1. Récupérer le manuscrit

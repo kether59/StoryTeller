@@ -1,7 +1,7 @@
 package com.kether.storyteller.service;
 
-import com.kether.storyteller.infrastructure.persistence.entity.*;
-import com.kether.storyteller.infrastructure.persistence.repository.*;
+import com.kether.storyteller.entity.*;
+import com.kether.storyteller.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;

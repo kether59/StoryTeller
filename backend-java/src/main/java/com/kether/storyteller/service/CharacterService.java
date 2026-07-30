@@ -3,10 +3,10 @@ package com.kether.storyteller.service;
 import com.kether.storyteller.dto.request.Requests.*;
 import com.kether.storyteller.dto.response.Responses.*;
 import com.kether.storyteller.exception.ResourceNotFoundException;
-import com.kether.storyteller.infrastructure.persistence.entity.Story;
-import com.kether.storyteller.infrastructure.persistence.entity.StoryCharacter;
-import com.kether.storyteller.infrastructure.persistence.repository.CharacterRepository;
-import com.kether.storyteller.infrastructure.persistence.repository.StoryRepository;
+import com.kether.storyteller.entity.Story;
+import com.kether.storyteller.entity.StoryCharacter;
+import com.kether.storyteller.repository.CharacterRepository;
+import com.kether.storyteller.repository.StoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

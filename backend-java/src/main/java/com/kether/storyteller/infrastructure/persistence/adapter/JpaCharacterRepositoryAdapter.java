@@ -1,7 +1,7 @@
 package com.kether.storyteller.infrastructure.persistence.adapter;
 
 import com.kether.storyteller.domain.port.out.CharacterRepositoryPort;
-import com.kether.storyteller.infrastructure.persistence.repository.CharacterRepository;
+import com.kether.storyteller.repository.CharacterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
