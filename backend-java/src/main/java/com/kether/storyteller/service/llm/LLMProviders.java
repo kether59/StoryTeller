@@ -327,6 +327,10 @@ public class LLMProviders {
         public String call(String systemPrompt, String userPrompt, int maxTokens, LLMConfigModel config) throws Exception {
             String baseUrl = config.getOllamaUrl() != null && !config.getOllamaUrl().isBlank() ? config.getOllamaUrl() : "http://llama-cpp:8080";
 
+            if (baseUrl.endsWith("/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+            }
+
             String url = baseUrl + "/v1/chat/completions";
 
             ObjectNode body = JSON.createObjectNode().put("model", config.getModel()).put("max_tokens", maxTokens).put("temperature", config.getTemperature());

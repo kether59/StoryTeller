@@ -124,7 +124,18 @@ public class LLMService {
                 : getDefaultModelForProvider(req.provider()));
 
         tmpCfg.setApiKey(req.apiKey());
-        tmpCfg.setOllamaUrl(req.ollamaUrl());
+
+        String ollamaUrl = req.ollamaUrl();
+        if ("llama".equalsIgnoreCase(req.provider()) || "ollama".equalsIgnoreCase(req.provider())) {
+            if (ollamaUrl == null || ollamaUrl.contains("127.0.0.1") || ollamaUrl.contains("localhost")) {
+                ollamaUrl = configService.getCurrent().getOllamaUrl();
+                if (ollamaUrl == null || ollamaUrl.isBlank()) {
+                    ollamaUrl = "http://llama-cpp:8080";
+                }
+            }
+        }
+
+        tmpCfg.setOllamaUrl(ollamaUrl);
         tmpCfg.setLmstudioUrl(req.lmstudioUrl() != null && !req.lmstudioUrl().isBlank()
                 ? req.lmstudioUrl()
                 : "http://localhost:1234");
