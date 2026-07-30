@@ -1,4 +1,4 @@
-package com.kether.storyteller.entity;
+package com.kether.storyteller.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

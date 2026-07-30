@@ -2,9 +2,14 @@ package com.kether.storyteller.service;
 
 import com.kether.storyteller.dto.request.Requests.*;
 import com.kether.storyteller.dto.response.Responses.*;
-import com.kether.storyteller.entity.*;
 import com.kether.storyteller.exception.ResourceNotFoundException;
-import com.kether.storyteller.repository.*;
+import com.kether.storyteller.infrastructure.persistence.entity.Story;
+import com.kether.storyteller.infrastructure.persistence.entity.StoryCharacter;
+import com.kether.storyteller.infrastructure.persistence.entity.TimelineEvent;
+import com.kether.storyteller.infrastructure.persistence.repository.CharacterRepository;
+import com.kether.storyteller.infrastructure.persistence.repository.LocationRepository;
+import com.kether.storyteller.infrastructure.persistence.repository.StoryRepository;
+import com.kether.storyteller.infrastructure.persistence.repository.TimelineEventRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,9 +26,9 @@ import java.util.Set;
 public class TimelineService {
 
     private final TimelineEventRepository eventRepo;
-    private final StoryRepository         storyRepo;
-    private final CharacterRepository     characterRepo;
-    private final LocationRepository      locationRepo;
+    private final StoryRepository storyRepo;
+    private final CharacterRepository characterRepo;
+    private final LocationRepository locationRepo;
 
     TimelineService(TimelineEventRepository eventRepo, StoryRepository storyRepo,
                     CharacterRepository characterRepo, LocationRepository locationRepo) {

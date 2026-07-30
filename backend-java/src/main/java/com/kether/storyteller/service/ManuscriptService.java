@@ -2,17 +2,19 @@ package com.kether.storyteller.service;
 
 import com.kether.storyteller.dto.request.Requests.*;
 import com.kether.storyteller.dto.response.Responses.*;
-import com.kether.storyteller.entity.*;
 import com.kether.storyteller.exception.ResourceNotFoundException;
-import com.kether.storyteller.repository.*;
+import com.kether.storyteller.infrastructure.persistence.entity.Manuscript;
+import com.kether.storyteller.infrastructure.persistence.entity.Story;
+import com.kether.storyteller.infrastructure.persistence.entity.StoryCharacter;
+import com.kether.storyteller.infrastructure.persistence.repository.CharacterRepository;
+import com.kether.storyteller.infrastructure.persistence.repository.ManuscriptRepository;
+import com.kether.storyteller.infrastructure.persistence.repository.StoryRepository;
 import com.kether.storyteller.service.llm.NLPService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.Map;
 
 // ══════════════════════════════════════════════════════════════════════
@@ -24,8 +26,8 @@ import java.util.Map;
 public class ManuscriptService {
 
     private final ManuscriptRepository manuscriptRepo;
-    private final StoryRepository      storyRepo;
-    private final CharacterRepository  characterRepo;
+    private final StoryRepository storyRepo;
+    private final CharacterRepository characterRepo;
     private final NLPService nlpService;
 
     ManuscriptService(ManuscriptRepository manuscriptRepo, StoryRepository storyRepo,

@@ -1,6 +1,6 @@
 package com.kether.storyteller.dto.response;
 
-import com.kether.storyteller.entity.*;
+import com.kether.storyteller.infrastructure.persistence.entity.*;
 
 import java.util.List;
 import java.util.Map;

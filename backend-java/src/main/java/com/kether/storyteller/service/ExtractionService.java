@@ -2,9 +2,9 @@ package com.kether.storyteller.service;
 
 import com.kether.storyteller.dto.request.Requests.*;
 import com.kether.storyteller.dto.response.Responses.*;
-import com.kether.storyteller.entity.*;
 import com.kether.storyteller.exception.ResourceNotFoundException;
-import com.kether.storyteller.repository.*;
+import com.kether.storyteller.infrastructure.persistence.entity.*;
+import com.kether.storyteller.infrastructure.persistence.repository.*;
 import com.kether.storyteller.service.llm.LLMService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +31,12 @@ public class ExtractionService {
     private static final Pattern DIGITS = Pattern.compile("\\d+");
 
     private final LLMService            llmService;
-    private final ManuscriptRepository  manuscriptRepo;
-    private final CharacterRepository   characterRepo;
-    private final LocationRepository    locationRepo;
-    private final LoreEntryRepository   loreRepo;
+    private final ManuscriptRepository manuscriptRepo;
+    private final CharacterRepository characterRepo;
+    private final LocationRepository locationRepo;
+    private final LoreEntryRepository loreRepo;
     private final TimelineEventRepository timelineRepo;
-    private final StoryRepository       storyRepo;
+    private final StoryRepository storyRepo;
     private final ObjectMapper mapper;
 
     public ExtractionService(LLMService llmService,

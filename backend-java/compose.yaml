@@ -1,4 +1,5 @@
 services:
+
   grafana-lgtm:
     image: 'grafana/otel-lgtm:latest'
     ports:

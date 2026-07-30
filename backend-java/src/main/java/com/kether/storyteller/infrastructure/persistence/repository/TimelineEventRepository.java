@@ -1,6 +1,6 @@
-package com.kether.storyteller.repository;
+package com.kether.storyteller.infrastructure.persistence.repository;
 
-import com.kether.storyteller.entity.TimelineEvent;
+import com.kether.storyteller.infrastructure.persistence.entity.TimelineEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

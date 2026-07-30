@@ -1,72 +1,57 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.dto.request.Requests.*;
-import com.kether.storyteller.dto.response.Responses.*;
+import com.kether.storyteller.application.usecase.ExtractCharactersUseCase;
+import com.kether.storyteller.dto.request.Requests.ExtractionRequest;
+import com.kether.storyteller.dto.response.Responses.ExtractionResult;
+import com.kether.storyteller.dto.response.Responses.ExtractedCharacter;
 import com.kether.storyteller.service.ExtractionService;
-import com.kether.storyteller.service.llm.LLMConfigService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
 
-/**
- * Contrôleur d'extraction – équivalent extraction.py.
- *
- * Routes :
- *   POST /api/extraction/analyze            → analyze_manuscript()
- *   POST /api/extraction/validate-and-create → validate_and_create()
- *   GET  /api/extraction/health             → health_check()
- */
 @RestController
 @RequestMapping("/api/extraction")
+@RequiredArgsConstructor
 public class ExtractionController {
 
-    private final ExtractionService  extractionService;
-    private final LLMConfigService   configService;
+    private final ExtractionService oldService;                 // ← ANCIEN, intact
+    private final ExtractCharactersUseCase newExtractUseCase;   // ← NOUVEAU
 
-    public ExtractionController(ExtractionService extractionService,
-                                LLMConfigService configService) {
-        this.extractionService = extractionService;
-        this.configService     = configService;
-    }
-
-    /**
-     * POST /api/extraction/analyze
-     * Analyse un manuscrit et extrait personnages, lieux, chronologie, lore.
-     */
     @PostMapping("/analyze")
     public ExtractionResult analyze(@Valid @RequestBody ExtractionRequest req) {
-        return extractionService.analyze(req);
+
+        // 🎯 Bascule progressive : si on demande UNIQUEMENT des personnages
+        // et que le flag "v2" n'est pas désactivé, on passe par le nouveau code
+        if (isCharactersOnly(req)) {
+            var domainCharacters = newExtractUseCase.execute(req.manuscriptId());
+
+            // Mapping domain → DTO response (temporaire, on fera MapStruct après)
+            var responseChars = domainCharacters.stream()
+                    .map(c -> new ExtractedCharacter(
+                            c.name(), c.surname(), c.role(), c.age(),
+                            c.physicalDescription(), c.personality(),
+                            c.motivation(), c.confidence()
+                    ))
+                    .toList();
+
+            return new ExtractionResult(
+                    responseChars,
+                    List.of(),   // locations vides
+                    List.of(),   // timeline vide
+                    List.of(),   // lore vide
+                    "Extraction via nouveau moteur"
+            );
+        }
+
+        // Fallback : tout le reste passe par l'ancien code
+        return oldService.analyze(req);
     }
 
-    /**
-     * POST /api/extraction/analyze-relationships
-     * Analyse les relations entre personnages dans un manuscrit.
-     */
-    @PostMapping("/analyze-relationships")
-    public RelationshipAnalysisResult analyzeRelationships(@RequestParam Long manuscriptId) {
-        return extractionService.analyzeRelationships(manuscriptId);
-    }
-
-    /**
-     * POST /api/extraction/validate-and-create
-     * Valide et crée un élément extrait en base de données.
-     */
-    @PostMapping("/validate-and-create")
-    public ValidationResult validateAndCreate(@Valid @RequestBody ValidationRequest req) {
-        return extractionService.validateAndCreate(req);
-    }
-
-    /**
-     * GET /api/extraction/health
-     * Vérifie que le LLM est configuré pour l'extraction.
-     */
-    @GetMapping("/health")
-    public Map<String, Object> health() {
-        var cfg = configService.getCurrent();
-        return Map.of(
-                "provider",   cfg.getProvider(),
-                "configured", cfg.isConfigured()
-        );
+    private boolean isCharactersOnly(ExtractionRequest req) {
+        return req.extractTypes() != null
+                && req.extractTypes().size() == 1
+                && req.extractTypes().get(0).equals("characters");
     }
 }

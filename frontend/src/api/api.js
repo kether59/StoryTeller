@@ -1,18 +1,30 @@
 import axios from 'axios'
 
-// Configuration pour FastAPI backend
+/**
+ * Use relative URL so Vite proxy works in dev and nginx works in Docker/prod.
+ * Override with VITE_API_URL if needed (e.g. absolute URL in some deployments).
+ */
 const API = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_URL ?? '',
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
 })
 
-// Intercepteur pour logger les erreurs
 API.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
+    const message =
+      error.response?.data?.detail ||
+      error.response?.data?.message ||
+      error.message ||
+      'Une erreur est survenue'
+
+    // Keep console for debugging
     console.error('API Error:', error.response?.data || error.message)
+
+    // Attach a friendly message so callers can display it easily
+    error.friendlyMessage = typeof message === 'string' ? message : JSON.stringify(message)
     return Promise.reject(error)
   }
 )

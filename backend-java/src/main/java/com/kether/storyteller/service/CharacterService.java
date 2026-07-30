@@ -2,15 +2,15 @@ package com.kether.storyteller.service;
 
 import com.kether.storyteller.dto.request.Requests.*;
 import com.kether.storyteller.dto.response.Responses.*;
-import com.kether.storyteller.entity.*;
 import com.kether.storyteller.exception.ResourceNotFoundException;
-import com.kether.storyteller.repository.*;
+import com.kether.storyteller.infrastructure.persistence.entity.Story;
+import com.kether.storyteller.infrastructure.persistence.entity.StoryCharacter;
+import com.kether.storyteller.infrastructure.persistence.repository.CharacterRepository;
+import com.kether.storyteller.infrastructure.persistence.repository.StoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 // ══════════════════════════════════════════════════════════════════════
 //  StoryService   – équivalent stories.py
@@ -21,7 +21,7 @@ import java.util.Set;
 public class CharacterService {
 
     private final CharacterRepository characterRepo;
-    private final StoryRepository     storyRepo;
+    private final StoryRepository storyRepo;
 
     CharacterService(CharacterRepository characterRepo, StoryRepository storyRepo) {
         this.characterRepo = characterRepo;

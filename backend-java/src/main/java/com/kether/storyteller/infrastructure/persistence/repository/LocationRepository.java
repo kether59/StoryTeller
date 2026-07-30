@@ -1,6 +1,6 @@
-package com.kether.storyteller.repository;
+package com.kether.storyteller.infrastructure.persistence.repository;
 
-import com.kether.storyteller.entity.StoryLocation;
+import com.kether.storyteller.infrastructure.persistence.entity.StoryLocation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
