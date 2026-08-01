@@ -3,10 +3,10 @@ package com.kether.storyteller.service.llm;
 import com.kether.storyteller.exception.ServiceUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -16,29 +16,29 @@ import java.time.Duration;
 import java.util.Map;
 
 /**
- * ImplÃ©mentations des fournisseurs LLM.
+ * Implémentations des fournisseurs LLM.
  * <p>
- * Ã‰quivalents Python (llm.py + llm_config.py) :
- * call_anthropic()   â†’ {@link AnthropicProvider#call(String, String, int, LLMConfigModel)}
- * call_openai()      â†’ {@link OpenAIProvider#call(String, String, int, LLMConfigModel)}
- * call_openrouter()  â†’ {@link OpenRouterProvider#call(String, String, int, LLMConfigModel)}
- * call_ollama()      â†’ {@link OllamaProvider#call(String, String, int, LLMConfigModel)}
- * call_gemini()      â†’ {@link GeminiProvider#call(String, String, int, LLMConfigModel)}Â²
- * call_lmstudio()    â†’ {@link LMStudioProvider#call(String, String, int, LLMConfigModel)}Â²
- * call_llamacpp()    â†’ {@link LlamaCPPProvider#call(String, String, int, LLMConfigModel)}Â²
+ * Équivalents Python (llm.py + llm_config.py) :
+ * call_anthropic()   → {@link AnthropicProvider#call(String, String, int, LLMConfigModel)}
+ * call_openai()      → {@link OpenAIProvider#call(String, String, int, LLMConfigModel)}
+ * call_openrouter()  → {@link OpenRouterProvider#call(String, String, int, LLMConfigModel)}
+ * call_ollama()      → {@link OllamaProvider#call(String, String, int, LLMConfigModel)}
+ * call_gemini()      → {@link GeminiProvider#call(String, String, int, LLMConfigModel)}²
+ * call_lmstudio()    → {@link LMStudioProvider#call(String, String, int, LLMConfigModel)}²
+ * call_llamacpp()    → {@link LlamaCPPProvider#call(String, String, int, LLMConfigModel)}²
  */
 public class LLMProviders {
 
     private static final Logger log = LoggerFactory.getLogger(LLMProviders.class);
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
     //  Interface commune
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
     private static final HttpClient HTTP = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).followRedirects(HttpClient.Redirect.NORMAL).build();
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    //  Utilitaire HTTP partagÃ©
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
+    //  Utilitaire HTTP partagé
+    // ══════════════════════════════════════════════════════════════
     /**
      * HttpClient configured for local services (no redirect, simpler handshake).
      * Used specifically for LM Studio and Ollama where CORS might be an issue.
@@ -125,27 +125,27 @@ public class LLMProviders {
         return root.path("choices").get(0).path("message").path("content").asText();
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
     //  Anthropic (Claude)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
 
     public interface LLMProvider {
         /**
-         * @return texte gÃ©nÃ©rÃ©
+         * @return texte généré
          */
         String call(String systemPrompt, String userPrompt, int maxTokens, LLMConfigModel config) throws Exception;
 
         /**
-         * Test minimal de connectivitÃ© (Ã©quivalent /api/llm/test Python).
+         * Test minimal de connectivité (équivalent /api/llm/test Python).
          */
         default String test(LLMConfigModel config) throws Exception {
-            return call("RÃ©ponds uniquement avec le mot 'OK'.", "Test", 16, config);
+            return call("Réponds uniquement avec le mot 'OK'.", "Test", 16, config);
         }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
     //  OpenAI
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
 
     public static class AnthropicProvider implements LLMProvider {
 
@@ -153,7 +153,7 @@ public class LLMProviders {
         public String call(String systemPrompt, String userPrompt, int maxTokens, LLMConfigModel config) throws Exception {
             String apiKey = config.getApiKey();
             if (apiKey == null || apiKey.isBlank()) {
-                throw new ServiceUnavailableException("ANTHROPIC_API_KEY non configurÃ©e");
+                throw new ServiceUnavailableException("ANTHROPIC_API_KEY non configurée");
             }
 
             ObjectNode body = JSON.createObjectNode().put("model", config.getModel()).put("max_tokens", maxTokens).put("system", systemPrompt);
@@ -168,9 +168,9 @@ public class LLMProviders {
         }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
     //  OpenRouter
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
 
     public static class OpenAIProvider implements LLMProvider {
 
@@ -178,15 +178,15 @@ public class LLMProviders {
         public String call(String systemPrompt, String userPrompt, int maxTokens, LLMConfigModel config) throws Exception {
             String apiKey = config.getApiKey();
             if (apiKey == null || apiKey.isBlank()) {
-                throw new ServiceUnavailableException("OPENAI_API_KEY non configurÃ©e");
+                throw new ServiceUnavailableException("OPENAI_API_KEY non configurée");
             }
             return callOpenAICompatible("https://api.openai.com/v1/chat/completions", apiKey, null, null, systemPrompt, userPrompt, maxTokens, config);
         }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
     //  Ollama (local)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
 
     public static class OpenRouterProvider implements LLMProvider {
 
@@ -194,18 +194,18 @@ public class LLMProviders {
         public String call(String systemPrompt, String userPrompt, int maxTokens, LLMConfigModel config) throws Exception {
             String apiKey = config.getApiKey();
             if (apiKey == null || apiKey.isBlank()) {
-                throw new ServiceUnavailableException("OPENROUTER_API_KEY non configurÃ©e");
+                throw new ServiceUnavailableException("OPENROUTER_API_KEY non configurée");
             }
             if (config.getModel() == null || config.getModel().isBlank()) {
-                throw new IllegalArgumentException("Veuillez renseigner un modÃ¨le OpenRouter (ex: google/gemini-2.5-pro-preview)");
+                throw new IllegalArgumentException("Veuillez renseigner un modèle OpenRouter (ex: google/gemini-2.5-pro-preview)");
             }
             return callOpenAICompatible("https://openrouter.ai/api/v1/chat/completions", apiKey, "https://storyteller.app", "StoryTeller", systemPrompt, userPrompt, maxTokens, config);
         }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
     //  Utilitaire OpenAI-compatible (OpenAI + OpenRouter partagent le format)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
 
     public static class OllamaProvider implements LLMProvider {
 
@@ -221,7 +221,7 @@ public class LLMProviders {
 
             body.putObject("options").put("temperature", config.getTemperature()).put("num_predict", maxTokens);
 
-            String responseBody = postJson(ollamaUrl + "/v1/chat/completions",  // â† OpenAI-compatible
+            String responseBody = postJson(ollamaUrl + "/v1/chat/completions",  // ← OpenAI-compatible
                     Map.of(), body.toString());
 
             JsonNode root = JSON.readTree(responseBody);
@@ -236,7 +236,7 @@ public class LLMProviders {
         public String call(String systemPrompt, String userPrompt, int maxTokens, LLMConfigModel config) throws Exception {
             String apiKey = config.getGeminiApiKey();
             if (apiKey == null || apiKey.isBlank()) {
-                throw new ServiceUnavailableException("GEMINI_API_KEY non configurÃ©e");
+                throw new ServiceUnavailableException("GEMINI_API_KEY non configurée");
             }
 
             String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=" + apiKey;
@@ -276,7 +276,7 @@ public class LLMProviders {
         public String call(String systemPrompt, String userPrompt, int maxTokens, LLMConfigModel config) throws Exception {
             String baseUrl = config.getLmstudioUrl() != null && !config.getLmstudioUrl().isBlank() ? config.getLmstudioUrl() : "http://localhost:1234";
 
-            // Nettoyage de l'URL (Ã©vite les doubles slashes)
+            // Nettoyage de l'URL (évite les doubles slashes)
             if (!baseUrl.endsWith("/")) baseUrl += "/";
             String url = baseUrl + "v1/chat/completions";
 
@@ -302,11 +302,11 @@ public class LLMProviders {
 
             JsonNode root = JSON.readTree(response.body());
 
-            // Parsing robuste (gÃ¨re les MissingNode)
+            // Parsing robuste (gère les MissingNode)
             JsonNode contentNode = root.path("choices").path(0).path("message").path("content");
 
             if (contentNode.isMissingNode() || contentNode.isNull()) {
-                throw new ServiceUnavailableException("RÃ©ponse LM Studio invalide : pas de contenu gÃ©nÃ©rÃ©");
+                throw new ServiceUnavailableException("Réponse LM Studio invalide : pas de contenu généré");
             }
 
             return contentNode.asText();

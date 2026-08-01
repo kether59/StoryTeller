@@ -10,8 +10,8 @@ import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -154,11 +154,11 @@ public class LLMController {
     // Utilitaire robuste pour extraire le nom du modèle
     private String extractModelName(JsonNode node) {
         // Priorité haute
-        String name = node.path("display_name").asText("");
-        if (name.isBlank()) name = node.path("name").asText("");
-        if (name.isBlank()) name = node.path("model").asText("");
-        if (name.isBlank()) name = node.path("id").asText("");
-        if (name.isBlank()) name = node.path("key").asText("");
+        String name = node.path("display_name").asString("");
+        if (name.isBlank()) name = node.path("name").asString("");
+        if (name.isBlank()) name = node.path("model").asString("");
+        if (name.isBlank()) name = node.path("id").asString("");
+        if (name.isBlank()) name = node.path("key").asString("");
 
         // Nettoyage du chemin complet (/models/xxx.gguf → xxx.gguf)
         if (name.contains("/")) {

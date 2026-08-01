@@ -7,13 +7,13 @@ import com.kether.storyteller.service.llm.LLMProviders.OllamaProvider;
 import com.kether.storyteller.service.llm.LLMProviders.GeminiProvider;
 import com.kether.storyteller.service.llm.LLMProviders.LMStudioProvider;
 import com.kether.storyteller.service.llm.LLMProviders.LlamaCPPProvider;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.time.Duration;
 import java.net.http.HttpClient;

@@ -16,16 +16,16 @@ import com.kether.storyteller.service.llm.LLMProviders.LLMProvider;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Orchestrateur LLM â€“ Ã©quivalent combinÃ© de llm.py + call_llm_configured() Python.
+ * Orchestrateur LLM – équivalent combiné de llm.py + call_llm_configured() Python.
  *
- * Routes gÃ©rÃ©es :
+ * Routes gérées :
  *   POST /api/llm/generate-chapter
  *   POST /api/llm/continue-writing
  *   POST /api/llm/rewrite
@@ -84,9 +84,9 @@ public class LLMService {
         this.manuscriptRepo = manuscriptRepo;
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    //  Appel LLM gÃ©nÃ©rique (Ã©quivalent call_llm_configured Python)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
+    //  Appel LLM générique (équivalent call_llm_configured Python)
+    // ══════════════════════════════════════════════════════════════
 
     public String callLLM(String systemPrompt, String userPrompt) throws Exception {
         return callLLM(systemPrompt, userPrompt, configService.getCurrent().getMaxTokens());
@@ -111,9 +111,9 @@ public class LLMService {
         };
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
     //  Test de connexion (POST /api/llm/test)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
 
     public LLMTestResponse testConnection(LLMTestRequest req) {
         var tmpCfg = new LLMConfigModel();
@@ -142,9 +142,9 @@ public class LLMService {
 
         try {
             String response = resolveProvider(req.provider()).test(tmpCfg);
-            return new LLMTestResponse(true, "âœ… Connexion rÃ©ussie avec le modÃ¨le " + tmpCfg.getModel());
+            return new LLMTestResponse(true, "✅ Connexion réussie avec le modèle " + tmpCfg.getModel());
         } catch (Exception e) {
-            return new LLMTestResponse(false, "âŒ " + e.getMessage());
+            return new LLMTestResponse(false, "❌ " + e.getMessage());
         }
     }
 
@@ -158,12 +158,12 @@ public class LLMService {
         };
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    //  GÃ©nÃ©ration de chapitre (POST /api/llm/generate-chapter)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
+    //  Génération de chapitre (POST /api/llm/generate-chapter)
+    // ══════════════════════════════════════════════════════════════
 
     public GeneratedChapterResponse generateChapter(ChapterGenerationRequest req) {
-        log.info("generateChapter called â€” storyId={}, chapterNumber={}, title={}", req.storyId(), req.chapterNumber(), req.chapterTitle());
+        log.info("generateChapter called — storyId={}, chapterNumber={}, title={}", req.storyId(), req.chapterNumber(), req.chapterTitle());
 
         Story story = storyRepo.findById(req.storyId())
                 .orElseThrow(() -> new ResourceNotFoundException("Histoire introuvable"));
@@ -173,7 +173,7 @@ public class LLMService {
         List<TimelineEvent>  timeline  = timelineRepo.findByStoryId(req.storyId());
         List<LoreEntry>      lore      = loreRepo.findByStoryId(req.storyId());
 
-        // Filtrer les persos/lieux demandÃ©s
+        // Filtrer les persos/lieux demandés
         List<StoryCharacter> selectedChars = req.includeCharacters() != null
                 ? allChars.stream().filter(c -> req.includeCharacters().contains(c.getId())).toList()
                 : List.of();
@@ -200,17 +200,17 @@ public class LLMService {
         String systemPrompt = buildSystemPromptWithStyleReference(story, allChars, allLocs, timeline, lore, styleReference);
 
         var userSb = new StringBuilder();
-        userSb.append("Ã‰cris un nouveau chapitre pour ce roman.\n\n");
+        userSb.append("Écris un nouveau chapitre pour ce roman.\n\n");
         userSb.append("Chapitre ").append(req.chapterNumber() != null ? req.chapterNumber() : "?");
         if (req.chapterTitle() != null) {
             userSb.append(" - ").append(req.chapterTitle());
         }
         userSb.append("\n\n");
 
-        userSb.append("RÃ©sumÃ© narratif :\n").append(req.summary()).append("\n\n");
+        userSb.append("Résumé narratif :\n").append(req.summary()).append("\n\n");
 
         if (!selectedChars.isEmpty()) {
-            userSb.append("Personnages clÃ©s :\n");
+            userSb.append("Personnages clés :\n");
             selectedChars.forEach(c -> userSb.append("- ").append(c.getName())
                     .append(c.getSurname() != null ? " " + c.getSurname() : "").append("\n"));
             userSb.append("\n");
@@ -231,10 +231,10 @@ public class LLMService {
             };
         }
 
-        userSb.append("Ã‰cris environ ").append(targetWords).append(" mots.");
+        userSb.append("Écris environ ").append(targetWords).append(" mots.");
 
         try {
-            log.debug("Calling LLM â€” provider={}, model={}, systemPromptLen={}, userPromptLen={}",
+            log.debug("Calling LLM — provider={}, model={}, systemPromptLen={}, userPromptLen={}",
                     configService.getCurrent().getProvider(), configService.getCurrent().getModel(),
                     systemPrompt != null ? systemPrompt.length() : 0,
                     userSb.length());
@@ -242,22 +242,22 @@ public class LLMService {
             String text = callLLM(systemPrompt, userSb.toString(), 4000);
             int wordCount = text != null ? text.split("\\s+").length : 0;
 
-            log.info("Generation successful â€” storyId={}, words={}", req.storyId(), wordCount);
+            log.info("Generation successful — storyId={}, words={}", req.storyId(), wordCount);
             return new GeneratedChapterResponse(true, text,
                     req.chapterNumber(), req.chapterTitle(), wordCount);
         } catch (Exception e) {
             log.error("Error during chapter generation for storyId={}", req.storyId(), e);
             String msg = e.getMessage() != null ? e.getMessage() : e.toString();
-            throw new RuntimeException("Erreur lors de la gÃ©nÃ©ration : " + e.getClass().getSimpleName() + " - " + msg, e);
+            throw new RuntimeException("Erreur lors de la génération : " + e.getClass().getSimpleName() + " - " + msg, e);
         }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
     //  Continuation (POST /api/llm/continue-writing)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
 
     public ContinuationResponse continueWriting(ContinueWritingRequest req) {
-        log.info("continueWriting called â€” manuscriptId={}, length={}", req.manuscriptId(), req.length());
+        log.info("continueWriting called — manuscriptId={}, length={}", req.manuscriptId(), req.length());
         Manuscript manuscript = manuscriptRepo.findById(req.manuscriptId())
                 .orElseThrow(() -> new ResourceNotFoundException("Manuscrit introuvable"));
 
@@ -281,9 +281,9 @@ public class LLMService {
 
                 Direction narrative : %s
 
-                Ã‰cris environ %d mots supplÃ©mentaires qui s'intÃ¨grent naturellement Ã  la suite.
-                Ne rÃ©pÃ¨te pas ce qui a dÃ©jÃ  Ã©tÃ© Ã©crit.
-                Commence directement la suite sans prÃ©ambule ni explication.
+                Écris environ %d mots supplémentaires qui s'intègrent naturellement à la suite.
+                Ne répète pas ce qui a déjà été écrit.
+                Commence directement la suite sans préambule ni explication.
                 """.formatted(
                 manuscript.getTitle(),
                 req.direction(),
@@ -291,10 +291,10 @@ public class LLMService {
         );
 
         try {
-            log.debug("Calling LLM for continuation â€” provider={}, model={}", configService.getCurrent().getProvider(), configService.getCurrent().getModel());
+            log.debug("Calling LLM for continuation — provider={}, model={}", configService.getCurrent().getProvider(), configService.getCurrent().getModel());
             String continuation = callLLM(systemPrompt, userPrompt, 2000);
             int words = continuation != null ? continuation.split("\\s+").length : 0;
-            log.info("Continuation successful â€” manuscriptId={}, words={}", req.manuscriptId(), words);
+            log.info("Continuation successful — manuscriptId={}, words={}", req.manuscriptId(), words);
             return new ContinuationResponse(true, continuation, words);
         } catch (Exception e) {
             log.error("Error during continuation for manuscriptId={}", req.manuscriptId(), e);
@@ -303,27 +303,27 @@ public class LLMService {
         }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    //  RÃ©Ã©criture (POST /api/llm/rewrite)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
+    //  Réécriture (POST /api/llm/rewrite)
+    // ══════════════════════════════════════════════════════════════
 
     public RewriteResponse rewrite(RewriteRequest req) {
-        log.info("rewrite called â€” instruction length={}, originalTextLen={}",
+        log.info("rewrite called — instruction length={}, originalTextLen={}",
                 req.instruction() != null ? req.instruction().length() : 0,
                 req.text() != null ? req.text().length() : 0);
 
         String systemPrompt = """
-                Tu es un Ã©crivain professionnel expert en rÃ©vision et rÃ©Ã©criture de textes.
+                Tu es un écrivain professionnel expert en révision et réécriture de textes.
 
-                Ton rÃ´le est de rÃ©Ã©crire les passages proposÃ©s selon les instructions donnÃ©es,
-                tout en prÃ©servant l'essence, le sens original et la voix de l'auteur.
+                Ton rôle est de réécrire les passages proposés selon les instructions données,
+                tout en préservant l'essence, le sens original et la voix de l'auteur.
 
                 Ne jamais ajouter de commentaires ou d'explications.
-                La rÃ©ponse contient uniquement le texte rÃ©Ã©crit.
+                La réponse contient uniquement le texte réécrit.
                 """;
 
         String userPrompt = """
-                RÃ©Ã©cris ce passage selon ces instructions :
+                Réécris ce passage selon ces instructions :
 
                 Instructions : %s
 
@@ -331,27 +331,27 @@ public class LLMService {
 
                 %s
 
-                Fournis uniquement le texte rÃ©Ã©crit, sans explications.
+                Fournis uniquement le texte réécrit, sans explications.
                 """.formatted(req.instruction(), req.text());
 
         try {
-            log.debug("Calling LLM for rewrite â€” provider={}, model={}", configService.getCurrent().getProvider(), configService.getCurrent().getModel());
+            log.debug("Calling LLM for rewrite — provider={}, model={}", configService.getCurrent().getProvider(), configService.getCurrent().getModel());
             String rewritten = callLLM(systemPrompt, userPrompt, 2000);
-            log.info("Rewrite successful â€” originalLen={}, rewrittenLen={}", req.text() != null ? req.text().length() : 0, rewritten != null ? rewritten.length() : 0);
+            log.info("Rewrite successful — originalLen={}, rewrittenLen={}", req.text() != null ? req.text().length() : 0, rewritten != null ? rewritten.length() : 0);
             return new RewriteResponse(true, req.text(), rewritten, req.instruction());
         } catch (Exception e) {
             log.error("Error during rewrite", e);
             String msg = e.getMessage() != null ? e.getMessage() : e.toString();
-            throw new RuntimeException("Erreur lors de la rÃ©Ã©criture : " + e.getClass().getSimpleName() + " - " + msg, e);
+            throw new RuntimeException("Erreur lors de la réécriture : " + e.getClass().getSimpleName() + " - " + msg, e);
         }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    //  Suggestions de scÃ¨nes (POST /api/llm/suggest-next-scene)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
+    //  Suggestions de scènes (POST /api/llm/suggest-next-scene)
+    // ══════════════════════════════════════════════════════════════
 
     public SuggestionsResponse suggestNextScene(SuggestNextSceneRequest req) {
-        log.info("suggestNextScene called â€” storyId={}", req.storyId());
+        log.info("suggestNextScene called — storyId={}", req.storyId());
         Story story = storyRepo.findById(req.storyId())
                 .orElseThrow(() -> new ResourceNotFoundException("Histoire introuvable"));
 
@@ -366,14 +366,14 @@ public class LLMService {
                 Situation actuelle dans l'histoire :
                 %s
 
-                SuggÃ¨re 5 idÃ©es diffÃ©rentes pour la prochaine scÃ¨ne.
-                Pour chaque idÃ©e, donne :
+                Suggère 5 idées différentes pour la prochaine scène.
+                Pour chaque idée, donne :
                 1. Un titre accrocheur
                 2. Une description en 2-3 phrases
-                3. Les personnages impliquÃ©s
+                3. Les personnages impliqués
                 4. L'impact potentiel sur l'intrigue
 
-                Formate ta rÃ©ponse en JSON valide :
+                Formate ta réponse en JSON valide :
                 {
                   "suggestions": [
                     {
@@ -387,9 +387,9 @@ public class LLMService {
                 """.formatted(req.currentSituation());
 
         try {
-            log.debug("Calling LLM for suggestions â€” provider={}, model={}", configService.getCurrent().getProvider(), configService.getCurrent().getModel());
+            log.debug("Calling LLM for suggestions — provider={}, model={}", configService.getCurrent().getProvider(), configService.getCurrent().getModel());
             String raw = callLLM(systemPrompt, userPrompt, 2000);
-            // Nettoyage des backticks Markdown Ã©ventuels
+            // Nettoyage des backticks Markdown éventuels
             String cleaned = raw != null ? raw.strip()
                     .replaceAll("(?s)^```json\\s*", "")
                     .replaceAll("(?s)^```\\s*", "")
@@ -398,21 +398,21 @@ public class LLMService {
 
             Map<String, List<SceneSuggestion>> parsed = mapper.readValue(
                     cleaned, new TypeReference<>() {});
-            log.info("Suggestions parsed â€” count={}", parsed.getOrDefault("suggestions", List.of()).size());
+            log.info("Suggestions parsed — count={}", parsed.getOrDefault("suggestions", List.of()).size());
             return new SuggestionsResponse(parsed.getOrDefault("suggestions", List.of()));
         } catch (Exception e) {
             log.error("Error during suggestNextScene for storyId={}", req.storyId(), e);
-            // Fallback : retourner la rÃ©ponse brute
+            // Fallback : retourner la réponse brute
             String msg = e.getMessage() != null ? e.getMessage() : e.toString();
             return new SuggestionsResponse(List.of(
-                    new SceneSuggestion("RÃ©ponse brute", msg, List.of(), "")
+                    new SceneSuggestion("Réponse brute", msg, List.of(), "")
             ));
         }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    //  Construction du prompt systÃ¨me (Ã©quivalent build_system_prompt Python)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ══════════════════════════════════════════════════════════════
+    //  Construction du prompt système (équivalent build_system_prompt Python)
+    // ══════════════════════════════════════════════════════════════
 
     private String buildSystemPrompt(Story story,
                                      List<StoryCharacter> characters,
@@ -431,42 +431,42 @@ public class LLMService {
         var sb = new StringBuilder();
 
         sb.append("""
-                Tu es un Ã©crivain professionnel spÃ©cialisÃ© dans le roman.
+                Tu es un écrivain professionnel spécialisé dans le roman.
 
-                Tu participes Ã  l'Ã©criture du roman intitulÃ© :
+                Tu participes à l'écriture du roman intitulé :
 
-                Â« """).append(story.getTitle()).append(" Â»\n\n");
+                « """).append(story.getTitle()).append(" »\n\n");
 
         sb.append("""
                 Tu n'es pas un assistant conversationnel.
                 Tu n'expliques jamais tes choix.
                 Tu ne commentes jamais ton texte.
-                Tu Ã©cris directement le roman.
+                Tu écris directement le roman.
 
                 ========================
                 OBJECTIF
                 ========================
 
-                Ton objectif est de produire un texte qui semble avoir Ã©tÃ© Ã©crit par le mÃªme auteur que les chapitres prÃ©cÃ©dents.
+                Ton objectif est de produire un texte qui semble avoir été écrit par le même auteur que les chapitres précédents.
 
-                Le lecteur ne doit jamais percevoir de rupture de style, de rythme ou de qualitÃ©.
+                Le lecteur ne doit jamais percevoir de rupture de style, de rythme ou de qualité.
 
                 ========================
-                COHÃ‰RENCE
+                COHÉRENCE
                 ========================
 
                 Respecte strictement :
 
                 """);
 
-        sb.append("- Le synopsis : ").append(story.getSynopsis() != null ? story.getSynopsis() : "Non dÃ©fini").append("\n");
-        sb.append("- Les personnages, leurs motivations, connaissances, personnalitÃ© et Ã©motions\n");
+        sb.append("- Le synopsis : ").append(story.getSynopsis() != null ? story.getSynopsis() : "Non défini").append("\n");
+        sb.append("- Les personnages, leurs motivations, connaissances, personnalité et émotions\n");
         sb.append("- Les lieux et leur description\n");
         sb.append("- Le lore et la chronologie\n");
-        sb.append("- Les Ã©vÃ©nements dÃ©jÃ  Ã©crits\n\n");
+        sb.append("- Les événements déjà écrits\n\n");
 
-        sb.append("Tu n'inventes jamais un Ã©lÃ©ment qui contredit ces informations.\n");
-        sb.append("En cas de doute, privilÃ©gie toujours la cohÃ©rence.\n\n");
+        sb.append("Tu n'inventes jamais un élément qui contredit ces informations.\n");
+        sb.append("En cas de doute, privilégie toujours la cohérence.\n\n");
 
         sb.append("""
                 ========================
@@ -478,9 +478,9 @@ public class LLMService {
         for (var c : characters) {
             sb.append("### ").append(c.getName())
                     .append(c.getSurname() != null ? " " + c.getSurname() : "").append("\n");
-            if (c.getRole()        != null) sb.append("- RÃ´le: ").append(c.getRole()).append("\n");
-            if (c.getAge()         != null) sb.append("- Ã‚ge: ").append(c.getAge()).append(" ans\n");
-            if (c.getPersonality() != null) sb.append("- PersonnalitÃ©: ").append(c.getPersonality()).append("\n");
+            if (c.getRole()        != null) sb.append("- Rôle: ").append(c.getRole()).append("\n");
+            if (c.getAge()         != null) sb.append("- Âge: ").append(c.getAge()).append(" ans\n");
+            if (c.getPersonality() != null) sb.append("- Personnalité: ").append(c.getPersonality()).append("\n");
             if (c.getMotivation()  != null) sb.append("- Motivation: ").append(c.getMotivation()).append("\n");
             sb.append("\n");
         }
@@ -528,43 +528,43 @@ public class LLMService {
 
         if (styleReference != null && !styleReference.isBlank()) {
             sb.append("========================\n");
-            sb.append("STYLE DE RÃ‰FÃ‰RENCE\n");
+            sb.append("STYLE DE RÉFÉRENCE\n");
             sb.append("========================\n\n");
-            sb.append("Voici un extrait du chapitre prÃ©cÃ©dent.\n");
-            sb.append("Il reprÃ©sente la rÃ©fÃ©rence absolue pour le style.\n");
-            sb.append("Reproduis exactement son style d'Ã©criture :\n\n");
+            sb.append("Voici un extrait du chapitre précédent.\n");
+            sb.append("Il représente la référence absolue pour le style.\n");
+            sb.append("Reproduis exactement son style d'écriture :\n\n");
             sb.append(styleReference).append("\n\n");
             sb.append("========================\n");
-            sb.append("FIN DU STYLE DE RÃ‰FÃ‰RENCE\n");
+            sb.append("FIN DU STYLE DE RÉFÉRENCE\n");
             sb.append("========================\n\n");
         }
 
         sb.append("""
                 ========================
-                STYLE D'Ã‰CRITURE
+                STYLE D'ÉCRITURE
                 ========================
 
-                Ã‰cris comme un vÃ©ritable romancier.
+                Écris comme un véritable romancier.
 
-                Le texte doit Ãªtre :
+                Le texte doit être :
                 - naturel et fluide
-                - immersif et crÃ©dible
+                - immersif et crédible
                 - vivant et authentique
 
-                Ã‰vite :
-                - les rÃ©pÃ©titions et les clichÃ©s
+                Évite :
+                - les répétitions et les clichés
                 - les phrases artificielles
                 - les explications inutiles
-                - les rÃ©sumÃ©s et les listes
+                - les résumés et les listes
 
-                Montre les Ã©vÃ©nements au lieu de les raconter.
+                Montre les événements au lieu de les raconter.
 
-                PrivilÃ©gie :
+                Privilégie :
                 - les actions et les sensations
-                - les Ã©motions et les rÃ©actions
-                - les dialogues crÃ©dibles et naturels
+                - les émotions et les réactions
+                - les dialogues crédibles et naturels
 
-                Les dialogues doivent avoir une voix propre Ã  chaque personnage.
+                Les dialogues doivent avoir une voix propre à chaque personnage.
 
                 Alterne naturellement narration, dialogue, introspection et action.
 
@@ -572,13 +572,13 @@ public class LLMService {
                 INTERDICTIONS
                 ========================
 
-                Ne jamais Ã©crire :
+                Ne jamais écrire :
                 - "Voici le chapitre"
                 - "Chapitre :"
-                - "J'espÃ¨re que..."
+                - "J'espère que..."
                 - "Bonne lecture"
                 - "Suite :"
-                - "En rÃ©sumÃ©"
+                - "En résumé"
 
                 Ne jamais commenter le texte.
                 Ne jamais expliquer tes choix.
@@ -591,7 +591,7 @@ public class LLMService {
                 SORTIE
                 ========================
 
-                La rÃ©ponse contient uniquement le texte du roman.
+                La réponse contient uniquement le texte du roman.
                 Rien d'autre.
                 """);
 
