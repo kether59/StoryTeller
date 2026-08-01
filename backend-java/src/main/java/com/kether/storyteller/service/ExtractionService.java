@@ -10,19 +10,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Service d'extraction automatique – équivalent Python extraction.py.
+ * Service d'extraction automatique â€“ Ã©quivalent Python extraction.py.
  *
  * Routes :
- *   POST /api/extraction/analyze           → {@link #analyze(ExtractionRequest)}
- *   POST /api/extraction/validate-and-create → {@link #validateAndCreate(ValidationRequest)}
+ *   POST /api/extraction/analyze           â†’ {@link #analyze(ExtractionRequest)}
+ *   POST /api/extraction/validate-and-create â†’ {@link #validateAndCreate(ValidationRequest)}
  */
 @Service
 public class ExtractionService {
@@ -57,10 +57,10 @@ public class ExtractionService {
         this.mapper        = mapper;
     }
 
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     //  Analyse (POST /api/extraction/analyze)
-    //  Équivalent : async def analyze_manuscript(request, db)
-    // ══════════════════════════════════════════════════════════════
+    //  Ã‰quivalent : async def analyze_manuscript(request, db)
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     public ExtractionResult analyze(ExtractionRequest req) {
         Manuscript manuscript = manuscriptRepo.findById(req.manuscriptId())
@@ -68,7 +68,7 @@ public class ExtractionService {
 
         String text = manuscript.getText();
         if (text == null || text.length() < 100) {
-            throw new IllegalArgumentException("Le manuscrit est trop court pour être analysé");
+            throw new IllegalArgumentException("Le manuscrit est trop court pour Ãªtre analysÃ©");
         }
 
         List<String> types = req.extractTypes() != null
@@ -98,15 +98,15 @@ public class ExtractionService {
         }
     }
 
-    // ══════════════════════════════════════════════════════════════
-    //  Validation + création (POST /api/extraction/validate-and-create)
-    //  Équivalent : async def validate_and_create(request, db)
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    //  Validation + crÃ©ation (POST /api/extraction/validate-and-create)
+    //  Ã‰quivalent : async def validate_and_create(request, db)
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     @Transactional
     public ValidationResult validateAndCreate(ValidationRequest req) {
         if (!req.approved()) {
-            return new ValidationResult("rejected", req.itemType(), null, "Élément rejeté");
+            return new ValidationResult("rejected", req.itemType(), null, "Ã‰lÃ©ment rejetÃ©");
         }
 
         Map<String, Object> d = req.itemData();
@@ -119,21 +119,21 @@ public class ExtractionService {
                 case "timeline"  -> createTimeline(storyId, d);
                 case "lore"      -> createLoreEntry(storyId, d);
                 default -> throw new IllegalArgumentException(
-                        "Type d'élément non supporté : " + req.itemType());
+                        "Type d'Ã©lÃ©ment non supportÃ© : " + req.itemType());
             };
         } catch (Exception e) {
-            log.error("Erreur création {} : {}", req.itemType(), e.getMessage());
-            throw new RuntimeException("Erreur lors de la création : " + e.getMessage(), e);
+            log.error("Erreur crÃ©ation {} : {}", req.itemType(), e.getMessage());
+            throw new RuntimeException("Erreur lors de la crÃ©ation : " + e.getMessage(), e);
         }
     }
 
-    // ── Créations individuelles ────────────────────────────────────
+    // â”€â”€ CrÃ©ations individuelles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private ValidationResult createCharacter(Long storyId, Map<String, Object> d) {
         String name = str(d, "name");
         if (characterRepo.findByStoryIdAndName(storyId, name).isPresent()) {
             return new ValidationResult("duplicate", "character", null,
-                    "Le personnage « " + name + " » existe déjà");
+                    "Le personnage Â« " + name + " Â» existe dÃ©jÃ ");
         }
         Story story = storyRepo.findById(storyId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Histoire", storyId));
@@ -158,7 +158,7 @@ public class ExtractionService {
         String name = str(d, "name");
         if (locationRepo.findByStoryIdAndName(storyId, name).isPresent()) {
             return new ValidationResult("duplicate", "location", null,
-                    "Le lieu « " + name + " » existe déjà");
+                    "Le lieu Â« " + name + " Â» existe dÃ©jÃ ");
         }
         Story story = storyRepo.findById(storyId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Histoire", storyId));
@@ -192,7 +192,7 @@ public class ExtractionService {
         String title = str(d, "title");
         if (loreRepo.findByStoryIdAndTitle(storyId, title).isPresent()) {
             return new ValidationResult("duplicate", "lore", null,
-                    "L'entrée lore « " + title + " » existe déjà");
+                    "L'entrÃ©e lore Â« " + title + " Â» existe dÃ©jÃ ");
         }
         Story story = storyRepo.findById(storyId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Histoire", storyId));
@@ -207,29 +207,29 @@ public class ExtractionService {
         return new ValidationResult("created", "lore", saved.getId(), null);
     }
 
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     //  Construction des prompts
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     private String buildExtractionSystemPrompt() {
         return """
                 Tu es un assistant expert en analyse narrative.
-                Tu extrais des informations structurées depuis des textes littéraires.
-                Tu dois identifier précisément les personnages, lieux, événements chronologiques et éléments de lore.
+                Tu extrais des informations structurÃ©es depuis des textes littÃ©raires.
+                Tu dois identifier prÃ©cisÃ©ment les personnages, lieux, Ã©vÃ©nements chronologiques et Ã©lÃ©ments de lore.
 
                 IMPORTANT :
-                1. Tu dois rédiger TOUTES les descriptions et contenus en FRANÇAIS.
-                2. Réponds UNIQUEMENT en JSON valide, sans texte supplémentaire.
+                1. Tu dois rÃ©diger TOUTES les descriptions et contenus en FRANÃ‡AIS.
+                2. RÃ©ponds UNIQUEMENT en JSON valide, sans texte supplÃ©mentaire.
                 """;
     }
 
     private String buildExtractionUserPrompt(String text, List<String> types) {
-        // Tronquer le texte à 8000 caractères pour éviter les timeouts
+        // Tronquer le texte Ã  8000 caractÃ¨res pour Ã©viter les timeouts
         String excerpt = text.length() > 8000 ? text.substring(0, 8000) : text;
 
         var sb = new StringBuilder();
-        sb.append("Analyse ce texte et extrait les informations demandées.\n\n");
-        sb.append("TEXTE À ANALYSER :\n---\n").append(excerpt).append("\n---\n\n");
+        sb.append("Analyse ce texte et extrait les informations demandÃ©es.\n\n");
+        sb.append("TEXTE Ã€ ANALYSER :\n---\n").append(excerpt).append("\n---\n\n");
         sb.append("INSTRUCTIONS D'EXTRACTION :\n");
 
         if (types.contains("characters")) {
@@ -243,7 +243,7 @@ public class ExtractionService {
         }
         if (types.contains("timeline")) {
             sb.append("""
-                    **CHRONOLOGIE** : title, date, summary, sort_order (1,2,3…),
+                    **CHRONOLOGIE** : title, date, summary, sort_order (1,2,3â€¦),
                     character_names (liste), location_name, confidence
                     """);
         }
@@ -254,10 +254,10 @@ public class ExtractionService {
         sb.append("""
 
                 IMPORTANT :
-                - Tout le contenu textuel doit être en FRANÇAIS
-                - Pour l'âge, utilise UNIQUEMENT un nombre entier (ex: 25)
-                - Retourne un JSON strict avec les clés : characters, locations, timeline, lore
-                - Réponds UNIQUEMENT avec le JSON, rien d'autre
+                - Tout le contenu textuel doit Ãªtre en FRANÃ‡AIS
+                - Pour l'Ã¢ge, utilise UNIQUEMENT un nombre entier (ex: 25)
+                - Retourne un JSON strict avec les clÃ©s : characters, locations, timeline, lore
+                - RÃ©ponds UNIQUEMENT avec le JSON, rien d'autre
                 """);
 
         return sb.toString();
@@ -285,7 +285,7 @@ public class ExtractionService {
                 Tu analyses les textes pour identifier les relations entre personnages,
                 les conflits, les alliances et les dynamiques sociales.
                 
-                Réponds UNIQUEMENT en JSON valide, sans texte supplémentaire.
+                RÃ©ponds UNIQUEMENT en JSON valide, sans texte supplÃ©mentaire.
                 """;
 
         String userPrompt = """
@@ -294,7 +294,7 @@ public class ExtractionService {
                 PERSONNAGES CONNUS :
                 %s
 
-                TEXTE À ANALYSER :
+                TEXTE Ã€ ANALYSER :
                 ---
                 %s
                 ---
@@ -302,7 +302,7 @@ public class ExtractionService {
                 Identifie pour chaque paire de personnages :
                 - Si une relation existe dans le texte
                 - Le type de relation (ally, rival, family, romantic, mentor, enemy, neutral)
-                - Une description brève du type de relation
+                - Une description brÃ¨ve du type de relation
                 - Un niveau de confiance (0.0-1.0)
 
                 Format JSON requis :
@@ -319,7 +319,7 @@ public class ExtractionService {
                   ]
                 }
 
-                Réponds UNIQUEMENT avec le JSON.
+                RÃ©ponds UNIQUEMENT avec le JSON.
                 """.formatted(charSummary, truncateText(text, 6000));
 
         try {
@@ -350,9 +350,9 @@ public class ExtractionService {
         return text.length() > maxChars ? text.substring(0, maxChars) + "..." : text;
     }
 
-    // ══════════════════════════════════════════════════════════════
-    //  Parsing de la réponse JSON
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    //  Parsing de la rÃ©ponse JSON
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     @SuppressWarnings("unchecked")
     private List<ExtractedCharacter> parseCharacters(Map<String, Object> data, List<String> types) {
@@ -397,9 +397,9 @@ public class ExtractionService {
         )).toList();
     }
 
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     //  Utilitaires
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     private static String cleanJson(String raw) {
         return raw.strip()
@@ -420,7 +420,7 @@ public class ExtractionService {
         return 0.0;
     }
 
-    /** Équivalent Python : parse_age – extrait le premier entier d'une chaîne. */
+    /** Ã‰quivalent Python : parse_age â€“ extrait le premier entier d'une chaÃ®ne. */
     private static Integer parseAge(Object raw) {
         if (raw == null)          return null;
         if (raw instanceof Number) return ((Number) raw).intValue();

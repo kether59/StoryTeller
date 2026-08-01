@@ -13,25 +13,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
- * Service d'analyse IA – équivalent Python ai.py.
+ * Service d'analyse IA â€“ Ã©quivalent Python ai.py.
  * <p>
- * Intents supportés (équivalent SuggestRequest.intent) :
- * link_characters        → analyzeCharacterLinks()
- * timeline_conflicts     → findTimelineConflicts()
- * script_consistency     → checkScriptConsistency()
- * character_behavior     → checkCharacterBehavior()
- * lore_check             → checkLore()
+ * Intents supportÃ©s (Ã©quivalent SuggestRequest.intent) :
+ * link_characters        â†’ analyzeCharacterLinks()
+ * timeline_conflicts     â†’ findTimelineConflicts()
+ * script_consistency     â†’ checkScriptConsistency()
+ * character_behavior     â†’ checkCharacterBehavior()
+ * lore_check             â†’ checkLore()
  * <p>
  * Utilise maintenant le LLM pour une analyse intelligente
- * plutôt que des règles simplifiées.
+ * plutÃ´t que des rÃ¨gles simplifiÃ©es.
  */
 @Service
 @Transactional(readOnly = true)
@@ -59,9 +59,9 @@ public class AIService {
         this.mapper = mapper;
     }
 
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     //  Routeur principal
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     public Object analyze(AIAnalysisRequest req, Long storyId) {
         return switch (req.intent()) {
@@ -74,10 +74,10 @@ public class AIService {
         };
     }
 
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     //  1. Liens entre personnages (link_characters)
     //     Analyse IA des relations entre personnages
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     public SuggestionsResult analyzeCharacterLinks(Long storyId, Long manuscriptId) {
         List<StoryCharacter> chars = characterRepo.findByStoryIdOrderByNameAsc(storyId);
@@ -90,9 +90,9 @@ public class AIService {
         
         String systemPrompt = """
                 Tu es un expert en analyse narrative et en relations sociales.
-                Tu identifies les relations entre personnages avec précision et nuance.
+                Tu identifies les relations entre personnages avec prÃ©cision et nuance.
                 
-                Réponds UNIQUEMENT en JSON valide, sans texte supplémentaire.
+                RÃ©ponds UNIQUEMENT en JSON valide, sans texte supplÃ©mentaire.
                 """;
 
         String charDescriptions = chars.stream()
@@ -114,19 +114,19 @@ public class AIService {
                     {
                       "type": "family|ally|rival|mentor|romantic|enemy|peer|neutral",
                       "character_ids": [id1, id2],
-                      "description": "Explication brève de la relation",
+                      "description": "Explication brÃ¨ve de la relation",
                       "confidence": 0.8
                     }
                   ]
                 }
                 
-                Repère les relations basées sur :
+                RepÃ¨re les relations basÃ©es sur :
                 - Noms de famille (relations familiales)
-                - Écarts d'âge (pairs, mentor)
-                - Rôles complémentaires (maître/apprenti)
+                - Ã‰carts d'Ã¢ge (pairs, mentor)
+                - RÃ´les complÃ©mentaires (maÃ®tre/apprenti)
                 %s
                 
-                Réponds UNIQUEMENT avec le JSON.
+                RÃ©ponds UNIQUEMENT avec le JSON.
                 """.formatted(
                 charDescriptions,
                 text.isEmpty() ? "" : "\nTEXTE DU MANUSCRIT (si disponible):\n---\n" + truncateText(text, 4000) + "\n---",
@@ -155,7 +155,7 @@ public class AIService {
                 );
             }).toList();
 
-            log.info("Character links analyzed — count={}", suggestions.size());
+            log.info("Character links analyzed â€” count={}", suggestions.size());
             return new SuggestionsResult(suggestions);
         } catch (Exception e) {
             log.error("Erreur lors de l'analyse des liens : {}", e.getMessage());
@@ -174,26 +174,26 @@ public class AIService {
             if (eventDate == null) continue;
 
             for (StoryCharacter ch : ev.getCharacters()) {
-                // Personnage pas encore né lors de l'événement
+                // Personnage pas encore nÃ© lors de l'Ã©vÃ©nement
                 if (ch.getBorn() != null) {
                     LocalDate born = parseDate(ch.getBorn());
                     if (born != null && born.isAfter(eventDate)) {
                         conflicts.add(new TimelineConflict(ev.getId(), ch.getId(), 
-                                ch.getName() + " n'est pas encore né(e) (" + ch.getBorn() + 
-                                ") lors de l'événement (" + ev.getDate() + ")"));
+                                ch.getName() + " n'est pas encore nÃ©(e) (" + ch.getBorn() + 
+                                ") lors de l'Ã©vÃ©nement (" + ev.getDate() + ")"));
                     }
                 }
             }
         }
 
-        log.info("Timeline conflicts found — count={}", conflicts.size());
+        log.info("Timeline conflicts found â€” count={}", conflicts.size());
         return new ConflictsResult(conflicts);
     }
 
-    // ══════════════════════════════════════════════════════════════
-    //  3. Cohérence du script (script_consistency)
-    //     Analyse des mentions et de la cohérence narrative
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    //  3. CohÃ©rence du script (script_consistency)
+    //     Analyse des mentions et de la cohÃ©rence narrative
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     public ScriptConsistencyResult checkScriptConsistency(Long storyId, Long manuscriptId) {
         String text = getManuscriptText(storyId, manuscriptId);
@@ -203,9 +203,9 @@ public class AIService {
 
         String systemPrompt = """
                 Tu es un expert en analyse narrative.
-                Tu évalues la cohérence d'un texte par rapport à la world-building et aux personnages.
+                Tu Ã©values la cohÃ©rence d'un texte par rapport Ã  la world-building et aux personnages.
                 
-                Réponds UNIQUEMENT en JSON valide.
+                RÃ©ponds UNIQUEMENT en JSON valide.
                 """;
 
         String charList = characters.stream()
@@ -221,7 +221,7 @@ public class AIService {
                 .orElse("");
 
         String userPrompt = """
-                Analyse la cohérence de ce texte narratif.
+                Analyse la cohÃ©rence de ce texte narratif.
                 
                 PERSONNAGES CONNUS :
                 %s
@@ -229,15 +229,15 @@ public class AIService {
                 LORE/WORLD-BUILDING :
                 %s
                 
-                TEXTE À ANALYSER :
+                TEXTE Ã€ ANALYSER :
                 ---
                 %s
                 ---
                 
                 Identifie :
-                1. Les mentions de personnages (nom mentionné + nombre de mentions)
-                2. Les références au lore
-                3. Les éventuelles incohérences (personnage mentionné mais pas défini, lore ignoré, etc.)
+                1. Les mentions de personnages (nom mentionnÃ© + nombre de mentions)
+                2. Les rÃ©fÃ©rences au lore
+                3. Les Ã©ventuelles incohÃ©rences (personnage mentionnÃ© mais pas dÃ©fini, lore ignorÃ©, etc.)
                 
                 Format JSON :
                 {
@@ -252,7 +252,7 @@ public class AIService {
                   ]
                 }
                 
-                Réponds UNIQUEMENT avec le JSON.
+                RÃ©ponds UNIQUEMENT avec le JSON.
                 """.formatted(charList, loreList, truncateText(text, 5000));
 
         try {
@@ -270,20 +270,20 @@ public class AIService {
             List<Map<String, Object>> loreMents = (List<Map<String, Object>>) data.getOrDefault("lore_mentions", List.of());
             List<LoreMention> loreMentions = loreMents.stream()
                     .map(m -> new LoreMention(null, str(m, "title"), "mention", 
-                            "Référence au lore identifiée"))
+                            "RÃ©fÃ©rence au lore identifiÃ©e"))
                     .toList();
 
             return new ScriptConsistencyResult(charMentions, loreMentions);
         } catch (Exception e) {
-            log.error("Erreur lors de la vérification de cohérence : {}", e.getMessage());
+            log.error("Erreur lors de la vÃ©rification de cohÃ©rence : {}", e.getMessage());
             return new ScriptConsistencyResult(Map.of(), List.of());
         }
     }
 
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     //  4. Comportement des personnages (character_behavior)
-    //     Analyse IA de la cohérence comportementale
-    // ══════════════════════════════════════════════════════════════
+    //     Analyse IA de la cohÃ©rence comportementale
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     public BehaviorResult checkCharacterBehavior(Long storyId, Long manuscriptId) {
         String text = getManuscriptText(storyId, manuscriptId);
@@ -294,31 +294,31 @@ public class AIService {
         }
 
         String systemPrompt = """
-                Tu es un expert en psychologie narrative et en développement de personnages.
-                Tu identifies les comportements incohérents ou non-vraisemblables dans un texte.
+                Tu es un expert en psychologie narrative et en dÃ©veloppement de personnages.
+                Tu identifies les comportements incohÃ©rents ou non-vraisemblables dans un texte.
                 
-                Réponds UNIQUEMENT en JSON valide.
+                RÃ©ponds UNIQUEMENT en JSON valide.
                 """;
 
         String charDescriptions = chars.stream()
                 .map(c -> "- " + c.getName() + 
-                        (c.getRole() != null ? " (Rôle: " + c.getRole() + ")" : "") +
-                        (c.getPersonality() != null ? " [Personnalité: " + c.getPersonality() + "]" : ""))
+                        (c.getRole() != null ? " (RÃ´le: " + c.getRole() + ")" : "") +
+                        (c.getPersonality() != null ? " [PersonnalitÃ©: " + c.getPersonality() + "]" : ""))
                 .reduce((a, b) -> a + "\n" + b)
                 .orElse("");
 
         String userPrompt = """
-                Analyse la cohérence comportementale des personnages dans ce texte.
+                Analyse la cohÃ©rence comportementale des personnages dans ce texte.
                 
                 PERSONNAGES ET TRAITS :
                 %s
                 
-                TEXTE À ANALYSER :
+                TEXTE Ã€ ANALYSER :
                 ---
                 %s
                 ---
                 
-                Identifie les comportements incohérents (ex : un personnage calme qui explose soudain, 
+                Identifie les comportements incohÃ©rents (ex : un personnage calme qui explose soudain, 
                 un pacifiste qui tue, un timide qui harangue une foule, etc.).
                 
                 Format JSON :
@@ -327,15 +327,15 @@ public class AIService {
                     {
                       "character_id": "Nom",
                       "personality_trait": "calme|pacifiste|timide|etc",
-                      "inconsistent_action": "Action observée",
+                      "inconsistent_action": "Action observÃ©e",
                       "context": "Extrait du texte",
                       "severity": "low|medium|high",
-                      "explanation": "Pourquoi c'est incohérent"
+                      "explanation": "Pourquoi c'est incohÃ©rent"
                     }
                   ]
                 }
                 
-                Réponds UNIQUEMENT avec le JSON.
+                RÃ©ponds UNIQUEMENT avec le JSON.
                 """.formatted(charDescriptions, truncateText(text, 5000));
 
         try {
@@ -355,7 +355,7 @@ public class AIService {
                     str(i, "explanation")
             )).toList();
 
-            log.info("Behavior issues found — count={}", result.size());
+            log.info("Behavior issues found â€” count={}", result.size());
             return new BehaviorResult(result);
         } catch (Exception e) {
             log.error("Erreur lors de l'analyse comportementale : {}", e.getMessage());
@@ -363,9 +363,9 @@ public class AIService {
         }
     }
 
-    // ══════════════════════════════════════════════════════════════
-    //  5. Vérification du Lore (lore_check)
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    //  5. VÃ©rification du Lore (lore_check)
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     public Map<String, List<LoreMention>> checkLore(Long storyId, Long manuscriptId) {
         String text = getManuscriptText(storyId, manuscriptId);
@@ -376,10 +376,10 @@ public class AIService {
         }
 
         String systemPrompt = """
-                Tu es un expert en world-building et en cohérence de lore.
-                Tu identifies l'utilisation et la cohérence des concepts de monde dans un texte narratif.
+                Tu es un expert en world-building et en cohÃ©rence de lore.
+                Tu identifies l'utilisation et la cohÃ©rence des concepts de monde dans un texte narratif.
                 
-                Réponds UNIQUEMENT en JSON valide.
+                RÃ©ponds UNIQUEMENT en JSON valide.
                 """;
 
         String loreDescriptions = loreEntries.stream()
@@ -393,18 +393,18 @@ public class AIService {
         String userPrompt = """
                 Analyse l'utilisation du lore et de la world-building dans ce texte.
                 
-                ÉLÉMENTS DE LORE :
+                Ã‰LÃ‰MENTS DE LORE :
                 %s
                 
-                TEXTE À ANALYSER :
+                TEXTE Ã€ ANALYSER :
                 ---
                 %s
                 ---
                 
                 Pour chaque concept de lore :
-                - Identifie s'il est mentionné
-                - Compte le nombre de références
-                - Repère les incohérences (utilisation contradictoire du lore)
+                - Identifie s'il est mentionnÃ©
+                - Compte le nombre de rÃ©fÃ©rences
+                - RepÃ¨re les incohÃ©rences (utilisation contradictoire du lore)
                 
                 Format JSON :
                 {
@@ -419,7 +419,7 @@ public class AIService {
                   ]
                 }
                 
-                Réponds UNIQUEMENT avec le JSON.
+                RÃ©ponds UNIQUEMENT avec le JSON.
                 """.formatted(loreDescriptions, truncateText(text, 5000));
 
         try {
@@ -437,17 +437,17 @@ public class AIService {
                     str(a, "note")
             )).toList();
 
-            log.info("Lore analysis complete — items analyzed={}", result.size());
+            log.info("Lore analysis complete â€” items analyzed={}", result.size());
             return Map.of("loreAnalysis", result);
         } catch (Exception e) {
-            log.error("Erreur lors de la vérification du lore : {}", e.getMessage());
+            log.error("Erreur lors de la vÃ©rification du lore : {}", e.getMessage());
             return Map.of("loreAnalysis", List.of());
         }
     }
 
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     //  Utilitaires
-    // ══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     private String getManuscriptText(Long storyId, Long manuscriptId) {
         if (manuscriptId == null) {

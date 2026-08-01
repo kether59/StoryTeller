@@ -7,7 +7,7 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -51,13 +51,17 @@ public class LLMConfigService {
     public LLMConfigModel loadConfig() {
         Path configPath = Path.of(props.configFile());
         if (Files.exists(configPath)) {
-            LLMConfigModel cfg = mapper.readValue(configPath.toFile(), LLMConfigModel.class);
-            log.debug("Config LLM chargée depuis {}", configPath);
-            // Fallback clé API depuis env si absente dans le fichier
-            if (cfg.getApiKey() == null || cfg.getApiKey().isBlank()) {
-                cfg.setApiKey(resolveApiKeyFromEnv(cfg.getProvider()));
+            try {
+                LLMConfigModel cfg = mapper.readValue(configPath.toFile(), LLMConfigModel.class);
+                log.debug("Config LLM chargée depuis {}", configPath);
+                // Fallback clé API depuis env si absente dans le fichier
+                if (cfg.getApiKey() == null || cfg.getApiKey().isBlank()) {
+                    cfg.setApiKey(resolveApiKeyFromEnv(cfg.getProvider()));
+                }
+                return cfg;
+            } catch (IOException e) {
+                log.warn("Erreur lecture config depuis {}: {}", configPath, e.getMessage());
             }
-            return cfg;
         }
         return buildFromEnv();
     }
@@ -113,8 +117,12 @@ public class LLMConfigService {
 
     private void persist() {
         Path configPath = Path.of(props.configFile());
-        mapper.writerWithDefaultPrettyPrinter().writeValue(configPath.toFile(), current);
-        log.info("Config LLM sauvegardée → {}", configPath);
+        try {
+            mapper.writerWithDefaultPrettyPrinter().writeValue(configPath.toFile(), current);
+            log.info("Config LLM sauvegardée → {}", configPath);
+        } catch (IOException e) {
+            log.error("Erreur sauvegarde config: {}", e.getMessage());
+        }
     }
 
     // ── Réponses REST ─────────────────────────────────────────────
