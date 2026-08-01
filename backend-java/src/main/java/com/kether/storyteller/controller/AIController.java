@@ -1,46 +1,64 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.dto.request.Requests.AIAnalysisRequest;
-import com.kether.storyteller.service.AIService;
+import com.kether.storyteller.application.dto.AIAnalysisRequest;
+import com.kether.storyteller.application.usecase.*;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Contrôleur IA – équivalent ai.py.
- *
- * Route : POST /api/ai/suggest
- *
- * Le paramètre {@code storyYd} est ajouté en query param car la version Java
- * ne dispose pas du contexte de session Python – le frontend doit le passer.
- * Pour conserver la compatibilité totale avec le frontend React existant,
- * storyId peut aussi être extrait de manuscriptId via le service.
+ * Contrôleur IA – couche Interface.
+ * Valide les requêtes HTTP et orchestre les Use Cases d'analyse IA.
+ * 
+ * ✅ Ne connaît QUE les DTOs et Use Cases
+ * ❌ N'a AUCUNE logique métier
  */
 @RestController
 @RequestMapping("/api/ai")
+@RequiredArgsConstructor
 public class AIController {
 
-    private final AIService aiService;
-
-    public AIController(AIService aiService) {
-        this.aiService = aiService;
-    }
+    private final AnalyzeCharacterLinksUseCase analyzeCharacterLinksUseCase;
+    private final FindTimelineConflictsUseCase findTimelineConflictsUseCase;
+    private final CheckScriptConsistencyUseCase checkScriptConsistencyUseCase;
+    private final CheckCharacterBehaviorUseCase checkCharacterBehaviorUseCase;
+    private final CheckLoreConsistencyUseCase checkLoreConsistencyUseCase;
 
     /**
      * POST /api/ai/suggest
-     *
-     * Body : { "intent": "link_characters|timeline_conflicts|...", "manuscript_id": 1 }
-     * Query: ?story_id=1
-     *
-     * Équivalent Python :
-     * <pre>
-     *   @router.post("/suggest")
-     *   def suggest(request: SuggestRequest, db: Session = Depends(get_db))
-     * </pre>
+     * 
+     * Intents supportés :
+     * - link_characters        → Analyser les liens entre personnages
+     * - timeline_conflicts     → Trouver les conflits de chronologie
+     * - script_consistency     → Vérifier la cohérence du script
+     * - character_behavior     → Analyser la cohérence comportementale
+     * - lore_check             → Vérifier le lore
      */
     @PostMapping("/suggest")
     public Object suggest(
-            @Valid @RequestBody AIAnalysisRequest req,
+            @Valid @RequestBody AIAnalysisRequest request,
             @RequestParam Long storyId) {
-        return aiService.analyze(req, storyId);
+        
+        String manuscriptText = null;  // On peut le passer optionnellement
+        
+        return switch (request.intent()) {
+            case "link_characters" -> 
+                analyzeCharacterLinksUseCase.execute(storyId, manuscriptText);
+            
+            case "timeline_conflicts" -> 
+                findTimelineConflictsUseCase.execute(storyId);
+            
+            case "script_consistency" -> 
+                checkScriptConsistencyUseCase.execute(storyId, request.manuscriptId());
+            
+            case "character_behavior" -> 
+                checkCharacterBehaviorUseCase.execute(storyId, request.manuscriptId());
+            
+            case "lore_check" -> 
+                checkLoreConsistencyUseCase.execute(storyId, request.manuscriptId());
+            
+            default -> 
+                throw new IllegalArgumentException("Intent inconnu : " + request.intent());
+        };
     }
 }
