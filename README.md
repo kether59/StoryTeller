@@ -37,8 +37,6 @@ docker-compose down
 ```
 
 ---
-<<<<<<< HEAD
-=======
 
 ### Option 2: Local Development 💻
 
@@ -471,12 +469,10 @@ rm storyteller.db
 
 ## 📝 License
 
-Your license here.
+open source and MIT license
 
 ---
 
 ## 🤝 Contributing
 
 Contributions welcome! Feel free to open issues or pull requests.
-
->>>>>>> 8a44beb (refactoring in rogress)
