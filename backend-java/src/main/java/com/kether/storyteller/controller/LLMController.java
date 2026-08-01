@@ -25,10 +25,7 @@ import java.util.Map;
  *   POST /api/llm/config            → save_config()
  *   POST /api/llm/test              → test_connection()
  *   GET  /api/llm/health            → health()
- *   POST /api/llm/generate-chapter  → generate_chapter()
- *   POST /api/llm/continue-writing  → continue_writing()
- *   POST /api/llm/rewrite           → rewrite_text()
- *   POST /api/llm/suggest-next-scene → suggest_next_scene()
+ *   GET  /api/llm/local/models      → list available local models
  */
 @RestController
 @RequestMapping("/api/llm")
@@ -68,28 +65,6 @@ public class LLMController {
     @GetMapping("/health")
     public LLMHealthResponse health() {
         return configService.getHealth();
-    }
-
-    // ── Génération de contenu ──────────────────────────────────────
-
-    @PostMapping("/generate-chapter")
-    public GeneratedChapterResponse generateChapter(@Valid @RequestBody ChapterGenerationRequest req) {
-        return llmService.generateChapter(req);
-    }
-
-    @PostMapping("/continue-writing")
-    public ContinuationResponse continueWriting(@Valid @RequestBody ContinueWritingRequest req) {
-        return llmService.continueWriting(req);
-    }
-
-    @PostMapping("/rewrite")
-    public RewriteResponse rewrite(@Valid @RequestBody RewriteRequest req) {
-        return llmService.rewrite(req);
-    }
-
-    @PostMapping("/suggest-next-scene")
-    public SuggestionsResponse suggestNextScene(@Valid @RequestBody SuggestNextSceneRequest req) {
-        return llmService.suggestNextScene(req);
     }
 
     @GetMapping("/local/models")
