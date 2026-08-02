@@ -86,4 +86,14 @@ public class TimelineEvent {
     public void setSummary(String summary)       { this.summary = summary; }
     public void setLocation(StoryLocation loc)   { this.location = loc; }
     public void setCharacters(Set<StoryCharacter> c) { this.characters = c; }
+
+    public void setLocationId(Long locationId) {
+        if (locationId == null) {
+            this.location = null;
+        } else {
+            StoryLocation loc = new StoryLocation();
+            loc.setId(locationId);
+            this.location = loc;
+        }
+    }
 }

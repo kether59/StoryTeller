@@ -1,10 +1,20 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.beforerefacto.usecase.*;
+import com.kether.storyteller.beforerefacto.usecase.character.CreateCharacterUseCase;
+import com.kether.storyteller.beforerefacto.usecase.character.DeleteCharacterUseCase;
+import com.kether.storyteller.beforerefacto.usecase.character.FindCharactersByStoryUseCase;
+import com.kether.storyteller.beforerefacto.usecase.character.UpdateCharacterUseCase;
+import com.kether.storyteller.beforerefacto.usecase.location.CreateLocationUseCase;
+import com.kether.storyteller.beforerefacto.usecase.location.DeleteLocationUseCase;
+import com.kether.storyteller.beforerefacto.usecase.location.FindLocationsByStoryUseCase;
+import com.kether.storyteller.beforerefacto.usecase.location.UpdateLocationUseCase;
+import com.kether.storyteller.beforerefacto.usecase.lore.CreateLoreEntryUseCase;
+import com.kether.storyteller.beforerefacto.usecase.lore.DeleteLoreEntryUseCase;
+import com.kether.storyteller.beforerefacto.usecase.lore.FindLoreEntriesByStoryUseCase;
+import com.kether.storyteller.beforerefacto.usecase.lore.UpdateLoreEntryUseCase;
+import com.kether.storyteller.beforerefacto.usecase.story.*;
 import com.kether.storyteller.infrastructure.web.rest.dto.Requests;
 import com.kether.storyteller.infrastructure.web.rest.dto.Responses;
-import com.kether.storyteller.infrastructure.web.rest.dto.Requests.*;
-import com.kether.storyteller.infrastructure.web.rest.dto.Responses.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
