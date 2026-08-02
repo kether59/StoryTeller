@@ -1,33 +1,18 @@
 package com.kether.storyteller.domain.service;
 
 import com.kether.storyteller.domain.entity.Story;
-import com.kether.storyteller.domain.entity.Character;
-import com.kether.storyteller.domain.entity.Location;
+import com.kether.storyteller.domain.entity.StoryCharacter;   // ✅ CORRIGÉ
+import com.kether.storyteller.domain.entity.StoryLocation;    // ✅ CORRIGÉ
 import com.kether.storyteller.domain.entity.TimelineEvent;
 import com.kether.storyteller.domain.entity.LoreEntry;
 
 import java.util.List;
 
-/**
- * Service de domaine : construit les prompts système pour le LLM.
- *
- * FONCTIONNEMENT :
- * - Reçoit les entités du domaine (Story, Character...)
- * - Construit un prompt texte structuré selon les règles métier
- * - Aucune dépendance externe (pas d'ObjectMapper, pas de HTTP)
- *
- * POURQUOI dans le domaine ?
- * La construction du prompt est une règle métier : "Comment parler au LLM
- * pour qu'il écrive comme un romancier". Ce n'est pas un détail technique.
- *
- * AVANT : C'était dans LLMService (500 lignes). Maintenant c'est isolé,
- * testable unitairement, et réutilisable.
- */
 public class PromptBuilder {
 
     public String buildSystemPrompt(Story story,
-                                    List<Character> characters,
-                                    List<Location> locations,
+                                    List<StoryCharacter> characters,
+                                    List<StoryLocation> locations,
                                     List<TimelineEvent> timeline,
                                     List<LoreEntry> lore,
                                     String styleReference) {
@@ -98,8 +83,8 @@ public class PromptBuilder {
     public String buildChapterUserPrompt(Integer chapterNumber,
                                          String chapterTitle,
                                          String summary,
-                                         List<Character> selectedChars,
-                                         List<Location> selectedLocs,
+                                         List<StoryCharacter> selectedChars,
+                                         List<StoryLocation> selectedLocs,
                                          int targetWords) {
         var sb = new StringBuilder();
         sb.append("Écris un nouveau chapitre pour ce roman.\n\n");
@@ -156,8 +141,8 @@ public class PromptBuilder {
 
     // --- Méthodes privées d'assemblage ---
 
-    private void appendCharacters(StringBuilder sb, List<Character> characters) {
-        if (characters.isEmpty()) return;
+    private void appendCharacters(StringBuilder sb, List<StoryCharacter> characters) {
+        if (characters == null || characters.isEmpty()) return;
         sb.append("\n========================\nPERSONNAGES\n========================\n\n");
         for (var c : characters) {
             sb.append("### ").append(c.getName()).append("\n");
@@ -168,8 +153,8 @@ public class PromptBuilder {
         }
     }
 
-    private void appendLocations(StringBuilder sb, List<Location> locations) {
-        if (locations.isEmpty()) return;
+    private void appendLocations(StringBuilder sb, List<StoryLocation> locations) {
+        if (locations == null || locations.isEmpty()) return;
         sb.append("\n========================\nLIEUX\n========================\n\n");
         for (var l : locations) {
             sb.append("### ").append(l.getName());
@@ -181,7 +166,7 @@ public class PromptBuilder {
     }
 
     private void appendLore(StringBuilder sb, List<LoreEntry> lore) {
-        if (lore.isEmpty()) return;
+        if (lore == null || lore.isEmpty()) return;
         sb.append("\n========================\nLORE ET MONDES\n========================\n\n");
         for (var e : lore) {
             sb.append("### ").append(e.getTitle());
@@ -193,7 +178,7 @@ public class PromptBuilder {
     }
 
     private void appendTimeline(StringBuilder sb, List<TimelineEvent> timeline) {
-        if (timeline.isEmpty()) return;
+        if (timeline == null || timeline.isEmpty()) return;
         sb.append("\n========================\nCHRONOLOGIE\n========================\n\n");
         int limit = Math.min(timeline.size(), 10);
         for (int i = 0; i < limit; i++) {

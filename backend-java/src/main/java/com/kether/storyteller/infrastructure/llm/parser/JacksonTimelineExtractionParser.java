@@ -1,7 +1,7 @@
 package com.kether.storyteller.infrastructure.llm.parser;
 
 import com.kether.storyteller.domain.model.ExtractedTimelineEvent;
-import com.kether.storyteller.domain.port.out.TimelineExtractionParserPort;
+import com.kether.storyteller.domain.port.out.llm.TimelineExtractionParserPort;  // ✅ CORRIGÉ
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,9 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Implémentation Jackson du parser pour extraire les événements de chronologie.
- */
 @Component
 public class JacksonTimelineExtractionParser implements TimelineExtractionParserPort {
 
@@ -24,40 +21,40 @@ public class JacksonTimelineExtractionParser implements TimelineExtractionParser
     @Override
     public List<ExtractedTimelineEvent> parse(String jsonResponse) {
         List<ExtractedTimelineEvent> events = new ArrayList<>();
-        
+
         try {
             String cleaned = cleanJson(jsonResponse);
             JsonNode root = mapper.readTree(cleaned);
             JsonNode timelineNode = root.get("timeline");
-            
+
             if (timelineNode != null && timelineNode.isArray()) {
                 for (JsonNode eventNode : timelineNode) {
                     try {
                         String title = eventNode.has("title") ? eventNode.get("title").asText() : null;
                         String date = eventNode.has("date") ? eventNode.get("date").asText() : null;
                         String summary = eventNode.has("summary") ? eventNode.get("summary").asText() : null;
-                        Integer sortOrder = eventNode.has("sort_order") 
-                            ? eventNode.get("sort_order").asInt() 
-                            : 0;
-                        
+                        Integer sortOrder = eventNode.has("sort_order")
+                                ? eventNode.get("sort_order").asInt()
+                                : 0;
+
                         List<String> characterNames = new ArrayList<>();
                         if (eventNode.has("character_names") && eventNode.get("character_names").isArray()) {
                             for (JsonNode charName : eventNode.get("character_names")) {
                                 characterNames.add(charName.asText());
                             }
                         }
-                        
-                        String locationName = eventNode.has("location_name") 
-                            ? eventNode.get("location_name").asText() 
-                            : null;
-                        
-                        double confidence = eventNode.has("confidence") 
-                            ? eventNode.get("confidence").asDouble() 
-                            : 0.0;
-                        
+
+                        String locationName = eventNode.has("location_name")
+                                ? eventNode.get("location_name").asText()
+                                : null;
+
+                        double confidence = eventNode.has("confidence")
+                                ? eventNode.get("confidence").asDouble()
+                                : 0.0;
+
                         if (title != null && !title.isBlank()) {
                             events.add(new ExtractedTimelineEvent(
-                                title, date, summary, sortOrder, characterNames, locationName, confidence
+                                    title, date, summary, sortOrder, characterNames, locationName, confidence
                             ));
                         }
                     } catch (IllegalArgumentException e) {
@@ -68,7 +65,7 @@ public class JacksonTimelineExtractionParser implements TimelineExtractionParser
         } catch (Exception e) {
             // Si le parsing échoue, retourner une liste vide
         }
-        
+
         return events;
     }
 
