@@ -1,8 +1,12 @@
 {
-  "provider": "llama",
-  "model": "Phi-3-mini-4k-instruct-q4",
-  "ollama_url": "http://llama-cpp:8080",
-  "api_key": null,
-  "temperature": 0.7,
-  "max_tokens": 2000
+  "provider" : "lmstudio",
+  "model" : "Dolphin3.0 Llama3.1 8B",
+  "temperature" : 0.7,
+  "configured" : false,
+  "api_key" : "",
+  "ollama_url" : "http://192.168.1.28:1234",
+  "max_tokens" : 2000,
+  "gemini_api_key" : null,
+  "lmstudio_url" : "http://localhost:1234",
+  "llamacpp_url" : "http://127.0.0.1:8080"
 }

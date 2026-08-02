@@ -1,5 +1,7 @@
 package com.kether.storyteller.domain.service;
 
+import org.springframework.stereotype.Component;
+
 /**
  * Service de domaine : extrait un extrait de texte pour servir de référence de style.
  *
@@ -11,6 +13,7 @@ package com.kether.storyteller.domain.service;
  * AVANT : C'était une méthode privée dans LLMService. Maintenant c'est un
  * service réutilisable et testable.
  */
+@Component
 public class StyleExtractor {
 
     public String extractLastWords(String fullText, int targetWords) {

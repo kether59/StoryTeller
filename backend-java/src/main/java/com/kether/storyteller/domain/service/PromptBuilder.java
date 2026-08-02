@@ -5,9 +5,11 @@ import com.kether.storyteller.domain.entity.StoryCharacter;   // ✅ CORRIGÉ
 import com.kether.storyteller.domain.entity.StoryLocation;    // ✅ CORRIGÉ
 import com.kether.storyteller.domain.entity.TimelineEvent;
 import com.kether.storyteller.domain.entity.LoreEntry;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class PromptBuilder {
 
     public String buildSystemPrompt(Story story,
