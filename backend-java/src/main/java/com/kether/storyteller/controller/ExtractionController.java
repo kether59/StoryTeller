@@ -9,6 +9,10 @@ import com.kether.storyteller.beforerefacto.usecase.ia.ExtractCharactersUseCase;
 import com.kether.storyteller.beforerefacto.usecase.ia.ExtractLocationsUseCase;
 import com.kether.storyteller.beforerefacto.usecase.ia.ExtractLoreUseCase;
 import com.kether.storyteller.beforerefacto.usecase.ia.ExtractTimelineUseCase;
+import com.kether.storyteller.domain.model.ExtractedCharacter;
+import com.kether.storyteller.domain.model.ExtractedLocation;
+import com.kether.storyteller.domain.model.ExtractedLore;
+import com.kether.storyteller.domain.model.ExtractedTimelineEvent;
 import com.kether.storyteller.domain.port.out.persistence.ManuscriptRepositoryPort;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,19 +42,19 @@ public class ExtractionController {
         Long storyId = manuscript.getStory().getId();
         String text = manuscript.getText();
 
-        List<?> characters = types.contains("characters")
+        List<ExtractedCharacter> characters = types.contains("characters")
                 ? extractCharactersUseCase.execute(storyId, text)
                 : List.of();
 
-        List<?> locations = types.contains("locations")
+        List<ExtractedLocation> locations = types.contains("locations")
                 ? extractLocationsUseCase.execute(storyId, text)
                 : List.of();
 
-        List<?> timeline = types.contains("timeline")
+        List<ExtractedTimelineEvent> timeline = types.contains("timeline")
                 ? extractTimelineUseCase.execute(storyId, text)
                 : List.of();
 
-        List<?> lore = types.contains("lore")
+        List<ExtractedLore> lore = types.contains("lore")
                 ? extractLoreUseCase.execute(storyId, text)
                 : List.of();
 

@@ -2,7 +2,6 @@ package com.kether.storyteller.beforerefacto.usecase;
 
 import com.kether.storyteller.beforerefacto.ValidationRequest;
 import com.kether.storyteller.beforerefacto.ValidationResult;
-import com.kether.storyteller.domain.entity.*;
 import com.kether.storyteller.domain.port.out.persistence.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ public class ValidateAndCreateUseCase {
     private final LocationRepositoryPort locationRepo;
     private final LoreEntryRepositoryPort loreRepo;
     private final TimelineEventRepositoryPort timelineRepo;
-    private final ManuscriptRepositoryPort manuscriptRepo;
 
     public ValidationResult execute(ValidationRequest request) {
         return switch (request.itemType()) {
@@ -28,12 +26,12 @@ public class ValidateAndCreateUseCase {
             case "lore" -> validateAndCreateLore(request);
             case "timeline" -> validateAndCreateTimeline(request);
             case "manuscript" -> validateAndCreateManuscript(request);
-            default -> new ValidationResult("error", request.itemType(), request.id(), "Type inconnu");
+            default -> ValidationResult.error(request.itemType(), "Type inconnu : " + request.itemType());
         };
     }
 
     public List<String> validateStory(Long storyId) {
-        Story story = storyRepo.findById(storyId)
+        var story = storyRepo.findById(storyId)
                 .orElseThrow(() -> new RuntimeException("Story not found: " + storyId));
 
         List<String> issues = new ArrayList<>();
@@ -48,23 +46,23 @@ public class ValidateAndCreateUseCase {
     }
 
     private ValidationResult validateAndCreateCharacter(ValidationRequest req) {
-        // TODO: implémenter la validation métier réelle
-        return new ValidationResult("ok", req.itemType(), req.id(), "Personnage validé et créé");
+        // TODO: implémenter validation métier + création depuis req.itemData()
+        return ValidationResult.created(req.itemType(), null);
     }
 
     private ValidationResult validateAndCreateLocation(ValidationRequest req) {
-        return new ValidationResult("ok", req.itemType(), req.id(), "Lieu validé et créé");
+        return ValidationResult.created(req.itemType(), null);
     }
 
     private ValidationResult validateAndCreateLore(ValidationRequest req) {
-        return new ValidationResult("ok", req.itemType(), req.id(), "Lore validé et créé");
+        return ValidationResult.created(req.itemType(), null);
     }
 
     private ValidationResult validateAndCreateTimeline(ValidationRequest req) {
-        return new ValidationResult("ok", req.itemType(), req.id(), "Événement validé et créé");
+        return ValidationResult.created(req.itemType(), null);
     }
 
     private ValidationResult validateAndCreateManuscript(ValidationRequest req) {
-        return new ValidationResult("ok", req.itemType(), req.id(), "Manuscrit validé et créé");
+        return ValidationResult.created(req.itemType(), null);
     }
 }
