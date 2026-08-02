@@ -2,17 +2,24 @@ import React, { useState, useEffect } from 'react'
 import API from '../api/api'
 import { notifyError, notifySuccess } from '../utils/notify'
 
+const DEFAULT_URLS = {
+  llama: 'http://127.0.0.1:8080',
+  lmstudio: 'http://127.0.0.1:1234',
+  ollama: 'http://127.0.0.1:11434',
+  anthropic: '',
+  openai: '',
+  gemini: '',
+}
+
 export default function LlmConfigpanel() {
   const [config, setConfig] = useState({
     provider: 'llama',
-    url: 'http://127.0.0.1:8080',
+    url: DEFAULT_URLS.llama,
     model: '',
     api_key: '',
     gemini_api_key: '',
     temperature: 0.7,
     max_tokens: 2000,
-    lmstudio_url: 'http://192.168.1.28:1234',
-    ollama_url: 'http://127.0.0.1:8080/',
   })
 
   const [availableModels, setAvailableModels] = useState([])
@@ -29,7 +36,6 @@ export default function LlmConfigpanel() {
     { id: 'gemini', label: 'Google Gemini', color: '#4285f4' },
   ]
 
-  // Load existing config from backend on mount
   useEffect(() => {
     let cancelled = false
     async function loadConfig() {
@@ -38,33 +44,43 @@ export default function LlmConfigpanel() {
         const res = await API.get('/api/llm/config')
         if (cancelled || !res.data) return
         const d = res.data
+
+        // Détecte le provider et met l'URL au bon endroit
+        const provider = d.provider ?? 'llama'
+        const url = d.llmUrl ?? DEFAULT_URLS[provider] ?? ''
+
         setConfig((c) => ({
           ...c,
-          provider: d.provider ?? c.provider,
+          provider,
           model: d.model ?? c.model,
-          api_key: d.apiKey ?? d.api_key ?? c.api_key,
-          gemini_api_key: d.geminiApiKey ?? d.gemini_api_key ?? c.gemini_api_key,
-          url: d.ollamaUrl ?? d.url ?? c.url,
-          ollama_url: d.ollamaUrl ?? d.ollama_url ?? c.ollama_url,
-          lmstudio_url: d.lmstudioUrl ?? d.lmstudio_url ?? c.lmstudio_url,
+          api_key: d.apiKey ?? c.api_key,
+          url,
           temperature: d.temperature ?? c.temperature,
           max_tokens: d.maxTokens ?? d.max_tokens ?? c.max_tokens,
         }))
       } catch (err) {
-        // Endpoint may not exist yet — keep defaults
-        console.warn('Impossible de charger la config LLM:', err.friendlyMessage || err.message)
+        console.warn('Impossible de charger la config LLM:', err.message)
       } finally {
         if (!cancelled) setLoadingConfig(false)
       }
     }
     loadConfig()
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [])
 
+  // Quand on change de provider, on propose l'URL par défaut
+  const handleProviderChange = (providerId) => {
+    setConfig((c) => ({
+      ...c,
+      provider: providerId,
+      url: DEFAULT_URLS[providerId] ?? c.url,
+      model: '',
+    }))
+    setAvailableModels([])
+  }
+
   const loadModels = async () => {
-    if (!['llama', 'lmstudio'].includes(config.provider)) {
+    if (!['llama', 'lmstudio', 'ollama'].includes(config.provider)) {
       setAvailableModels([])
       return
     }
@@ -72,7 +88,7 @@ export default function LlmConfigpanel() {
     setLoadingModels(true)
     try {
       const res = await API.get(
-        `/api/llm/local/models?url=${encodeURIComponent(config.url)}&provider=${config.provider}`
+          `/api/llm/local/models?url=${encodeURIComponent(config.url)}&provider=${config.provider}`
       )
       setAvailableModels(res.data)
       if (res.data.length > 0 && !String(res.data[0]).startsWith('Erreur')) {
@@ -91,14 +107,12 @@ export default function LlmConfigpanel() {
       const payload = {
         provider: config.provider,
         model: config.model,
-        apiKey: config.api_key || config.gemini_api_key,
-        ollamaUrl: config.ollama_url || config.url,
-        lmstudioUrl: config.lmstudio_url,
-        geminiApiKey: config.gemini_api_key,
+        apiKey: config.provider === 'gemini' ? config.gemini_api_key : config.api_key,
+        llmUrl: config.url,   // ✅ UN SEUL CHAMP
       }
       const res = await API.post('/api/llm/test', payload)
-      setTestStatus('success')
-      setTestMessage(res.data.message || '✅ Connexion réussie')
+      setTestStatus(res.data.ok ? 'success' : 'error')
+      setTestMessage(res.data.message || 'Test terminé')
     } catch (err) {
       setTestStatus('error')
       setTestMessage(err.friendlyMessage || err.message)
@@ -110,8 +124,8 @@ export default function LlmConfigpanel() {
       const payload = {
         provider: config.provider,
         model: config.model,
-        apiKey: config.api_key,
-        ollamaUrl: config.url,
+        apiKey: config.provider === 'gemini' ? config.gemini_api_key : config.api_key,
+        llmUrl: config.url,   // ✅ UN SEUL CHAMP
         temperature: config.temperature,
         maxTokens: config.max_tokens,
       }
@@ -122,113 +136,137 @@ export default function LlmConfigpanel() {
     }
   }
 
+  const isLocal = ['llama', 'lmstudio', 'ollama'].includes(config.provider)
+
   if (loadingConfig) {
     return (
-      <div className="panel">
-        <h2>⚙️ Configuration LLM</h2>
-        <p>Chargement de la configuration…</p>
-      </div>
+        <div className="panel">
+          <h2>⚙️ Configuration LLM</h2>
+          <p>Chargement de la configuration…</p>
+        </div>
     )
   }
 
   return (
-    <div className="panel">
-      <h2>⚙️ Configuration LLM</h2>
+      <div className="panel">
+        <h2>⚙️ Configuration LLM</h2>
 
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
-        {providers.map((p) => (
-          <div
-            key={p.id}
-            onClick={() => setConfig((c) => ({ ...c, provider: p.id }))}
-            style={{
-              padding: '12px 20px',
-              border: config.provider === p.id ? `3px solid ${p.color}` : '1px solid #ccc',
-              borderRadius: 8,
-              cursor: 'pointer',
-              background: config.provider === p.id ? '#f0f9ff' : 'white',
-            }}
-          >
-            {p.label}
-          </div>
-        ))}
-      </div>
-
-      <div className="field">
-        <label>URL du serveur</label>
-        <input
-          value={config.url}
-          onChange={(e) => setConfig((c) => ({ ...c, url: e.target.value }))}
-          className="input"
-          placeholder="http://127.0.0.1:8080"
-        />
-      </div>
-
-      {['llama', 'lmstudio'].includes(config.provider) && (
-        <button onClick={loadModels} disabled={loadingModels}>
-          {loadingModels ? 'Chargement...' : '🔄 Charger les modèles'}
-        </button>
-      )}
-
-      {availableModels.length > 0 && (
-        <div className="field">
-          <label>Modèle</label>
-          <select
-            value={config.model}
-            onChange={(e) => setConfig((c) => ({ ...c, model: e.target.value }))}
-            className="input"
-          >
-            {availableModels.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+          {providers.map((p) => (
+              <div
+                  key={p.id}
+                  onClick={() => handleProviderChange(p.id)}
+                  style={{
+                    padding: '12px 20px',
+                    border: config.provider === p.id ? `3px solid ${p.color}` : '1px solid #ccc',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    background: config.provider === p.id ? '#f0f9ff' : 'white',
+                  }}
+              >
+                {p.label}
+              </div>
+          ))}
         </div>
-      )}
 
-      {(config.provider === 'anthropic' || config.provider === 'openai') && (
+        {isLocal && (
+            <>
+              <div className="field">
+                <label>URL du serveur</label>
+                <input
+                    value={config.url}
+                    onChange={(e) => setConfig((c) => ({ ...c, url: e.target.value }))}
+                    className="input"
+                    placeholder="http://127.0.0.1:8080"
+                />
+              </div>
+
+              <button onClick={loadModels} disabled={loadingModels} style={{ marginBottom: 16 }}>
+                {loadingModels ? 'Chargement...' : '🔄 Charger les modèles'}
+              </button>
+            </>
+        )}
+
+        {availableModels.length > 0 && (
+            <div className="field">
+              <label>Modèle</label>
+              <select
+                  value={config.model}
+                  onChange={(e) => setConfig((c) => ({ ...c, model: e.target.value }))}
+                  className="input"
+              >
+                {availableModels.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+        )}
+
+        {['anthropic', 'openai', 'openrouter'].includes(config.provider) && (
+            <div className="field">
+              <label>Clé API</label>
+              <input
+                  type="password"
+                  value={config.api_key}
+                  onChange={(e) => setConfig((c) => ({ ...c, api_key: e.target.value }))}
+                  className="input"
+              />
+            </div>
+        )}
+
+        {config.provider === 'gemini' && (
+            <div className="field">
+              <label>Clé API Gemini</label>
+              <input
+                  type="password"
+                  value={config.gemini_api_key}
+                  onChange={(e) => setConfig((c) => ({ ...c, gemini_api_key: e.target.value }))}
+                  className="input"
+              />
+            </div>
+        )}
+
         <div className="field">
-          <label>Clé API</label>
+          <label>Température ({config.temperature})</label>
           <input
-            type="password"
-            value={config.api_key}
-            onChange={(e) => setConfig((c) => ({ ...c, api_key: e.target.value }))}
-            className="input"
+              type="range"
+              min="0"
+              max="2"
+              step="0.1"
+              value={config.temperature}
+              onChange={(e) => setConfig((c) => ({ ...c, temperature: parseFloat(e.target.value) }))}
           />
         </div>
-      )}
 
-      {config.provider === 'gemini' && (
         <div className="field">
-          <label>Clé API Gemini</label>
+          <label>Max tokens</label>
           <input
-            type="password"
-            value={config.gemini_api_key}
-            onChange={(e) => setConfig((c) => ({ ...c, gemini_api_key: e.target.value }))}
-            className="input"
+              type="number"
+              value={config.max_tokens}
+              onChange={(e) => setConfig((c) => ({ ...c, max_tokens: parseInt(e.target.value) }))}
+              className="input"
           />
         </div>
-      )}
 
-      <div style={{ marginTop: 20, display: 'flex', gap: 12 }}>
-        <button className="primary" onClick={handleTest}>
-          🔄 Tester connexion
-        </button>
-        <button onClick={handleSave}>💾 Sauvegarder</button>
-      </div>
-
-      {testStatus && (
-        <div
-          style={{
-            marginTop: 16,
-            padding: 14,
-            borderRadius: 6,
-            background: testStatus === 'success' ? '#e8f5e9' : '#fee',
-          }}
-        >
-          {testMessage}
+        <div style={{ marginTop: 20, display: 'flex', gap: 12 }}>
+          <button className="primary" onClick={handleTest}>
+            🔄 Tester connexion
+          </button>
+          <button onClick={handleSave}>💾 Sauvegarder</button>
         </div>
-      )}
-    </div>
+
+        {testStatus && (
+            <div
+                style={{
+                  marginTop: 16,
+                  padding: 14,
+                  borderRadius: 6,
+                  background: testStatus === 'success' ? '#e8f5e9' : '#fee',
+                }}
+            >
+              {testMessage}
+            </div>
+        )}
+      </div>
   )
 }
