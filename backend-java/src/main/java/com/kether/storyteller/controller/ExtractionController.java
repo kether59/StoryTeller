@@ -4,25 +4,18 @@ import com.kether.storyteller.beforerefacto.ExtractionRequest;
 import com.kether.storyteller.beforerefacto.ExtractionResponse;
 import com.kether.storyteller.beforerefacto.ValidationRequest;
 import com.kether.storyteller.beforerefacto.ValidationResult;
-import com.kether.storyteller.beforerefacto.usecase.*;
+import com.kether.storyteller.beforerefacto.usecase.ValidateAndCreateUseCase;
 import com.kether.storyteller.beforerefacto.usecase.ia.ExtractCharactersUseCase;
 import com.kether.storyteller.beforerefacto.usecase.ia.ExtractLocationsUseCase;
 import com.kether.storyteller.beforerefacto.usecase.ia.ExtractLoreUseCase;
 import com.kether.storyteller.beforerefacto.usecase.ia.ExtractTimelineUseCase;
-import com.kether.storyteller.domain.model.*;
+import com.kether.storyteller.domain.port.out.persistence.ManuscriptRepositoryPort;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Contrôleur d'extraction – couche Interface.
- * Valide les requêtes HTTP et orchestre les Use Cases.
- * 
- * ✅ Ne connaît QUE les DTOs et Use Cases
- * ❌ N'a AUCUNE logique métier
- */
 @RestController
 @RequestMapping("/api/extraction")
 @RequiredArgsConstructor
@@ -33,39 +26,37 @@ public class ExtractionController {
     private final ExtractTimelineUseCase extractTimelineUseCase;
     private final ExtractLoreUseCase extractLoreUseCase;
     private final ValidateAndCreateUseCase validateAndCreateUseCase;
+    private final ManuscriptRepositoryPort manuscriptRepo;
 
-    /**
-     * POST /api/extraction/analyze
-     * Extrait tous les types demandés d'un manuscrit.
-     */
     @PostMapping("/analyze")
     public ExtractionResponse analyze(@Valid @RequestBody ExtractionRequest request) {
         Long manuscriptId = request.manuscriptId();
         List<String> types = request.extractTypes();
 
-        List<ExtractedCharacter> characters = types.contains("characters")
-                ? extractCharactersUseCase.execute(manuscriptId)
+        var manuscript = manuscriptRepo.findById(manuscriptId)
+                .orElseThrow(() -> new RuntimeException("Manuscript not found: " + manuscriptId));
+        Long storyId = manuscript.getStory().getId();
+        String text = manuscript.getText();
+
+        List<?> characters = types.contains("characters")
+                ? extractCharactersUseCase.execute(storyId, text)
                 : List.of();
 
-        List<ExtractedLocation> locations = types.contains("locations")
-                ? extractLocationsUseCase.execute(manuscriptId)
+        List<?> locations = types.contains("locations")
+                ? extractLocationsUseCase.execute(storyId, text)
                 : List.of();
 
-        List<ExtractedTimelineEvent> timeline = types.contains("timeline")
-                ? extractTimelineUseCase.execute(manuscriptId)
+        List<?> timeline = types.contains("timeline")
+                ? extractTimelineUseCase.execute(storyId, text)
                 : List.of();
 
-        List<ExtractedLore> lore = types.contains("lore")
-                ? extractLoreUseCase.execute(manuscriptId)
+        List<?> lore = types.contains("lore")
+                ? extractLoreUseCase.execute(storyId, text)
                 : List.of();
 
         return new ExtractionResponse(characters, locations, timeline, lore, "Extraction complétée");
     }
 
-    /**
-     * POST /api/extraction/validate-and-create
-     * Valide et crée un élément extrait après approbation utilisateur.
-     */
     @PostMapping("/validate-and-create")
     public ValidationResult validateAndCreate(@Valid @RequestBody ValidationRequest request) {
         return validateAndCreateUseCase.execute(request);

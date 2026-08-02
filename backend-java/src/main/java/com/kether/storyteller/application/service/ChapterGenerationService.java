@@ -3,6 +3,8 @@ package com.kether.storyteller.application.service;
 import com.kether.storyteller.application.dto.ChapterGenerationCommand;
 import com.kether.storyteller.application.dto.GeneratedChapterResult;
 import com.kether.storyteller.domain.entity.Story;
+import com.kether.storyteller.domain.entity.StoryCharacter;
+import com.kether.storyteller.domain.entity.StoryLocation;
 import com.kether.storyteller.domain.port.in.llm.GenerateChapterUseCase;
 import com.kether.storyteller.domain.port.out.llm.LLMGenerationPort;
 import com.kether.storyteller.domain.port.out.persistence.*;
@@ -85,8 +87,8 @@ public class ChapterGenerationService implements GenerateChapterUseCase {
         var lore = loreRepo.findByStoryId(cmd.storyId());
 
         // 2. Filtrage
-        var selectedChars = filterByIds(allChars, cmd.includeCharacters());
-        var selectedLocs = filterByIds(allLocs, cmd.includeLocations());
+        var selectedChars = charsFilterByIds(allChars, cmd.includeCharacters());
+        var selectedLocs = locationsFilterByIds(allLocs, cmd.includeLocations());
 
         // 3. Extraction du style de référence
         String styleRef = extractStyleReference(cmd.storyId());
@@ -122,8 +124,14 @@ public class ChapterGenerationService implements GenerateChapterUseCase {
         return styleExtractor.extractLastWords(lastText != null ? lastText : "", 3000);
     }
 
-    private <T extends Character> List<T>
-    filterByIds(List<T> all, List<Long> ids) {
+    private <T extends StoryCharacter> List<T>
+    charsFilterByIds(List<T> all, List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return all.stream().filter(c -> ids.contains(c.getId())).toList();
+    }
+
+    private <T extends StoryLocation> List<T>
+    locationsFilterByIds(List<T> all, List<Long> ids) {
         if (ids == null || ids.isEmpty()) return List.of();
         return all.stream().filter(c -> ids.contains(c.getId())).toList();
     }

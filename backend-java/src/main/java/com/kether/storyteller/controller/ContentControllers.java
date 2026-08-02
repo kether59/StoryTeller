@@ -1,17 +1,9 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.beforerefacto.usecase.manuscript.CreateManuscriptUseCase;
-import com.kether.storyteller.beforerefacto.usecase.manuscript.DeleteManuscriptUseCase;
-import com.kether.storyteller.beforerefacto.usecase.manuscript.FindManuscriptsByStoryUseCase;
-import com.kether.storyteller.beforerefacto.usecase.manuscript.UpdateManuscriptUseCase;
-import com.kether.storyteller.beforerefacto.usecase.timeline.CreateTimelineEventUseCase;
-import com.kether.storyteller.beforerefacto.usecase.timeline.DeleteTimelineEventUseCase;
-import com.kether.storyteller.beforerefacto.usecase.timeline.FindTimelineEventsByStoryUseCase;
-import com.kether.storyteller.beforerefacto.usecase.timeline.UpdateTimelineEventUseCase;
+import com.kether.storyteller.beforerefacto.usecase.manuscript.*;
+import com.kether.storyteller.beforerefacto.usecase.timeline.*;
 import com.kether.storyteller.infrastructure.web.rest.dto.Requests;
 import com.kether.storyteller.infrastructure.web.rest.dto.Responses;
-import com.kether.storyteller.infrastructure.web.rest.dto.Requests.*;
-import com.kether.storyteller.infrastructure.web.rest.dto.Responses.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -32,11 +24,28 @@ class TimelineController {
         this.deleteEvent = deleteEvent;
     }
 
-    @GetMapping public List<TimelineEventResponse> list(@RequestParam Long storyId) { return findByStory.execute(storyId); }
+    @GetMapping
+    public List<Responses.TimelineEventResponse> list(@RequestParam Long storyId) {
+        return findByStory.execute(storyId).stream().map(Responses.TimelineEventResponse::from).toList();
+    }
+
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
-    public TimelineEventResponse create(@Valid @RequestBody Requests.TimelineEventCreate req) { return createEvent.execute(req); }
-    @PutMapping("/{id}") public TimelineEventResponse update(@PathVariable Long id, @RequestBody TimelineEventUpdate req) { return updateEvent.execute(id, req); }
-    @DeleteMapping("/{id}") public OkResponse delete(@PathVariable Long id) { deleteEvent.execute(id); return OkResponse.ok(); }
+    public Responses.TimelineEventResponse create(@Valid @RequestBody Requests.TimelineEventCreate req) {
+        return Responses.TimelineEventResponse.from(
+                createEvent.execute(req.storyId(), req.title(), req.date(), req.sortOrder(), req.summary(), req.locationId()));
+    }
+
+    @PutMapping("/{id}")
+    public Responses.TimelineEventResponse update(@PathVariable Long id, @RequestBody Requests.TimelineEventUpdate req) {
+        return Responses.TimelineEventResponse.from(
+                updateEvent.execute(id, req.title(), req.date(), req.sortOrder(), req.summary(), req.locationId()));
+    }
+
+    @DeleteMapping("/{id}")
+    public Responses.OkResponse delete(@PathVariable Long id) {
+        deleteEvent.execute(id);
+        return Responses.OkResponse.ok();
+    }
 }
 
 @RestController @RequestMapping("/api/manuscript")
@@ -55,12 +64,26 @@ class ManuscriptController {
     }
 
     @GetMapping
-    public List<ManuscriptResponse> list(@RequestParam(required = false) Long storyId) {
+    public List<Responses.ManuscriptResponse> list(@RequestParam(required = false) Long storyId) {
         if (storyId == null) return List.of();
-        return findByStory.execute(storyId);
+        return findByStory.execute(storyId).stream().map(Responses.ManuscriptResponse::from).toList();
     }
+
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
-    public Responses.ManuscriptResponse create(@Valid @RequestBody ManuscriptCreate req) { return createManuscript.execute(req); }
-    @PutMapping("/{id}") public ManuscriptResponse update(@PathVariable Long id, @RequestBody ManuscriptUpdate req) { return updateManuscript.execute(id, req); }
-    @DeleteMapping("/{id}") public OkResponse delete(@PathVariable Long id) { deleteManuscript.execute(id); return OkResponse.ok(); }
+    public Responses.ManuscriptResponse create(@Valid @RequestBody Requests.ManuscriptCreate req) {
+        return Responses.ManuscriptResponse.from(
+                createManuscript.execute(req.storyId(), req.title(), req.chapter(), req.text(), req.status()));
+    }
+
+    @PutMapping("/{id}")
+    public Responses.ManuscriptResponse update(@PathVariable Long id, @RequestBody Requests.ManuscriptUpdate req) {
+        return Responses.ManuscriptResponse.from(
+                updateManuscript.execute(id, req.title(), req.chapter(), req.text(), req.status()));
+    }
+
+    @DeleteMapping("/{id}")
+    public Responses.OkResponse delete(@PathVariable Long id) {
+        deleteManuscript.execute(id);
+        return Responses.OkResponse.ok();
+    }
 }
