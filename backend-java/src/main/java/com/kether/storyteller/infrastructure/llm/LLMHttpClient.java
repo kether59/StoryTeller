@@ -1,4 +1,3 @@
-// infrastructure/llm/LLMHttpClient.java
 package com.kether.storyteller.infrastructure.llm;
 
 import com.kether.storyteller.exception.ServiceUnavailableException;

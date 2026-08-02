@@ -1,7 +1,7 @@
 package com.kether.storyteller.domain.port.in.llm;
 
-import com.kether.storyteller.beforerefacto.LLMConfigDto;
-import com.kether.storyteller.beforerefacto.LLMTestResultDto;
+import com.kether.storyteller.application.dto.LLMConfigDto;
+import com.kether.storyteller.application.dto.LLMTestResultDto;
 
 public interface ManageLLMConfigUseCase {
     LLMConfigDto getCurrentConfig();
