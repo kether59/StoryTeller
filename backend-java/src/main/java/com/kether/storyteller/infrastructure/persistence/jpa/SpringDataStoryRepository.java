@@ -1,4 +1,3 @@
-// infrastructure/persistence/jpa/SpringDataStoryRepository.java
 package com.kether.storyteller.infrastructure.persistence.jpa;
 
 import com.kether.storyteller.domain.entity.Story;

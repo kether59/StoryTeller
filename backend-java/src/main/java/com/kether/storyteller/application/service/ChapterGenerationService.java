@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * Service d'application : orchestre la génération d'un chapitre.
  *
@@ -120,7 +122,7 @@ public class ChapterGenerationService implements GenerateChapterUseCase {
         return styleExtractor.extractLastWords(lastText != null ? lastText : "", 3000);
     }
 
-    private <T extends com.kether.storyteller.domain.entity.Character> List<T>
+    private <T extends Character> List<T>
     filterByIds(List<T> all, List<Long> ids) {
         if (ids == null || ids.isEmpty()) return List.of();
         return all.stream().filter(c -> ids.contains(c.getId())).toList();

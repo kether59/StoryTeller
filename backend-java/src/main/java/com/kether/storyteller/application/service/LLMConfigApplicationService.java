@@ -1,7 +1,7 @@
 package com.kether.storyteller.application.service;
 
-import com.kether.storyteller.application.dto.LLMConfigDto;       // ✅ CORRIGÉ
-import com.kether.storyteller.application.dto.LLMTestResultDto;   // ✅ CORRIGÉ
+import com.kether.storyteller.application.dto.LLMConfigDto;
+import com.kether.storyteller.application.dto.LLMTestResultDto;
 import com.kether.storyteller.domain.port.in.llm.ManageLLMConfigUseCase;
 import com.kether.storyteller.infrastructure.llm.registry.LLMProviderRegistry;
 import com.kether.storyteller.service.llm.LLMConfigModel;

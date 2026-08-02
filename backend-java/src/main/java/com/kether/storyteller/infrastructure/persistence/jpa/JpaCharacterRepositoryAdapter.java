@@ -1,9 +1,7 @@
 package com.kether.storyteller.infrastructure.persistence.jpa;
 
 import com.kether.storyteller.domain.entity.StoryCharacter;
-import com.kether.storyteller.domain.model.ExtractedCharacter;
 import com.kether.storyteller.domain.port.out.persistence.CharacterRepositoryPort;
-import com.kether.storyteller.repository.CharacterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,46 +12,30 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JpaCharacterRepositoryAdapter implements CharacterRepositoryPort {
 
-    private final CharacterRepository existingRepo;
+    private final SpringDataCharacterRepository jpaRepo;
 
     @Override
-    public Optional<ExtractedCharacter> findByStoryIdAndName(Long storyId, String name) {
-        return existingRepo.findByStoryIdAndName(storyId, name)
-                .map(this::toDomain);
+    public Optional<StoryCharacter> findById(Long id) {
+        return jpaRepo.findById(id);
     }
 
     @Override
-    public boolean existsByStoryIdAndName(Long storyId, String name) {
-        return existingRepo.findByStoryIdAndName(storyId, name).isPresent();
+    public List<StoryCharacter> findByStoryId(Long storyId) {
+        return jpaRepo.findByStoryId(storyId);
     }
 
     @Override
-    public ExtractedCharacter save(ExtractedCharacter character) {
-        // Pour l'instant, on retourne le domaine tel quel
-        // En production, on persisterait en DB
-        return character;
-    }
-
-    private ExtractedCharacter toDomain(StoryCharacter jpa) {
-        return new ExtractedCharacter(
-                jpa.getName(),
-                jpa.getSurname(),
-                jpa.getRole(),
-                jpa.getAge(),
-                jpa.getPhysicalDescription(),
-                jpa.getPersonality(),
-                jpa.getMotivation(),
-                0.0  // La confiance n'est pas en DB actuellement
-        );
+    public List<StoryCharacter> findByStoryIdOrderByNameAsc(Long storyId) {
+        return jpaRepo.findByStoryIdOrderByNameAsc(storyId);
     }
 
     @Override
-    public List<Character> findByStoryId(Long storyId) {
-        return List.of();
+    public StoryCharacter save(StoryCharacter character) {
+        return jpaRepo.save(character);
     }
 
     @Override
-    public List<ExtractedCharacter> parse(String rawJson) {
-        return List.of();
+    public void deleteById(Long id) {
+        jpaRepo.deleteById(id);
     }
 }

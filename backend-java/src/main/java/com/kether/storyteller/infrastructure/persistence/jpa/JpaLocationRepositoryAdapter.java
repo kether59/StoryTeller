@@ -1,43 +1,41 @@
 package com.kether.storyteller.infrastructure.persistence.jpa;
 
 import com.kether.storyteller.domain.entity.StoryLocation;
-import com.kether.storyteller.domain.model.ExtractedLocation;
 import com.kether.storyteller.domain.port.out.persistence.LocationRepositoryPort;
-import com.kether.storyteller.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class JpaLocationRepositoryAdapter implements LocationRepositoryPort {
 
-    private final LocationRepository existingRepo;
+    private final SpringDataLocationRepository jpaRepo;
 
     @Override
-    public Optional<ExtractedLocation> findByStoryIdAndName(Long storyId, String name) {
-        return existingRepo.findByStoryIdAndName(storyId, name)
-                .map(this::toDomain);
+    public Optional<StoryLocation> findById(Long id) {
+        return jpaRepo.findById(id);
     }
 
     @Override
-    public boolean existsByStoryIdAndName(Long storyId, String name) {
-        return existingRepo.findByStoryIdAndName(storyId, name).isPresent();
+    public List<StoryLocation> findByStoryId(Long storyId) {
+        return jpaRepo.findByStoryId(storyId);
     }
 
     @Override
-    public ExtractedLocation save(ExtractedLocation location) {
-        // Pour l'instant, on retourne le domaine tel quel
-        return location;
+    public List<StoryLocation> findByStoryIdOrderByNameAsc(Long storyId) {
+        return jpaRepo.findByStoryIdOrderByNameAsc(storyId);
     }
 
-    private ExtractedLocation toDomain(StoryLocation jpa) {
-        return new ExtractedLocation(
-                jpa.getName(),
-                jpa.getType(),
-                jpa.getSummary(),
-                0.0  // La confiance n'est pas en DB actuellement
-        );
+    @Override
+    public StoryLocation save(StoryLocation location) {
+        return jpaRepo.save(location);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        jpaRepo.deleteById(id);
     }
 }

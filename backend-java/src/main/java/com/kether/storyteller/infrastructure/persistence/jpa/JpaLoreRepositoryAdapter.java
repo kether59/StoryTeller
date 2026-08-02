@@ -1,9 +1,7 @@
 package com.kether.storyteller.infrastructure.persistence.jpa;
 
 import com.kether.storyteller.domain.entity.LoreEntry;
-import com.kether.storyteller.domain.model.ExtractedLore;
 import com.kether.storyteller.domain.port.out.persistence.LoreEntryRepositoryPort;
-import com.kether.storyteller.repository.LoreEntryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,36 +12,30 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JpaLoreRepositoryAdapter implements LoreEntryRepositoryPort {
 
-    private final LoreEntryRepository existingRepo;
+    private final SpringDataLoreEntryRepository jpaRepo;
 
     @Override
-    public Optional<ExtractedLore> findByStoryIdAndTitle(Long storyId, String title) {
-        return existingRepo.findByStoryIdAndTitle(storyId, title)
-                .map(this::toDomain);
+    public Optional<LoreEntry> findById(Long id) {
+        return jpaRepo.findById(id);
     }
 
     @Override
-    public boolean existsByStoryIdAndTitle(Long storyId, String title) {
-        return existingRepo.findByStoryIdAndTitle(storyId, title).isPresent();
+    public List<LoreEntry> findByStoryId(Long storyId) {
+        return jpaRepo.findByStoryId(storyId);
     }
 
     @Override
-    public ExtractedLore save(ExtractedLore lore) {
-        // Pour l'instant, on retourne le domaine tel quel
-        return lore;
+    public List<LoreEntry> findByStoryIdOrderByTitleAsc(Long storyId) {
+        return jpaRepo.findByStoryIdOrderByTitleAsc(storyId);
     }
 
     @Override
-    public List<ExtractedLore> parse(String jsonResponse) {
-        return List.of();
+    public LoreEntry save(LoreEntry entry) {
+        return jpaRepo.save(entry);
     }
 
-    private ExtractedLore toDomain(LoreEntry jpa) {
-        return new ExtractedLore(
-                jpa.getTitle(),
-                jpa.getCategory(),
-                jpa.getContent(),
-                0.0  // La confiance n'est pas en DB actuellement
-        );
+    @Override
+    public void deleteById(Long id) {
+        jpaRepo.deleteById(id);
     }
 }

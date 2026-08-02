@@ -52,7 +52,7 @@ public class SuggestionService implements SuggestNextSceneUseCase {
         log.info("suggestNextScene — storyId={}", cmd.storyId());
 
         var story = storyRepo.findById(cmd.storyId())
-                .orElseThrow(() -> new RuntimeException("Histoire introuvable"));
+                .orElseThrow(() -> new RuntimeException("Histoire introuvable : " + cmd.storyId()));
 
         var chars = characterRepo.findByStoryId(cmd.storyId());
         var locs = locationRepo.findByStoryId(cmd.storyId());
@@ -83,7 +83,7 @@ public class SuggestionService implements SuggestNextSceneUseCase {
     }
 
     private String cleanJsonResponse(String raw) {
-        if (raw == null) return "{}";
+        if (raw == null) return "{\"suggestions\":[]}";
         return raw.strip()
                 .replaceAll("(?s)^```json\\s*", "")
                 .replaceAll("(?s)^```\\s*", "")
