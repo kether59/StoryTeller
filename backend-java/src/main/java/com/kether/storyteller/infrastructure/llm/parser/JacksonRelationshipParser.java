@@ -1,7 +1,7 @@
 package com.kether.storyteller.infrastructure.llm.parser;
 
 import com.kether.storyteller.domain.model.CharacterRelationship;
-import com.kether.storyteller.domain.port.out.RelationshipParserPort;
+import com.kether.storyteller.domain.port.out.persistence.RelationshipParserPort;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

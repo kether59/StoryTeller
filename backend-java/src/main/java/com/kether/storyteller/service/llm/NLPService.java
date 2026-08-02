@@ -1,6 +1,6 @@
 package com.kether.storyteller.service.llm;
 
-import com.kether.storyteller.dto.response.Responses.NamedEntity;
+import com.kether.storyteller.infrastructure.web.rest.dto.Responses.NamedEntity;
 import jakarta.annotation.PostConstruct;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;

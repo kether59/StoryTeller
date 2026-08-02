@@ -1,8 +1,6 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.application.usecase.*;
-import com.kether.storyteller.dto.request.Requests.*;
-import com.kether.storyteller.dto.response.Responses.*;
+import com.kether.storyteller.beforerefacto.usecase.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

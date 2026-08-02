@@ -1,6 +1,6 @@
 package com.kether.storyteller.repository;
 
-import com.kether.storyteller.entity.LoreEntry;
+import com.kether.storyteller.domain.entity.LoreEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;

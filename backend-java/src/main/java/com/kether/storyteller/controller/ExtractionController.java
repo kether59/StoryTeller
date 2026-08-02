@@ -1,10 +1,10 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.application.dto.ExtractionRequest;
-import com.kether.storyteller.application.dto.ExtractionResponse;
-import com.kether.storyteller.application.dto.ValidationRequest;
-import com.kether.storyteller.application.dto.ValidationResult;
-import com.kether.storyteller.application.usecase.*;
+import com.kether.storyteller.beforerefacto.ExtractionRequest;
+import com.kether.storyteller.beforerefacto.ExtractionResponse;
+import com.kether.storyteller.beforerefacto.ValidationRequest;
+import com.kether.storyteller.beforerefacto.ValidationResult;
+import com.kether.storyteller.beforerefacto.usecase.*;
 import com.kether.storyteller.domain.model.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

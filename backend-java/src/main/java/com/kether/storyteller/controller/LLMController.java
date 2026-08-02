@@ -1,12 +1,9 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.dto.request.Requests.*;
-import com.kether.storyteller.dto.response.Responses.*;
 import com.kether.storyteller.service.llm.LLMConfigService;
 import com.kether.storyteller.service.llm.LLMProviders;
 import com.kether.storyteller.service.llm.LLMService;
 import jakarta.validation.Valid;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +30,7 @@ public class LLMController {
 
     private final LLMConfigService configService;
     private final LLMService       llmService;
-    private static final Logger log = LoggerFactory.getLogger(LLMService.class);
+    private static final Logger log = LoggerFactory.getLogger(LLMController.class);
 
     public LLMController(LLMConfigService configService, LLMService llmService) {
         this.configService = configService;

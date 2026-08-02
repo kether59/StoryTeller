@@ -1,15 +1,13 @@
 package com.kether.storyteller.service.llm;
 
 import com.kether.storyteller.config.LLMProperties;
-import com.kether.storyteller.dto.request.Requests.LLMConfigRequest;
-import com.kether.storyteller.dto.response.Responses.*;
+import com.kether.storyteller.infrastructure.web.rest.dto.Requests.LLMConfigRequest;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 

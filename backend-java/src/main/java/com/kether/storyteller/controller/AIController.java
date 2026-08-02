@@ -1,7 +1,7 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.application.dto.AIAnalysisRequest;
-import com.kether.storyteller.application.usecase.*;
+import com.kether.storyteller.beforerefacto.AIAnalysisRequest;
+import com.kether.storyteller.beforerefacto.usecase.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
