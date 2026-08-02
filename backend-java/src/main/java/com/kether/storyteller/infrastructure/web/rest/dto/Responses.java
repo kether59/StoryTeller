@@ -1,23 +1,14 @@
 package com.kether.storyteller.infrastructure.web.rest.dto;
 
 import com.kether.storyteller.domain.entity.*;
-import com.kether.storyteller.entity.*;
-
 import java.util.List;
 import java.util.Map;
 
-/**
- * DTOs de réponse – construits depuis les entités JPA.
- * Évitent l'exposition directe des entités Hibernate (no lazy-load surprises).
- *
- * Tous sont des Records Java 25 (immuables, sérialisables automatiquement par Jackson).
- */
 public final class Responses {
 
     // ══════════════════════════════════════════════════════════════
-    //  Story
+    // Story
     // ══════════════════════════════════════════════════════════════
-
     public record StoryResponse(Long id, String title, String synopsis, String blurb) {
         public static StoryResponse from(Story s) {
             return new StoryResponse(s.getId(), s.getTitle(), s.getSynopsis(), s.getBlurb());
@@ -25,9 +16,8 @@ public final class Responses {
     }
 
     // ══════════════════════════════════════════════════════════════
-    //  Character
+    // Character
     // ══════════════════════════════════════════════════════════════
-
     public record CharacterResponse(
             Long id, Long storyId,
             String name, String surname, String role,
@@ -49,9 +39,8 @@ public final class Responses {
     }
 
     // ══════════════════════════════════════════════════════════════
-    //  Location
+    // Location
     // ══════════════════════════════════════════════════════════════
-
     public record LocationResponse(Long id, Long storyId, String name, String type, String summary) {
         public static LocationResponse from(StoryLocation l) {
             return new LocationResponse(l.getId(), l.getStory().getId(),
@@ -60,9 +49,8 @@ public final class Responses {
     }
 
     // ══════════════════════════════════════════════════════════════
-    //  LoreEntry
+    // LoreEntry
     // ══════════════════════════════════════════════════════════════
-
     public record LoreEntryResponse(Long id, Long storyId, String title, String category, String content) {
         public static LoreEntryResponse from(LoreEntry e) {
             return new LoreEntryResponse(e.getId(), e.getStory().getId(),
@@ -71,9 +59,8 @@ public final class Responses {
     }
 
     // ══════════════════════════════════════════════════════════════
-    //  TimelineEvent
+    // TimelineEvent
     // ══════════════════════════════════════════════════════════════
-
     public record TimelineEventResponse(
             Long id, Long storyId,
             String title, String date, Integer sortOrder, String summary,
@@ -91,9 +78,8 @@ public final class Responses {
     }
 
     // ══════════════════════════════════════════════════════════════
-    //  Manuscript
+    // Manuscript
     // ══════════════════════════════════════════════════════════════
-
     public record ManuscriptResponse(Long id, Long storyId, String title,
                                      Integer chapter, String text, String status) {
         public static ManuscriptResponse from(Manuscript m) {
@@ -104,12 +90,11 @@ public final class Responses {
     }
 
     // ══════════════════════════════════════════════════════════════
-    //  LLM Config  – équivalent llm_config.py LLMConfig
+    // LLM Config
     // ══════════════════════════════════════════════════════════════
-
     public record LLMConfigResponse(
             String provider, String model,
-            String apiKey,         // masquée : sk-ant-xx…yyyy
+            String apiKey,
             String ollamaUrl,
             double temperature,
             int maxTokens
@@ -125,9 +110,8 @@ public final class Responses {
     public record LLMSaveResponse(String status, String provider, String model) {}
 
     // ══════════════════════════════════════════════════════════════
-    //  LLM Generation
+    // LLM Generation
     // ══════════════════════════════════════════════════════════════
-
     public record GeneratedChapterResponse(
             boolean success, String text,
             Integer chapterNumber, String chapterTitle, int wordCount
@@ -137,32 +121,30 @@ public final class Responses {
 
     public record RewriteResponse(boolean success, String original, String rewritten, String instruction) {}
 
-    public record SuggestionsResponse(List<SceneSuggestion> suggestions) {}
+    public record SuggestionsResponse(List<Map<String, Object>> suggestions) {}
 
     public record SceneSuggestion(String title, String description,
                                   List<String> characters, String impact) {}
 
     // ══════════════════════════════════════════════════════════════
-    //  AI Analysis  – équivalent ai.py
+    // AI Analysis
     // ══════════════════════════════════════════════════════════════
-
-    public record CharacterLinkSuggestion(String type, List<Long> pair, String reason) {}
+    public record CharacterLinkSuggestion(String type, List<String> pair, String reason) {}
     public record SuggestionsResult(List<CharacterLinkSuggestion> suggestions) {}
 
     public record TimelineConflict(Long eventId, Long characterId, String reason) {}
     public record ConflictsResult(List<TimelineConflict> conflicts) {}
 
     public record LoreMention(Long loreId, String title, String type, String info) {}
-    public record ScriptConsistencyResult(Map<String, Integer> mentions, List<LoreMention> loreMentions) {}
+    public record ScriptConsistencyResult(Map<String, Object> mentions, List<LoreMention> loreMentions) {}
 
     public record BehaviorIssue(Long characterId, String charName, String actionFound,
                                 String conflictingTrait, String context, String reason) {}
     public record BehaviorResult(List<BehaviorIssue> behaviorIssues) {}
 
     // ══════════════════════════════════════════════════════════════
-    //  Extraction  – équivalent extraction.py
+    // Extraction
     // ══════════════════════════════════════════════════════════════
-
     public record ExtractedCharacter(
             String name, String surname, String role,
             Integer age, String physicalDescription, String personality,
@@ -190,9 +172,8 @@ public final class Responses {
     public record ValidationResult(String status, String itemType, Long id, String message) {}
 
     // ══════════════════════════════════════════════════════════════
-    //  Relationship Analysis
+    // Relationship Analysis
     // ══════════════════════════════════════════════════════════════
-
     public record CharacterRelationship(
             String character1, String character2,
             String type, String description,
@@ -202,9 +183,8 @@ public final class Responses {
     public record RelationshipAnalysisResult(List<CharacterRelationship> relationships, String rawResponse) {}
 
     // ══════════════════════════════════════════════════════════════
-    //  NLP / Manuscript analysis
+    // NLP / Manuscript analysis
     // ══════════════════════════════════════════════════════════════
-
     public record NamedEntity(String text, String label, int start, int end, String sentence) {}
 
     public record ManuscriptAnalysis(
@@ -216,10 +196,9 @@ public final class Responses {
     ) {}
 
     // ══════════════════════════════════════════════════════════════
-    //  Générique
+    // Générique
     // ══════════════════════════════════════════════════════════════
     public record OkResponse(boolean success) {
-
         public static OkResponse ok() {
             return new OkResponse(true);
         }

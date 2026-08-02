@@ -1,6 +1,10 @@
 package com.kether.storyteller.controller;
 
 import com.kether.storyteller.beforerefacto.usecase.*;
+import com.kether.storyteller.infrastructure.web.rest.dto.Requests;
+import com.kether.storyteller.infrastructure.web.rest.dto.Responses;
+import com.kether.storyteller.infrastructure.web.rest.dto.Requests.*;
+import com.kether.storyteller.infrastructure.web.rest.dto.Responses.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +28,12 @@ class StoryController {
         this.deleteStory = deleteStory;
     }
 
-    @GetMapping public List<StoryResponse> list() { return findAllStories.execute(); }
-    @GetMapping("/{id}") public StoryResponse get(@PathVariable Long id) { return findStoryById.execute(id); }
+    @GetMapping public List<Responses.StoryResponse> list() { return findAllStories.execute(); }
+    @GetMapping("/{id}") public Responses.StoryResponse get(@PathVariable Long id) { return findStoryById.execute(id); }
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
-    public StoryResponse create(@Valid @RequestBody StoryCreate req) { return createStory.execute(req); }
-    @PutMapping("/{id}") public StoryResponse update(@PathVariable Long id, @RequestBody StoryUpdate req) { return updateStory.execute(id, req); }
-    @DeleteMapping("/{id}") public OkResponse delete(@PathVariable Long id) { deleteStory.execute(id); return OkResponse.ok(); }
+    public Responses.StoryResponse create(@Valid @RequestBody Requests.StoryCreate req) { return createStory.execute(req); }
+    @PutMapping("/{id}") public Responses.StoryResponse update(@PathVariable Long id, @RequestBody Requests.StoryUpdate req) { return updateStory.execute(id, req); }
+    @DeleteMapping("/{id}") public Responses.OkResponse delete(@PathVariable Long id) { deleteStory.execute(id); return Responses.OkResponse.ok(); }
 }
 
 @RestController @RequestMapping("/api/characters")
@@ -47,11 +51,11 @@ class CharacterController {
         this.deleteCharacter = deleteCharacter;
     }
 
-    @GetMapping public List<CharacterResponse> list(@RequestParam Long storyId) { return findByStory.execute(storyId); }
+    @GetMapping public List<Responses.CharacterResponse> list(@RequestParam Long storyId) { return findByStory.execute(storyId); }
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
-    public CharacterResponse create(@Valid @RequestBody CharacterCreate req) { return createCharacter.execute(req); }
-    @PutMapping("/{id}") public CharacterResponse update(@PathVariable Long id, @RequestBody CharacterUpdate req) { return updateCharacter.execute(id, req); }
-    @DeleteMapping("/{id}") public OkResponse delete(@PathVariable Long id) { deleteCharacter.execute(id); return OkResponse.ok(); }
+    public Responses.CharacterResponse create(@Valid @RequestBody Requests.CharacterCreate req) { return createCharacter.execute(req); }
+    @PutMapping("/{id}") public Responses.CharacterResponse update(@PathVariable Long id, @RequestBody Requests.CharacterUpdate req) { return updateCharacter.execute(id, req); }
+    @DeleteMapping("/{id}") public Responses.OkResponse delete(@PathVariable Long id) { deleteCharacter.execute(id); return Responses.OkResponse.ok(); }
 }
 
 @RestController @RequestMapping("/api/locations")
@@ -69,11 +73,11 @@ class LocationController {
         this.deleteLocation = deleteLocation;
     }
 
-    @GetMapping public List<LocationResponse> list(@RequestParam Long storyId) { return findByStory.execute(storyId); }
+    @GetMapping public List<Responses.LocationResponse> list(@RequestParam Long storyId) { return findByStory.execute(storyId); }
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
-    public LocationResponse create(@Valid @RequestBody LocationCreate req) { return createLocation.execute(req); }
-    @PutMapping("/{id}") public LocationResponse update(@PathVariable Long id, @RequestBody LocationUpdate req) { return updateLocation.execute(id, req); }
-    @DeleteMapping("/{id}") public OkResponse delete(@PathVariable Long id) { deleteLocation.execute(id); return OkResponse.ok(); }
+    public Responses.LocationResponse create(@Valid @RequestBody Requests.LocationCreate req) { return createLocation.execute(req); }
+    @PutMapping("/{id}") public Responses.LocationResponse update(@PathVariable Long id, @RequestBody Requests.LocationUpdate req) { return updateLocation.execute(id, req); }
+    @DeleteMapping("/{id}") public Responses.OkResponse delete(@PathVariable Long id) { deleteLocation.execute(id); return Responses.OkResponse.ok(); }
 }
 
 @RestController @RequestMapping("/api/lore")
@@ -91,9 +95,9 @@ class LoreController {
         this.deleteLore = deleteLore;
     }
 
-    @GetMapping public List<LoreEntryResponse> list(@RequestParam Long storyId) { return findByStory.execute(storyId); }
+    @GetMapping public List<Responses.LoreEntryResponse> list(@RequestParam Long storyId) { return findByStory.execute(storyId); }
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
-    public LoreEntryResponse create(@Valid @RequestBody LoreEntryCreate req) { return createLore.execute(req); }
-    @PutMapping("/{id}") public LoreEntryResponse update(@PathVariable Long id, @RequestBody LoreEntryUpdate req) { return updateLore.execute(id, req); }
-    @DeleteMapping("/{id}") public OkResponse delete(@PathVariable Long id) { deleteLore.execute(id); return OkResponse.ok(); }
+    public Responses.LoreEntryResponse create(@Valid @RequestBody Requests.LoreEntryCreate req) { return createLore.execute(req); }
+    @PutMapping("/{id}") public Responses.LoreEntryResponse update(@PathVariable Long id, @RequestBody Requests.LoreEntryUpdate req) { return updateLore.execute(id, req); }
+    @DeleteMapping("/{id}") public Responses.OkResponse delete(@PathVariable Long id) { deleteLore.execute(id); return Responses.OkResponse.ok(); }
 }

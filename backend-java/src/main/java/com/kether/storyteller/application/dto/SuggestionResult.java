@@ -1,9 +1,8 @@
 package com.kether.storyteller.application.dto;
 
-public record SuggestionResult (
-    String storyId,
-    String content,
-    String userId
+import java.util.List;
+import java.util.Map;
 
-)
-{}
+public record SuggestionResult(
+        List<Map<String, Object>> suggestions
+) {}

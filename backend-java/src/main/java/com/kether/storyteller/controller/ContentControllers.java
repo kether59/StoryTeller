@@ -1,6 +1,10 @@
 package com.kether.storyteller.controller;
 
 import com.kether.storyteller.beforerefacto.usecase.*;
+import com.kether.storyteller.infrastructure.web.rest.dto.Requests;
+import com.kether.storyteller.infrastructure.web.rest.dto.Responses;
+import com.kether.storyteller.infrastructure.web.rest.dto.Requests.*;
+import com.kether.storyteller.infrastructure.web.rest.dto.Responses.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +27,7 @@ class TimelineController {
 
     @GetMapping public List<TimelineEventResponse> list(@RequestParam Long storyId) { return findByStory.execute(storyId); }
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
-    public TimelineEventResponse create(@Valid @RequestBody TimelineEventCreate req) { return createEvent.execute(req); }
+    public TimelineEventResponse create(@Valid @RequestBody Requests.TimelineEventCreate req) { return createEvent.execute(req); }
     @PutMapping("/{id}") public TimelineEventResponse update(@PathVariable Long id, @RequestBody TimelineEventUpdate req) { return updateEvent.execute(id, req); }
     @DeleteMapping("/{id}") public OkResponse delete(@PathVariable Long id) { deleteEvent.execute(id); return OkResponse.ok(); }
 }
@@ -49,7 +53,7 @@ class ManuscriptController {
         return findByStory.execute(storyId);
     }
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
-    public ManuscriptResponse create(@Valid @RequestBody ManuscriptCreate req) { return createManuscript.execute(req); }
+    public Responses.ManuscriptResponse create(@Valid @RequestBody ManuscriptCreate req) { return createManuscript.execute(req); }
     @PutMapping("/{id}") public ManuscriptResponse update(@PathVariable Long id, @RequestBody ManuscriptUpdate req) { return updateManuscript.execute(id, req); }
     @DeleteMapping("/{id}") public OkResponse delete(@PathVariable Long id) { deleteManuscript.execute(id); return OkResponse.ok(); }
 }

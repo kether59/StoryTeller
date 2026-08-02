@@ -11,46 +11,25 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;        // ✅ CORRIGÉ
+import com.fasterxml.jackson.databind.ObjectMapper;   // ✅ CORRIGÉ
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Contrôleur LLM — couche Interface.
- *
- * Routes :
- * POST /api/llm/generate-chapter     → ChapterGenerationService
- * POST /api/llm/continue-writing   → ContinuationService
- * POST /api/llm/rewrite            → RewriteService
- * POST /api/llm/suggest-next-scene → SuggestionService
- * GET  /api/llm/config             → LLMConfigApplicationService
- * POST /api/llm/config             → LLMConfigApplicationService
- * POST /api/llm/test               → LLMConfigApplicationService
- * GET  /api/llm/health             → LLMConfigService
- * GET  /api/llm/local/models       → LLMHttpClient (direct)
- */
 @RestController
 @RequestMapping("/api/llm")
 public class LLMController {
 
     private static final Logger log = LoggerFactory.getLogger(LLMController.class);
 
-    // Use Cases LLM (génération)
     private final GenerateChapterUseCase generateChapter;
     private final ContinueWritingUseCase continueWriting;
     private final RewriteUseCase rewrite;
     private final SuggestNextSceneUseCase suggestScene;
-
-    // Use Case Config
     private final ManageLLMConfigUseCase manageConfig;
-
-    // Services infrastructure (config persistance, health)
     private final LLMConfigService configService;
-
-    // Client HTTP pour /local/models (détail technique)
     private final LLMHttpClient httpClient;
     private final ObjectMapper mapper;
 
@@ -135,7 +114,7 @@ public class LLMController {
                 req.provider(), req.model(), req.apiKey(),
                 req.ollamaUrl(), req.temperature(), req.maxTokens());
         manageConfig.updateConfig(dto);
-        return new Responses.LLMSaveResponse(true, "Configuration sauvegardée");
+        return new Responses.LLMSaveResponse("ok", dto.provider(), dto.model());
     }
 
     @PostMapping("/test")
@@ -151,7 +130,7 @@ public class LLMController {
     }
 
     // ══════════════════════════════════════════════════════════════
-    // Local Models (détail technique, reste dans le controller)
+    // Local Models
     // ══════════════════════════════════════════════════════════════
 
     @GetMapping("/local/models")

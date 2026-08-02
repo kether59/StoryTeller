@@ -1,7 +1,7 @@
 package com.kether.storyteller.application.service;
 
-import com.kether.storyteller.beforerefacto.LLMConfigDto;
-import com.kether.storyteller.beforerefacto.LLMTestResultDto;
+import com.kether.storyteller.application.dto.LLMConfigDto;       // ✅ CORRIGÉ
+import com.kether.storyteller.application.dto.LLMTestResultDto;   // ✅ CORRIGÉ
 import com.kether.storyteller.domain.port.in.llm.ManageLLMConfigUseCase;
 import com.kether.storyteller.infrastructure.llm.registry.LLMProviderRegistry;
 import com.kether.storyteller.service.llm.LLMConfigModel;
@@ -10,13 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/**
- * Service d'application : gère la configuration LLM et les tests de connexion.
- *
- * FONCTIONNEMENT :
- * - Délègue la persistance de la config à LLMConfigService (infrastructure existante)
- * - Utilise LLMProviderRegistry pour tester la connexion avec n'importe quel provider
- */
 @Service
 public class LLMConfigApplicationService implements ManageLLMConfigUseCase {
 
