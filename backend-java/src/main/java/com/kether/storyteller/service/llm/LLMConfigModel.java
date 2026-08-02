@@ -1,13 +1,15 @@
 package com.kether.storyteller.service.llm;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)   // ✅ AJOUTÉ
 public class LLMConfigModel {
     private String provider = "ollama";
     private String model = "mistral";
     private String apiKey = "";
-    private String llmUrl = "http://localhost:11434";  // ✅ RENOMMÉ
+    private String llmUrl = "http://localhost:11434";
     private double temperature = 0.7;
     private int maxTokens = 2048;
 

@@ -4,7 +4,6 @@ import com.kether.storyteller.infrastructure.llm.LLMHttpClient;
 import com.kether.storyteller.service.llm.LLMConfigModel;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Component;
 
@@ -33,20 +32,30 @@ public class LMStudioLLMProvider implements LLMProvider {
             baseUrl = "http://localhost:1234";
         }
 
-        String url = baseUrl.endsWith("/") ? baseUrl + "v1/chat/completions"
-                : baseUrl + "/v1/chat/completions";
+        // ✅ CORRIGÉ : endpoint LM Studio natif
+        String url = baseUrl.endsWith("/") ? baseUrl + "api/v1/chat"
+                : baseUrl + "/api/v1/chat";
 
+        // ✅ CORRIGÉ : format du body selon ton curl
         ObjectNode body = mapper.createObjectNode()
                 .put("model", config.getModel())
-                .put("max_tokens", maxTokens)
-                .put("temperature", config.getTemperature());
-
-        ArrayNode messages = body.putArray("messages");
-        messages.addObject().put("role", "system").put("content", systemPrompt);
-        messages.addObject().put("role", "user").put("content", userPrompt);
+                .put("system_prompt", systemPrompt)
+                .put("input", userPrompt);
 
         String response = httpClient.postJson(url, Map.of(), body.toString());
         JsonNode root = mapper.readTree(response);
-        return root.path("choices").get(0).path("message").path("content").asText();
+
+        JsonNode output = root.path("output");
+        if (output.isArray() && output.size() > 0) {
+            return output.get(0).path("content").asText();
+        }
+
+        throw new RuntimeException("Réponse LM Studio invalide : " + response);
+    }
+
+    @Override
+    public String test(LLMConfigModel config) throws Exception {
+        // Test léger : on utilise le endpoint chat avec un prompt minimal
+        return call("Réponds uniquement OK.", "Test", 16, config);
     }
 }

@@ -160,7 +160,7 @@ public final class Requests {
     public record LLMTestRequest(
             @NotBlank String provider,
             @NotBlank String model,
-            @NotBlank String apiKey,
+            String apiKey,
             String llmUrl
     ) {}
 
