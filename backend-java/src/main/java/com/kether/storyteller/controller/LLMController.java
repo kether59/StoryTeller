@@ -151,12 +151,12 @@ public class LLMController {
 
             if (root.has("models") && root.get("models").isArray()) {
                 root.get("models").forEach(node -> {
-                    String name = extractModelName(node);
+                    String name = extractModelName(node, provider);  // ✅ provider passé
                     if (!name.isBlank()) models.add(name);
                 });
             } else if (root.has("data") && root.get("data").isArray()) {
                 root.get("data").forEach(node -> {
-                    String name = extractModelName(node);
+                    String name = extractModelName(node, provider);  // ✅ provider passé
                     if (!name.isBlank()) models.add(name);
                 });
             }
@@ -168,6 +168,37 @@ public class LLMController {
             log.error("Erreur récupération modèles depuis {}", endpoint, e);
             return List.of("Erreur : " + e.getMessage());
         }
+    }
+
+    private String extractModelName(JsonNode node, String provider) {
+        String p = provider != null ? provider.toLowerCase() : "";
+
+        if ("lmstudio".equals(p)) {
+            // LM Studio : key = identifiant technique (dolphin3.0-llama3.1-8b)
+            // display_name = nom lisible (Dolphin3.0 Llama3.1 8B)
+            String name = node.path("key").asText("");
+            if (name.isBlank()) name = node.path("id").asText("");
+            if (name.isBlank()) name = node.path("name").asText("");
+            if (name.isBlank()) name = node.path("display_name").asText("");
+            return name.trim();
+        }
+
+        if ("ollama".equals(p)) {
+            // Ollama : name = identifiant
+            String name = node.path("name").asText("");
+            if (name.isBlank()) name = node.path("model").asText("");
+            if (name.contains("/")) name = name.substring(name.lastIndexOf('/') + 1);
+            return name.trim();
+        }
+
+        // Fallback générique
+        String name = node.path("name").asText("");
+        if (name.isBlank()) name = node.path("model").asText("");
+        if (name.isBlank()) name = node.path("id").asText("");
+        if (name.isBlank()) name = node.path("display_name").asText("");
+        if (name.isBlank()) name = node.path("key").asText("");
+        if (name.contains("/")) name = name.substring(name.lastIndexOf('/') + 1);
+        return name.trim();
     }
 
     // ══════════════════════════════════════════════════════════════
