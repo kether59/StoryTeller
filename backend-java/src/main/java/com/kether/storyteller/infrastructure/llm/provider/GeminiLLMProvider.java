@@ -30,7 +30,7 @@ public class GeminiLLMProvider implements LLMProvider {
     public String call(String systemPrompt, String userPrompt, int maxTokens, LLMConfigModel config) throws Exception {
         String model = config.getModel() != null && !config.getModel().isBlank()
                 ? config.getModel()
-                : "gemini-1.5-flash";
+                : "gemini-flash-latest";
 
         String url = String.format(
                 "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s",

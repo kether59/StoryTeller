@@ -3,6 +3,7 @@ package com.kether.storyteller.controller;
 import com.kether.storyteller.beforerefacto.AIAnalysisRequest;
 import com.kether.storyteller.beforerefacto.usecase.ia.*;
 import com.kether.storyteller.domain.port.out.persistence.ManuscriptRepositoryPort;
+import com.kether.storyteller.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,16 +21,11 @@ public class AIController {
     private final ManuscriptRepositoryPort manuscriptRepo;
 
     @PostMapping("/suggest")
-    public Object suggest(
-            @Valid @RequestBody AIAnalysisRequest request,
-            @RequestParam Long storyId) {
+    public Object suggest(@Valid @RequestBody AIAnalysisRequest request) {  // ✅ PAS de @RequestParam storyId
 
-        String manuscriptText = null;
-        if (request.manuscriptId() != null) {
-            manuscriptText = manuscriptRepo.findById(request.manuscriptId())
-                    .map(m -> m.getText())
-                    .orElse(null);
-        }
+        // ✅ Récupérer storyId depuis le manuscript
+        Long storyId = resolveStoryId(request.manuscriptId());
+        String manuscriptText = resolveManuscriptText(request.manuscriptId());
 
         return switch (request.intent()) {
             case "link_characters" ->
@@ -50,5 +46,21 @@ public class AIController {
             default ->
                     throw new IllegalArgumentException("Intent inconnu : " + request.intent());
         };
+    }
+
+    private Long resolveStoryId(Long manuscriptId) {
+        if (manuscriptId == null) {
+            throw new IllegalArgumentException("manuscriptId est requis");
+        }
+        return manuscriptRepo.findById(manuscriptId)
+                .map(m -> m.getStory().getId())
+                .orElseThrow(() -> ResourceNotFoundException.of("Manuscript", manuscriptId));
+    }
+
+    private String resolveManuscriptText(Long manuscriptId) {
+        if (manuscriptId == null) return null;
+        return manuscriptRepo.findById(manuscriptId)
+                .map(m -> m.getText())
+                .orElse(null);
     }
 }

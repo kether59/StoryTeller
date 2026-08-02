@@ -8,7 +8,7 @@ const DEFAULT_URLS = {
   ollama: 'http://127.0.0.1:11434',
   anthropic: '',
   openai: '',
-  gemini: '',
+  gemini: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
 }
 
 export default function LlmConfigpanel() {
@@ -102,20 +102,20 @@ export default function LlmConfigpanel() {
   }
 
   const handleTest = async () => {
-    setTestStatus('testing')
+    setTestStatus('testing');
     try {
       const payload = {
         provider: config.provider,
         model: config.model,
-        apiKey: config.provider === 'gemini' ? config.gemini_api_key : config.api_key,
-        llmUrl: config.url,   // ✅ UN SEUL CHAMP
-      }
-      const res = await API.post('/api/llm/test', payload)
-      setTestStatus(res.data.ok ? 'success' : 'error')
-      setTestMessage(res.data.message || 'Test terminé')
+        apiKey: config.api_key,
+        llmUrl: config.url,
+      };
+      const res = await API.post('/api/llm/test', payload);
+      setTestStatus(res.data.ok ? 'success' : 'error');
+      setTestMessage(res.data.message || 'Test terminé');
     } catch (err) {
-      setTestStatus('error')
-      setTestMessage(err.friendlyMessage || err.message)
+      setTestStatus('error');
+      setTestMessage(err.friendlyMessage || err.message);
     }
   }
 
@@ -214,14 +214,27 @@ export default function LlmConfigpanel() {
             </div>
         )}
 
-        {config.provider === 'gemini' && (
+         {config.provider === 'gemini' && (
             <div className="field">
               <label>Clé API Gemini</label>
               <input
                   type="password"
-                  value={config.gemini_api_key}
-                  onChange={(e) => setConfig((c) => ({ ...c, gemini_api_key: e.target.value }))}
+                  value={config.api_key}
+                  onChange={(e) => setConfig((c) => ({ ...c, api_key: e.target.value }))}
                   className="input"
+              />
+            </div>
+        )}
+
+         {!isLocal && (
+            <div className="field">
+              <label>Nom du Modèle (ex: gpt-4o, claude-3-5-sonnet-20241022, gemini-1.5-flash)</label>
+              <input
+                  type="text"
+                  value={config.model}
+                  onChange={(e) => setConfig((c) => ({ ...c, model: e.target.value }))}
+                  className="input"
+                  placeholder="Entrez le nom du modèle..."
               />
             </div>
         )}

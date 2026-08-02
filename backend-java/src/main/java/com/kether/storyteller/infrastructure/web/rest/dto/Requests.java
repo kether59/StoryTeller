@@ -1,6 +1,10 @@
 package com.kether.storyteller.infrastructure.web.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kether.storyteller.domain.model.ExtractedCharacter;
+import com.kether.storyteller.domain.model.ExtractedLocation;
+import com.kether.storyteller.domain.model.ExtractedLore;
+import com.kether.storyteller.domain.model.ExtractedTimelineEvent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -182,7 +186,9 @@ public final class Requests {
     ) {}
 
     public record ContinueWritingRequest(
-            @NotNull Long manuscriptId,
+            @NotNull
+            @JsonProperty("manuscript_id")
+            Long manuscriptId,
             @NotBlank String direction,
             Integer length
     ) {}
@@ -224,5 +230,13 @@ public final class Requests {
             @NotBlank String itemType,  // character | location | timeline | lore
             java.util.Map<String, Object> itemData,
             boolean approved
+    ) {}
+
+    public record ExtractionResponse(
+            List<ExtractedCharacter> characters,
+            List<ExtractedLocation> locations,
+            List<ExtractedTimelineEvent> timeline,
+            List<ExtractedLore> lore,
+            String message
     ) {}
 }

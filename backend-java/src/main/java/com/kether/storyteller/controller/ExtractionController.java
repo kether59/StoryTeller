@@ -1,7 +1,5 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.beforerefacto.ExtractionRequest;
-import com.kether.storyteller.beforerefacto.ExtractionResponse;
 import com.kether.storyteller.beforerefacto.ValidationRequest;
 import com.kether.storyteller.beforerefacto.ValidationResult;
 import com.kether.storyteller.beforerefacto.usecase.ValidateAndCreateUseCase;
@@ -14,6 +12,7 @@ import com.kether.storyteller.domain.model.ExtractedLocation;
 import com.kether.storyteller.domain.model.ExtractedLore;
 import com.kether.storyteller.domain.model.ExtractedTimelineEvent;
 import com.kether.storyteller.domain.port.out.persistence.ManuscriptRepositoryPort;
+import com.kether.storyteller.infrastructure.web.rest.dto.Requests;  // ✅
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +32,7 @@ public class ExtractionController {
     private final ManuscriptRepositoryPort manuscriptRepo;
 
     @PostMapping("/analyze")
-    public ExtractionResponse analyze(@Valid @RequestBody ExtractionRequest request) {
+    public Requests.ExtractionResponse analyze(@Valid @RequestBody Requests.ExtractionRequest request) {  // ✅
         Long manuscriptId = request.manuscriptId();
         List<String> types = request.extractTypes();
 
@@ -58,7 +57,7 @@ public class ExtractionController {
                 ? extractLoreUseCase.execute(storyId, text)
                 : List.of();
 
-        return new ExtractionResponse(characters, locations, timeline, lore, "Extraction complétée");
+        return new Requests.ExtractionResponse(characters, locations, timeline, lore, "Extraction complétée");  // ✅
     }
 
     @PostMapping("/validate-and-create")
