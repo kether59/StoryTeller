@@ -152,18 +152,16 @@ public final class Requests {
             String provider,        // anthropic | openai | openrouter | ollama
             String model,
             String apiKey,
-            String ollamaUrl,
+            String llmUrl,
             Double temperature,
             Integer maxTokens
     ) {}
 
     public record LLMTestRequest(
             @NotBlank String provider,
-            String model,
-            String apiKey,
-            String ollamaUrl,
-            String lmstudioUrl,
-            String geminiApiKey
+            @NotBlank String model,
+            @NotBlank String apiKey,
+            String llmUrl
     ) {}
 
     // ══════════════════════════════════════════════════════════════

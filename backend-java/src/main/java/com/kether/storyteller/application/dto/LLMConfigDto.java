@@ -4,7 +4,7 @@ public record LLMConfigDto(
         String provider,
         String model,
         String apiKey,
-        String ollamaUrl,
+        String llmUrl,
         Double temperature,
         Integer maxTokens
 ) {}

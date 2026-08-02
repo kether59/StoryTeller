@@ -104,7 +104,7 @@ public class LLMController {
         var dto = manageConfig.getCurrentConfig();
         return new Responses.LLMConfigResponse(
                 dto.provider(), dto.model(), maskKey(dto.apiKey()),
-                dto.ollamaUrl(), dto.temperature(), dto.maxTokens()
+                dto.llmUrl(), dto.temperature(), dto.maxTokens()
         );
     }
 
@@ -112,7 +112,7 @@ public class LLMController {
     public Responses.LLMSaveResponse saveConfig(@RequestBody Requests.LLMConfigRequest req) {
         var dto = new LLMConfigDto(
                 req.provider(), req.model(), req.apiKey(),
-                req.ollamaUrl(), req.temperature(), req.maxTokens());
+                req.llmUrl(), req.temperature(), req.maxTokens());
         manageConfig.updateConfig(dto);
         return new Responses.LLMSaveResponse("ok", dto.provider(), dto.model());
     }
@@ -120,7 +120,7 @@ public class LLMController {
     @PostMapping("/test")
     public Responses.LLMTestResponse testConnection(@Valid @RequestBody Requests.LLMTestRequest req) {
         LLMTestResultDto result = manageConfig.testConnection(
-                req.provider(), req.model(), req.apiKey());
+                req.provider(), req.model(), req.apiKey(), req.llmUrl());
         return new Responses.LLMTestResponse(result.success(), result.message());
     }
 

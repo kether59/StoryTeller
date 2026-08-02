@@ -31,7 +31,7 @@ public class LLMConfigApplicationService implements ManageLLMConfigUseCase {
                 cfg.getProvider(),
                 cfg.getModel(),
                 cfg.getApiKey(),
-                cfg.getOllamaUrl(),
+                cfg.getLlmUrl(),
                 cfg.getTemperature(),
                 cfg.getMaxTokens()
         );
@@ -43,7 +43,7 @@ public class LLMConfigApplicationService implements ManageLLMConfigUseCase {
         cfg.setProvider(dto.provider());
         cfg.setModel(dto.model());
         cfg.setApiKey(dto.apiKey());
-        cfg.setOllamaUrl(dto.ollamaUrl());
+        cfg.setLlmUrl(dto.llmUrl());
         if (dto.temperature() != null) cfg.setTemperature(dto.temperature());
         if (dto.maxTokens() != null) cfg.setMaxTokens(dto.maxTokens());
 
@@ -52,11 +52,12 @@ public class LLMConfigApplicationService implements ManageLLMConfigUseCase {
     }
 
     @Override
-    public LLMTestResultDto testConnection(String provider, String model, String apiKey) {
+    public LLMTestResultDto testConnection(String provider, String model, String apiKey, String llmUrl) {
         var tmpCfg = new LLMConfigModel();
         tmpCfg.setProvider(provider);
         tmpCfg.setModel(model != null && !model.isBlank() ? model : getDefaultModel(provider));
         tmpCfg.setApiKey(apiKey);
+        tmpCfg.setLlmUrl(llmUrl);   // ✅
 
         try {
             var resolvedProvider = providerRegistry.resolve(provider);
@@ -64,7 +65,8 @@ public class LLMConfigApplicationService implements ManageLLMConfigUseCase {
             return new LLMTestResultDto(true, "✅ Connexion réussie avec " + tmpCfg.getModel());
         } catch (Exception e) {
             log.error("Test connexion échoué — provider={}", provider, e);
-            return new LLMTestResultDto(false, "❌ " + e.getMessage());
+            String msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            return new LLMTestResultDto(false, "❌ " + msg);
         }
     }
 
@@ -74,6 +76,9 @@ public class LLMConfigApplicationService implements ManageLLMConfigUseCase {
             case "lmstudio" -> "local-model";
             case "anthropic" -> "claude-sonnet-4-5";
             case "openai" -> "gpt-4o";
+            case "openrouter" -> "openai/gpt-4o";
+            case "gemini" -> "gemini-1.5-flash";
+            case "llama" -> "llama-3.1-8b";
             default -> "default";
         };
     }

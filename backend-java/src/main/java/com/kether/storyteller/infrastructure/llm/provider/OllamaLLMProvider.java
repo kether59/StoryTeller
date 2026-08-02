@@ -42,7 +42,7 @@ public class OllamaLLMProvider implements LLMProvider {
 
     @Override
     public String call(String systemPrompt, String userPrompt, int maxTokens, LLMConfigModel config) throws Exception {
-        String baseUrl = config.getOllamaUrl();
+        String baseUrl = config.getLlmUrl();
         if (baseUrl == null || baseUrl.isBlank()) {
             baseUrl = "http://localhost:11434";
         }

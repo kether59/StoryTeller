@@ -32,12 +32,12 @@ public class LLMConfigService {
     @PostConstruct
     public void init() {
         this.current = loadConfig();
-        log.info("LLM configuré : provider={} model={} ollamaUrl={}",
-                current.getProvider(), current.getModel(), current.getOllamaUrl());
+        log.info("LLM configuré : provider={} model={} LlmUrl={}",
+                current.getProvider(), current.getModel(), current.getLlmUrl());
     }
 
     public LLMConfigModel loadConfig() {
-        Path configPath = Path.of(props.configFile());
+        Path configPath = Path.of(props.getConfigFile());
         if (Files.exists(configPath)) {
             try {
                 LLMConfigModel cfg = mapper.readValue(configPath.toFile(), LLMConfigModel.class);
@@ -56,18 +56,18 @@ public class LLMConfigService {
 
     private LLMConfigModel buildFromEnv() {
         LLMConfigModel cfg = LLMConfigModel.defaults();
-        String provider = props.defaultProvider();
+        String provider = props.getDefaultProvider();
         cfg.setProvider(provider);
         cfg.setApiKey(resolveApiKeyFromEnv(provider));
-        cfg.setOllamaUrl(props.ollamaUrl());
+        cfg.setLlmUrl(props.getLlmUrl());
         return cfg;
     }
 
     private String resolveApiKeyFromEnv(String provider) {
         return switch (provider) {
-            case "anthropic" -> props.anthropicApiKey();
-            case "openai" -> props.openaiApiKey();
-            case "openrouter" -> props.openrouterApiKey();
+            case "anthropic" -> props.getAnthropicApiKey();
+            case "openai" -> props.getOpenaiApiKey();
+            case "openrouter" -> props.getOpenrouterApiKey();
             default -> "";
         };
     }
@@ -96,14 +96,14 @@ public class LLMConfigService {
         if (req.provider() != null) current.setProvider(req.provider());
         if (req.model() != null) current.setModel(req.model());
         if (req.apiKey() != null) current.setApiKey(req.apiKey());
-        if (req.ollamaUrl() != null) current.setOllamaUrl(req.ollamaUrl());
+        if (req.llmUrl() != null) current.setLlmUrl(req.llmUrl());
         if (req.temperature() != null) current.setTemperature(req.temperature());
         if (req.maxTokens() != null) current.setMaxTokens(req.maxTokens());
     }
 
     private void persist() {
         try {
-            Path configPath = Path.of(props.configFile());
+            Path configPath = Path.of(props.getConfigFile());
             mapper.writerWithDefaultPrettyPrinter().writeValue(configPath.toFile(), current);
             log.info("Config LLM sauvegardée → {}", configPath);
         } catch (Exception e) {
@@ -117,7 +117,7 @@ public class LLMConfigService {
                 current.getProvider(),
                 current.getModel(),
                 current.maskedApiKey(),
-                current.getOllamaUrl(),
+                current.getLlmUrl(),
                 current.getTemperature(),
                 current.getMaxTokens()
         );

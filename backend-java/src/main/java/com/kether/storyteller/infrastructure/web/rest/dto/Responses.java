@@ -95,7 +95,7 @@ public final class Responses {
     public record LLMConfigResponse(
             String provider, String model,
             String apiKey,
-            String ollamaUrl,
+            String llmUrl,
             double temperature,
             int maxTokens
     ) {}

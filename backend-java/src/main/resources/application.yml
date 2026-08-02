@@ -56,7 +56,7 @@ storyteller:
     anthropic-api-key: ${ANTHROPIC_API_KEY:}
     openai-api-key: ${OPENAI_API_KEY:}
     openrouter-api-key: ${OPENROUTER_API_KEY:}
-    ollama-url: ${OLLAMA_URL:http://localhost:11434}
+    llm-url: ${OLLAMA_URL:http://localhost:11434}
   nlp:
     # Modèles OpenNLP à télécharger et placer dans src/main/resources/nlp/
     # https://opennlp.sourceforge.net/models-1.5/

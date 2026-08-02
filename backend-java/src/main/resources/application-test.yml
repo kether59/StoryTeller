@@ -54,7 +54,7 @@ storyteller:
     anthropic-api-key: ${ANTHROPIC_API_KEY:sk-ant-test}
     openai-api-key: ${OPENAI_API_KEY:sk-test}
     openrouter-api-key: ${OPENROUTER_API_KEY:sk-or-test}
-    ollama-url: http://localhost:11434  # Local Ollama (optionnel)
+    llm-url: http://localhost:11434  # Local Ollama (optionnel)
   nlp:
     models-path: classpath:nlp/         # Modèles OpenNLP (si présents)
   cors:

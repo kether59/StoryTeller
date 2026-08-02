@@ -1,26 +1,18 @@
 package com.kether.storyteller.config;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
-/**
- * Équivalent du bloc storyteller.llm dans application.yml.
- * Mirrors Python llm_config.py → LLMConfig pydantic model.
- */
+@Data
+@Component
 @ConfigurationProperties(prefix = "storyteller.llm")
-public record LLMProperties(
-        String configFile,
-        String defaultProvider,
-        String anthropicApiKey,
-        String openaiApiKey,
-        String openrouterApiKey,
-        String ollamaUrl
-) {
-    public LLMProperties {
-        configFile      = configFile      != null ? configFile      : "llm_config.json";
-        defaultProvider = defaultProvider != null ? defaultProvider : "anthropic";
-        anthropicApiKey = anthropicApiKey != null ? anthropicApiKey : "";
-        openaiApiKey    = openaiApiKey    != null ? openaiApiKey    : "";
-        openrouterApiKey = openrouterApiKey != null ? openrouterApiKey : "";
-        ollamaUrl       = ollamaUrl       != null ? ollamaUrl       : "http://localhost:11434";
-    }
+public class LLMProperties {
+    private String defaultProvider = "ollama";
+    private String configFile = "llm_config.json";
+    private String anthropicApiKey = "";
+    private String openaiApiKey = "";
+    private String openrouterApiKey = "";
+    private String geminiApiKey = "";
+    private String llmUrl = "http://localhost:11434";  // ✅ RENOMMÉ
 }
