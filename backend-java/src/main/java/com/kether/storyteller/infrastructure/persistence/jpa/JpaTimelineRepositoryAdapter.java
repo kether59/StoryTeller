@@ -1,6 +1,6 @@
 package com.kether.storyteller.infrastructure.persistence.jpa;
 
-import com.kether.storyteller.domain.entity.TimelineEvent;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.TimelineEvent;
 import com.kether.storyteller.domain.port.out.persistence.TimelineEventRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,7 @@
 package com.kether.storyteller.infrastructure.web.rest.dto;
 
-import com.kether.storyteller.domain.entity.*;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.*;
+
 import java.util.List;
 import java.util.Map;
 

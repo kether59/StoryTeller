@@ -2,14 +2,15 @@ package com.kether.storyteller.application.service;
 
 import com.kether.storyteller.application.dto.ChapterGenerationCommand;
 import com.kether.storyteller.application.dto.GeneratedChapterResult;
-import com.kether.storyteller.domain.entity.Story;
-import com.kether.storyteller.domain.entity.StoryCharacter;
-import com.kether.storyteller.domain.entity.StoryLocation;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.Story;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.StoryCharacter;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.StoryLocation;
 import com.kether.storyteller.domain.port.in.llm.GenerateChapterUseCase;
 import com.kether.storyteller.domain.port.out.llm.LLMGenerationPort;
 import com.kether.storyteller.domain.port.out.persistence.*;
 import com.kether.storyteller.domain.service.PromptBuilder;
 import com.kether.storyteller.domain.service.StyleExtractor;
+import com.kether.storyteller.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -79,7 +80,7 @@ public class ChapterGenerationService implements GenerateChapterUseCase {
 
         // 1. Récupération du contexte
         Story story = storyRepo.findById(cmd.storyId())
-                .orElseThrow(() -> new RuntimeException("Histoire introuvable"));
+                .orElseThrow(() -> ResourceNotFoundException.of("Story", cmd.storyId()));
 
         var allChars = characterRepo.findByStoryId(cmd.storyId());
         var allLocs = locationRepo.findByStoryId(cmd.storyId());

@@ -1,10 +1,10 @@
 package com.kether.storyteller.domain.service;
 
-import com.kether.storyteller.domain.entity.Story;
-import com.kether.storyteller.domain.entity.StoryCharacter;   // ✅ CORRIGÉ
-import com.kether.storyteller.domain.entity.StoryLocation;    // ✅ CORRIGÉ
-import com.kether.storyteller.domain.entity.TimelineEvent;
-import com.kether.storyteller.domain.entity.LoreEntry;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.Story;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.StoryCharacter;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.StoryLocation;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.TimelineEvent;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.LoreEntry;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

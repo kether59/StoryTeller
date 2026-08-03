@@ -1,21 +1,24 @@
 package com.kether.storyteller.infrastructure.llm.parser;
 
 import com.kether.storyteller.domain.model.TimelineConflict;
-import com.kether.storyteller.domain.port.out.llm.TimelineConflictParserPort;  // ✅ CORRIGÉ
+import com.kether.storyteller.domain.port.out.llm.TimelineConflictParserPort;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Component
 public class JacksonTimelineConflictParser implements TimelineConflictParserPort {
 
     private final ObjectMapper mapper;
+    private final Logger logger;
 
-    public JacksonTimelineConflictParser(ObjectMapper mapper) {
+    public JacksonTimelineConflictParser(ObjectMapper mapper, Logger logger) {
         this.mapper = mapper;
+        this.logger = logger;
     }
 
     @Override
@@ -45,12 +48,12 @@ public class JacksonTimelineConflictParser implements TimelineConflictParserPort
                             ));
                         }
                     } catch (IllegalArgumentException e) {
-                        // Ignore les conflits invalides
+                        logger.info("Ignore les conflits invalides");
                     }
                 }
             }
         } catch (Exception e) {
-            // Si le parsing échoue, retourner une liste vide
+            logger.info("Si le parsing échoue, retourner une liste vide");
         }
 
         return conflicts;

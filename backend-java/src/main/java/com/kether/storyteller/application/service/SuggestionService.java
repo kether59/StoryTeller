@@ -8,6 +8,7 @@ import com.kether.storyteller.domain.port.out.persistence.*;
 import com.kether.storyteller.domain.service.PromptBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kether.storyteller.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,7 @@ public class SuggestionService implements SuggestNextSceneUseCase {
         log.info("suggestNextScene — storyId={}", cmd.storyId());
 
         var story = storyRepo.findById(cmd.storyId())
-                .orElseThrow(() -> new RuntimeException("Histoire introuvable : " + cmd.storyId()));
+                .orElseThrow(() -> ResourceNotFoundException.of("Story", cmd.storyId()));
 
         var chars = characterRepo.findByStoryId(cmd.storyId());
         var locs = locationRepo.findByStoryId(cmd.storyId());

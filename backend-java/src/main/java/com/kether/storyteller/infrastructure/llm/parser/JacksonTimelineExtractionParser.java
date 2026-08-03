@@ -1,21 +1,24 @@
 package com.kether.storyteller.infrastructure.llm.parser;
 
 import com.kether.storyteller.domain.model.ExtractedTimelineEvent;
-import com.kether.storyteller.domain.port.out.llm.TimelineExtractionParserPort;  // ✅ CORRIGÉ
+import com.kether.storyteller.domain.port.out.llm.TimelineExtractionParserPort;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Component
 public class JacksonTimelineExtractionParser implements TimelineExtractionParserPort {
 
     private final ObjectMapper mapper;
+    private final Logger logger;
 
-    public JacksonTimelineExtractionParser(ObjectMapper mapper) {
+    public JacksonTimelineExtractionParser(ObjectMapper mapper, Logger logger) {
         this.mapper = mapper;
+        this.logger = logger;
     }
 
     @Override
@@ -58,12 +61,12 @@ public class JacksonTimelineExtractionParser implements TimelineExtractionParser
                             ));
                         }
                     } catch (IllegalArgumentException e) {
-                        // Ignore les événements invalides
+                        logger.info("Ignore les événements invalides");
                     }
                 }
             }
         } catch (Exception e) {
-            // Si le parsing échoue, retourner une liste vide
+            logger.info("Si le parsing échoue, retourner une liste vide");
         }
 
         return events;

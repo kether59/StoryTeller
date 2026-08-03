@@ -1,7 +1,13 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.beforerefacto.usecase.manuscript.*;
-import com.kether.storyteller.beforerefacto.usecase.timeline.*;
+import com.kether.storyteller.application.usecase.manuscript.CreateManuscriptUseCase;
+import com.kether.storyteller.application.usecase.manuscript.DeleteManuscriptUseCase;
+import com.kether.storyteller.application.usecase.manuscript.FindManuscriptsByStoryUseCase;
+import com.kether.storyteller.application.usecase.manuscript.UpdateManuscriptUseCase;
+import com.kether.storyteller.application.usecase.timeline.CreateTimelineEventUseCase;
+import com.kether.storyteller.application.usecase.timeline.DeleteTimelineEventUseCase;
+import com.kether.storyteller.application.usecase.timeline.FindTimelineEventsByStoryUseCase;
+import com.kether.storyteller.application.usecase.timeline.UpdateTimelineEventUseCase;
 import com.kether.storyteller.infrastructure.web.rest.dto.Requests;
 import com.kether.storyteller.infrastructure.web.rest.dto.Responses;
 import jakarta.validation.Valid;

@@ -1,5 +1,7 @@
 package com.kether.storyteller.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kether.storyteller.application.dto.LLMConfigDto;
 import com.kether.storyteller.application.dto.LLMTestResultDto;
 import com.kether.storyteller.domain.port.in.llm.*;
@@ -11,8 +13,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,14 +33,7 @@ public class LLMController {
     private final LLMHttpClient httpClient;
     private final ObjectMapper mapper;
 
-    public LLMController(GenerateChapterUseCase generateChapter,
-                         ContinueWritingUseCase continueWriting,
-                         RewriteUseCase rewrite,
-                         SuggestNextSceneUseCase suggestScene,
-                         ManageLLMConfigUseCase manageConfig,
-                         LLMConfigService configService,
-                         LLMHttpClient httpClient,
-                         ObjectMapper mapper) {
+    public LLMController(GenerateChapterUseCase generateChapter, ContinueWritingUseCase continueWriting, RewriteUseCase rewrite, SuggestNextSceneUseCase suggestScene, ManageLLMConfigUseCase manageConfig, LLMConfigService configService, LLMHttpClient httpClient, ObjectMapper mapper) {
         this.generateChapter = generateChapter;
         this.continueWriting = continueWriting;
         this.rewrite = rewrite;
@@ -57,20 +50,15 @@ public class LLMController {
 
     @PostMapping("/generate-chapter")
     public Responses.GeneratedChapterResponse generateChapter(@Valid @RequestBody Requests.ChapterGenerationRequest req) {
-        var command = new com.kether.storyteller.application.dto.ChapterGenerationCommand(
-                req.storyId(), req.chapterNumber(), req.chapterTitle(),
-                req.summary(), req.includeCharacters(), req.includeLocations(), req.length());
+        var command = new com.kether.storyteller.application.dto.ChapterGenerationCommand(req.storyId(), req.chapterNumber(), req.chapterTitle(), req.summary(), req.includeCharacters(), req.includeLocations(), req.length());
 
         var result = generateChapter.generate(command);
-        return new Responses.GeneratedChapterResponse(
-                result.success(), result.text(), result.chapterNumber(),
-                result.chapterTitle(), result.wordCount());
+        return new Responses.GeneratedChapterResponse(result.success(), result.text(), result.chapterNumber(), result.chapterTitle(), result.wordCount());
     }
 
     @PostMapping("/continue-writing")
     public Responses.ContinuationResponse continueWriting(@Valid @RequestBody Requests.ContinueWritingRequest req) {
-        var command = new com.kether.storyteller.application.dto.ContinuationCommand(
-                req.manuscriptId(), req.direction(), req.length());
+        var command = new com.kether.storyteller.application.dto.ContinuationCommand(req.manuscriptId(), req.direction(), req.length());
 
         var result = continueWriting.continueWriting(command);
         return new Responses.ContinuationResponse(result.success(), result.text(), result.wordCount());
@@ -78,18 +66,15 @@ public class LLMController {
 
     @PostMapping("/rewrite")
     public Responses.RewriteResponse rewrite(@Valid @RequestBody Requests.RewriteRequest req) {
-        var command = new com.kether.storyteller.application.dto.RewriteCommand(
-                req.text(), req.instruction());
+        var command = new com.kether.storyteller.application.dto.RewriteCommand(req.text(), req.instruction());
 
         var result = rewrite.rewrite(command);
-        return new Responses.RewriteResponse(result.success(), result.originalText(),
-                result.rewrittenText(), result.instruction());
+        return new Responses.RewriteResponse(result.success(), result.originalText(), result.rewrittenText(), result.instruction());
     }
 
     @PostMapping("/suggest-next-scene")
     public Responses.SuggestionsResponse suggestNextScene(@Valid @RequestBody Requests.SuggestNextSceneRequest req) {
-        var command = new com.kether.storyteller.application.dto.SuggestionCommand(
-                req.storyId(), req.currentSituation());
+        var command = new com.kether.storyteller.application.dto.SuggestionCommand(req.storyId(), req.currentSituation());
 
         var result = suggestScene.suggest(command);
         return new Responses.SuggestionsResponse(result.suggestions());
@@ -102,25 +87,19 @@ public class LLMController {
     @GetMapping("/config")
     public Responses.LLMConfigResponse getConfig() {
         var dto = manageConfig.getCurrentConfig();
-        return new Responses.LLMConfigResponse(
-                dto.provider(), dto.model(), maskKey(dto.apiKey()),
-                dto.llmUrl(), dto.temperature(), dto.maxTokens()
-        );
+        return new Responses.LLMConfigResponse(dto.provider(), dto.model(), maskKey(dto.apiKey()), dto.llmUrl(), dto.temperature(), dto.maxTokens());
     }
 
     @PostMapping("/config")
     public Responses.LLMSaveResponse saveConfig(@RequestBody Requests.LLMConfigRequest req) {
-        var dto = new LLMConfigDto(
-                req.provider(), req.model(), req.apiKey(),
-                req.llmUrl(), req.temperature(), req.maxTokens());
+        var dto = new LLMConfigDto(req.provider(), req.model(), req.apiKey(), req.llmUrl(), req.temperature(), req.maxTokens());
         manageConfig.updateConfig(dto);
         return new Responses.LLMSaveResponse("ok", dto.provider(), dto.model());
     }
 
     @PostMapping("/test")
     public Responses.LLMTestResponse testConnection(@Valid @RequestBody Requests.LLMTestRequest req) {
-        LLMTestResultDto result = manageConfig.testConnection(
-                req.provider(), req.model(), req.apiKey(), req.llmUrl());
+        LLMTestResultDto result = manageConfig.testConnection(req.provider(), req.model(), req.apiKey(), req.llmUrl());
         return new Responses.LLMTestResponse(result.success(), result.message());
     }
 
@@ -134,10 +113,7 @@ public class LLMController {
     // ══════════════════════════════════════════════════════════════
 
     @GetMapping("/local/models")
-    public List<String> getLocalModels(
-            @RequestParam String url,
-            @RequestParam(required = false) String provider,
-            @RequestParam(required = false, defaultValue = "60") int timeoutSeconds) {
+    public List<String> getLocalModels(@RequestParam String url, @RequestParam(required = false) String provider, @RequestParam(required = false, defaultValue = "60") int timeoutSeconds) {
 
         String baseUrl = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
         String endpoint = resolveModelsEndpoint(baseUrl, provider);
@@ -151,12 +127,12 @@ public class LLMController {
 
             if (root.has("models") && root.get("models").isArray()) {
                 root.get("models").forEach(node -> {
-                    String name = extractModelName(node, provider);  // ✅ provider passé
+                    String name = extractModelName(node, provider);
                     if (!name.isBlank()) models.add(name);
                 });
             } else if (root.has("data") && root.get("data").isArray()) {
                 root.get("data").forEach(node -> {
-                    String name = extractModelName(node, provider);  // ✅ provider passé
+                    String name = extractModelName(node, provider);
                     if (!name.isBlank()) models.add(name);
                 });
             }
@@ -209,16 +185,6 @@ public class LLMController {
         String p = provider != null ? provider.toLowerCase() : "";
         if (p.contains("lmstudio")) return baseUrl + "/api/v1/models";
         return baseUrl + "/models";
-    }
-
-    private String extractModelName(JsonNode node) {
-        String name = node.path("display_name").asText("");
-        if (name.isBlank()) name = node.path("name").asText("");
-        if (name.isBlank()) name = node.path("model").asText("");
-        if (name.isBlank()) name = node.path("id").asText("");
-        if (name.isBlank()) name = node.path("key").asText("");
-        if (name.contains("/")) name = name.substring(name.lastIndexOf('/') + 1);
-        return name.trim();
     }
 
     private String maskKey(String key) {

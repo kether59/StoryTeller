@@ -57,7 +57,7 @@ public class LLMConfigApplicationService implements ManageLLMConfigUseCase {
         tmpCfg.setProvider(provider);
         tmpCfg.setModel(model != null && !model.isBlank() ? model : getDefaultModel(provider));
         tmpCfg.setApiKey(apiKey);
-        tmpCfg.setLlmUrl(llmUrl);   // ✅
+        tmpCfg.setLlmUrl(llmUrl);
 
         try {
             var resolvedProvider = providerRegistry.resolve(provider);

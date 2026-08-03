@@ -1,6 +1,6 @@
 package com.kether.storyteller.infrastructure.persistence.jpa;
 
-import com.kether.storyteller.domain.entity.StoryLocation;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.StoryLocation;
 import com.kether.storyteller.domain.port.out.persistence.LocationRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

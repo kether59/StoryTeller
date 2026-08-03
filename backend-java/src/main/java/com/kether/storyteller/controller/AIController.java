@@ -1,7 +1,7 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.beforerefacto.AIAnalysisRequest;
-import com.kether.storyteller.beforerefacto.usecase.ia.*;
+import com.kether.storyteller.application.usecase.analysis.*;
+import com.kether.storyteller.application.dto.AIAnalysisRequest;
 import com.kether.storyteller.domain.port.out.persistence.ManuscriptRepositoryPort;
 import com.kether.storyteller.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
@@ -21,9 +21,8 @@ public class AIController {
     private final ManuscriptRepositoryPort manuscriptRepo;
 
     @PostMapping("/suggest")
-    public Object suggest(@Valid @RequestBody AIAnalysisRequest request) {  // ✅ PAS de @RequestParam storyId
+    public Object suggest(@Valid @RequestBody AIAnalysisRequest request) {
 
-        // ✅ Récupérer storyId depuis le manuscript
         Long storyId = resolveStoryId(request.manuscriptId());
         String manuscriptText = resolveManuscriptText(request.manuscriptId());
 

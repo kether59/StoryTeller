@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)   // ✅ AJOUTÉ
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LLMConfigModel {
     private String provider = "ollama";
     private String model = "mistral";

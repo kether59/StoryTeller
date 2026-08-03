@@ -1,6 +1,6 @@
 package com.kether.storyteller.infrastructure.persistence.jpa;
 
-import com.kether.storyteller.domain.entity.TimelineEvent;
+import com.kether.storyteller.infrastructure.persistence.jpa.entity.TimelineEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

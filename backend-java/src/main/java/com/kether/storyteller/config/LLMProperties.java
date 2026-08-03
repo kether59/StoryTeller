@@ -14,5 +14,5 @@ public class LLMProperties {
     private String openaiApiKey = "";
     private String openrouterApiKey = "";
     private String geminiApiKey = "";
-    private String llmUrl = "http://localhost:11434";  // ✅ RENOMMÉ
+    private String llmUrl = "http://localhost:11434";
 }

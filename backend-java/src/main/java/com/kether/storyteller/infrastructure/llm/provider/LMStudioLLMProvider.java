@@ -32,11 +32,9 @@ public class LMStudioLLMProvider implements LLMProvider {
             baseUrl = "http://localhost:1234";
         }
 
-        // ✅ CORRIGÉ : endpoint LM Studio natif
         String url = baseUrl.endsWith("/") ? baseUrl + "api/v1/chat"
                 : baseUrl + "/api/v1/chat";
 
-        // ✅ CORRIGÉ : format du body selon ton curl
         ObjectNode body = mapper.createObjectNode()
                 .put("model", config.getModel())
                 .put("system_prompt", systemPrompt)
@@ -55,7 +53,6 @@ public class LMStudioLLMProvider implements LLMProvider {
 
     @Override
     public String test(LLMConfigModel config) throws Exception {
-        // Test léger : on utilise le endpoint chat avec un prompt minimal
         return call("Réponds uniquement OK.", "Test", 16, config);
     }
 }

@@ -1,9 +1,18 @@
 package com.kether.storyteller.controller;
 
-import com.kether.storyteller.beforerefacto.usecase.character.*;
-import com.kether.storyteller.beforerefacto.usecase.location.*;
-import com.kether.storyteller.beforerefacto.usecase.lore.*;
-import com.kether.storyteller.beforerefacto.usecase.story.*;
+import com.kether.storyteller.application.usecase.character.CreateCharacterUseCase;
+import com.kether.storyteller.application.usecase.character.DeleteCharacterUseCase;
+import com.kether.storyteller.application.usecase.character.FindCharactersByStoryUseCase;
+import com.kether.storyteller.application.usecase.character.UpdateCharacterUseCase;
+import com.kether.storyteller.application.usecase.location.CreateLocationUseCase;
+import com.kether.storyteller.application.usecase.location.DeleteLocationUseCase;
+import com.kether.storyteller.application.usecase.location.FindLocationsByStoryUseCase;
+import com.kether.storyteller.application.usecase.location.UpdateLocationUseCase;
+import com.kether.storyteller.application.usecase.lore.CreateLoreEntryUseCase;
+import com.kether.storyteller.application.usecase.lore.DeleteLoreEntryUseCase;
+import com.kether.storyteller.application.usecase.lore.FindLoreEntriesByStoryUseCase;
+import com.kether.storyteller.application.usecase.lore.UpdateLoreEntryUseCase;
+import com.kether.storyteller.application.usecase.story.*;
 import com.kether.storyteller.infrastructure.web.rest.dto.Requests;
 import com.kether.storyteller.infrastructure.web.rest.dto.Responses;
 import jakarta.validation.Valid;
