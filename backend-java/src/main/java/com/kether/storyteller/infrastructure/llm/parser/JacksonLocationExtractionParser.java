@@ -2,24 +2,23 @@ package com.kether.storyteller.infrastructure.llm.parser;
 
 import com.kether.storyteller.domain.model.ExtractedLocation;
 import com.kether.storyteller.domain.port.out.llm.LocationExtractionParserPort;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
 
 @Component
+@Slf4j
 public class JacksonLocationExtractionParser implements LocationExtractionParserPort {
 
     private final ObjectMapper mapper;
 
-    private final Logger logger;
-
-    public JacksonLocationExtractionParser(ObjectMapper mapper, Logger logger) {
+    public JacksonLocationExtractionParser(ObjectMapper mapper) {
         this.mapper = mapper;
-        this.logger = logger;
     }
 
     @Override
@@ -45,12 +44,12 @@ public class JacksonLocationExtractionParser implements LocationExtractionParser
                             locations.add(new ExtractedLocation(name, type, summary, confidence));
                         }
                     } catch (IllegalArgumentException e) {
-                        logger.info("Ignore les lieux invalides");
+                        log.info("Ignore les lieux invalides");
                     }
                 }
             }
         } catch (Exception e) {
-            logger.info("Si le parsing échoue complètement, retourner une liste vide");
+            log.info("Si le parsing échoue complètement, retourner une liste vide");
         }
 
         return locations;

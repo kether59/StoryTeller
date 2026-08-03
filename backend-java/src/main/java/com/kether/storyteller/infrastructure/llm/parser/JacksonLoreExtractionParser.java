@@ -2,24 +2,24 @@ package com.kether.storyteller.infrastructure.llm.parser;
 
 import com.kether.storyteller.domain.model.ExtractedLore;
 import com.kether.storyteller.domain.port.out.llm.LoreExtractionParserPort;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
 
 @Component
+@Slf4j
 public class JacksonLoreExtractionParser implements LoreExtractionParserPort {
 
     private final ObjectMapper mapper;
 
-    private final Logger logger;
 
-    public JacksonLoreExtractionParser(ObjectMapper mapper, Logger logger) {
+    public JacksonLoreExtractionParser(ObjectMapper mapper) {
         this.mapper = mapper;
-        this.logger = logger;
     }
 
     @Override
@@ -45,12 +45,12 @@ public class JacksonLoreExtractionParser implements LoreExtractionParserPort {
                             loreEntries.add(new ExtractedLore(title, category, content, confidence));
                         }
                     } catch (IllegalArgumentException e) {
-                        logger.info("Ignore les entrées invalides");
+                        log.info("Ignore les entrées invalides");
                     }
                 }
             }
         } catch (Exception e) {
-            logger.info("Si le parsing échoue, retourner une liste vide");
+            log.info("Si le parsing échoue, retourner une liste vide");
         }
 
         return loreEntries;

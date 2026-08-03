@@ -2,23 +2,23 @@ package com.kether.storyteller.infrastructure.llm.parser;
 
 import com.kether.storyteller.domain.model.CharacterRelationship;
 import com.kether.storyteller.domain.port.out.llm.RelationshipParserPort;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
 
 @Component
+@Slf4j
 public class JacksonRelationshipParser implements RelationshipParserPort {
 
     private final ObjectMapper mapper;
-    private final Logger logger;
 
-    public JacksonRelationshipParser(ObjectMapper mapper, Logger logger) {
+    public JacksonRelationshipParser(ObjectMapper mapper) {
         this.mapper = mapper;
-        this.logger = logger;
     }
 
     @Override
@@ -48,12 +48,12 @@ public class JacksonRelationshipParser implements RelationshipParserPort {
                             ));
                         }
                     } catch (IllegalArgumentException e) {
-                       logger.info("Ignore les relations invalides");
+                       log.info("Ignore les relations invalides");
                     }
                 }
             }
         } catch (Exception e) {
-            logger.info("Si le parsing échoue, retourner une liste vide");
+            log.info("Si le parsing échoue, retourner une liste vide");
         }
 
         return relationships;
