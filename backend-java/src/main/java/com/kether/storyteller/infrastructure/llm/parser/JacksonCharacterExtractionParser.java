@@ -1,9 +1,9 @@
 package com.kether.storyteller.infrastructure.llm.parser;
 
 import com.kether.storyteller.domain.model.ExtractedCharacter;
-import com.kether.storyteller.domain.port.out.llm.CharacterExtractionParserPort;  // ✅ CORRIGÉ
-import com.fasterxml.jackson.core.type.TypeReference;                            // ✅ CORRIGÉ
-import com.fasterxml.jackson.databind.ObjectMapper;                              // ✅ CORRIGÉ
+import com.kether.storyteller.domain.port.out.llm.CharacterExtractionParserPort;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -45,11 +45,18 @@ public class JacksonCharacterExtractionParser implements CharacterExtractionPars
                 str(m, "surname"),
                 str(m, "role"),
                 parseAge(m.get("age")),
-                str(m, "physical_description"),
+                // Prompt + LLM renvoient camelCase ; ancien schéma snake_case toléré
+                firstNonBlank(str(m, "physicalDescription"), str(m, "physical_description")),
                 str(m, "personality"),
                 str(m, "motivation"),
                 num(m, "confidence")
         );
+    }
+
+    private static String firstNonBlank(String a, String b) {
+        if (a != null && !a.isBlank()) return a;
+        if (b != null && !b.isBlank()) return b;
+        return null;
     }
 
     private static String str(Map<String, Object> m, String key) {

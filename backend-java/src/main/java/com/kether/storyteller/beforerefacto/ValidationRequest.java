@@ -1,5 +1,8 @@
 package com.kether.storyteller.beforerefacto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Map;
 
 /**
@@ -7,9 +10,18 @@ import java.util.Map;
  * Vient de la couche interface (REST controller).
  */
 public record ValidationRequest(
+        @JsonProperty("itemType")
+        @JsonAlias({"item_type"})
         String itemType,       // "character", "location", "timeline", "lore"
+
+        @JsonProperty("itemData")
+        @JsonAlias({"item_data"})
         Map<String, Object> itemData,
+
         boolean approved,
+
+        @JsonProperty("storyId")
+        @JsonAlias({"story_id"})
         Long storyId
 ) {
     public ValidationRequest {
