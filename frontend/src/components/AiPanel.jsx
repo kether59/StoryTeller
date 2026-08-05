@@ -35,7 +35,7 @@ export default function AiPanel({ story }) {
     try {
       const payload = {
         intent: analysisType,
-        manuscript_id: ['script_consistency', 'character_behavior', 'lore_check'].includes(analysisType)
+        manuscript_id: ['script_consistency', 'character_behavior', 'lore_check','timeline_conflicts', 'link_characters'].includes(analysisType)
           ? selectedManuscript
           : null
       }

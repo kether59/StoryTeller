@@ -6,8 +6,11 @@ import com.kether.storyteller.domain.port.out.llm.LLMGenerationPort;
 import com.kether.storyteller.domain.port.out.persistence.CharacterRepositoryPort;
 import com.kether.storyteller.domain.port.out.persistence.StoryRepositoryPort;
 import com.kether.storyteller.exception.ResourceNotFoundException;
+import com.kether.storyteller.infrastructure.web.rest.dto.Responses;
+import com.kether.storyteller.infrastructure.web.rest.dto.Responses.BehaviorResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +23,9 @@ public class CheckCharacterBehaviorUseCase {
     private final StoryRepositoryPort storyRepo;
     private final CharacterRepositoryPort characterRepo;
     private final LLMGenerationPort llmPort;
+    private final JsonMapper mapper;
 
-    public List<Map<String, Object>> execute(Long storyId, String manuscriptText) {
+    public BehaviorResult execute(Long storyId, String manuscriptText) {
         Story story = storyRepo.findById(storyId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Story", storyId));
 
@@ -35,8 +39,14 @@ public class CheckCharacterBehaviorUseCase {
             """.formatted(story.getTitle(), formatChars(characters), manuscriptText);
 
         String raw = llmPort.generate("Tu es un éditeur vérifiant la cohérence des personnages.", prompt, 3000);
-        // Parsing simplifié — tu peux créer un parser dédié si besoin
-        return new ArrayList<>(List.of(Map.of("raw", raw, "status", "completed")));
+        // Extraire le JSON du markdown
+        String json = extractJsonFromMarkdown(raw);
+        try {
+            return mapper.readValue(json, Responses.BehaviorResult.class);
+        } catch (Exception e) {
+            // Fallback : retourner le brut pour debug
+            return new Responses.BehaviorResult(null);
+        }
     }
 
     private String formatChars(List<StoryCharacter> chars) {
@@ -44,5 +54,13 @@ public class CheckCharacterBehaviorUseCase {
                 .map(c -> c.getName() + " : " + c.getPersonality())
                 .reduce((a, b) -> a + "; " + b)
                 .orElse("");
+    }
+
+    private String extractJsonFromMarkdown(String raw) {
+        if (raw == null) return "{}";
+        // Nettoyer les backticks markdown
+        return raw.replaceAll("(?s)^.*```json\\s*", "")
+                .replaceAll("(?s)\\s*```.*$", "")
+                .trim();
     }
 }

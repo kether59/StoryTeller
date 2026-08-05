@@ -4,8 +4,12 @@ import com.kether.storyteller.infrastructure.persistence.jpa.entity.Story;
 import com.kether.storyteller.domain.port.out.llm.LLMGenerationPort;
 import com.kether.storyteller.domain.port.out.persistence.StoryRepositoryPort;
 import com.kether.storyteller.exception.ResourceNotFoundException;
+import com.kether.storyteller.infrastructure.web.rest.dto.Responses;
+import com.kether.storyteller.infrastructure.web.rest.dto.Responses.ScriptConsistencyResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Map;
 
@@ -15,8 +19,9 @@ public class CheckScriptConsistencyUseCase {
 
     private final StoryRepositoryPort storyRepo;
     private final LLMGenerationPort llmPort;
+    private final JsonMapper mapper;
 
-    public Map<String, Object> execute(Long storyId, String manuscriptText) {
+    public ScriptConsistencyResult execute(Long storyId, String manuscriptText) {
         Story story = storyRepo.findById(storyId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Story", storyId));
 
@@ -29,6 +34,23 @@ public class CheckScriptConsistencyUseCase {
             """.formatted(story.getTitle(), story.getSynopsis(), manuscriptText);
 
         String raw = llmPort.generate("Tu es un éditeur vérifiant la cohérence narrative.", prompt, 3000);
-        return Map.of("raw", raw, "status", "completed");
+
+        // Extraire le JSON du markdown
+        String json = extractJsonFromMarkdown(raw);
+        try {
+            return mapper.readValue(json, ScriptConsistencyResult.class);
+        } catch (Exception e) {
+            // Fallback : retourner le brut pour debug
+            return new ScriptConsistencyResult(null, null);
+        }
+    }
+
+
+    private String extractJsonFromMarkdown(String raw) {
+        if (raw == null) return "{}";
+        // Nettoyer les backticks markdown
+        return raw.replaceAll("(?s)^.*```json\\s*", "")
+                .replaceAll("(?s)\\s*```.*$", "")
+                .trim();
     }
 }
