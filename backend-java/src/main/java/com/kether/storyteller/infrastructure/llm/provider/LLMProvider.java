@@ -1,7 +1,7 @@
 // infrastructure/llm/provider/LLMProvider.java
 package com.kether.storyteller.infrastructure.llm.provider;
 
-import com.kether.storyteller.service.llm.LLMConfigModel;
+import com.kether.storyteller.domain.model.LLMConfigModel;
 
 /**
  * Interface technique pour un provider LLM spécifique.

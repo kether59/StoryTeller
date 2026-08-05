@@ -1,4 +1,4 @@
-package com.kether.storyteller.controller;
+package com.kether.storyteller.interfaces.rest.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

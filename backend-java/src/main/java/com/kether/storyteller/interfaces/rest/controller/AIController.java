@@ -1,4 +1,4 @@
-package com.kether.storyteller.controller;
+package com.kether.storyteller.interfaces.rest.controller;
 
 import com.kether.storyteller.application.usecase.analysis.*;
 import com.kether.storyteller.application.dto.AIAnalysisRequest;

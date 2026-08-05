@@ -4,11 +4,9 @@ import com.kether.storyteller.infrastructure.persistence.jpa.entity.Story;
 import com.kether.storyteller.domain.port.out.llm.LLMGenerationPort;
 import com.kether.storyteller.domain.port.out.persistence.StoryRepositoryPort;
 import com.kether.storyteller.exception.ResourceNotFoundException;
-import com.kether.storyteller.infrastructure.web.rest.dto.Responses;
 import com.kether.storyteller.infrastructure.web.rest.dto.Responses.ScriptConsistencyResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.kether.storyteller.controller;
+package com.kether.storyteller.interfaces.rest.controller;
 
 import com.kether.storyteller.application.dto.ValidationResult;
 import com.kether.storyteller.application.usecase.ValidateAndCreateUseCase;

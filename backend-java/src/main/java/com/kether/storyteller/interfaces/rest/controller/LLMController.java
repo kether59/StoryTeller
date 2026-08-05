@@ -1,4 +1,4 @@
-package com.kether.storyteller.controller;
+package com.kether.storyteller.interfaces.rest.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +8,7 @@ import com.kether.storyteller.domain.port.in.llm.*;
 import com.kether.storyteller.infrastructure.llm.LLMHttpClient;
 import com.kether.storyteller.infrastructure.web.rest.dto.Requests;
 import com.kether.storyteller.infrastructure.web.rest.dto.Responses;
-import com.kether.storyteller.service.llm.LLMConfigService;
+import com.kether.storyteller.infrastructure.llm.config.LLMConfigService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

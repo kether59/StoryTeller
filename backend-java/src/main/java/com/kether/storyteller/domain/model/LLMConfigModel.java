@@ -1,4 +1,4 @@
-package com.kether.storyteller.service.llm;
+package com.kether.storyteller.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

@@ -1,10 +1,11 @@
-package com.kether.storyteller.service.llm;
+package com.kether.storyteller.infrastructure.llm.config;
 
 import com.kether.storyteller.config.LLMProperties;
 import com.kether.storyteller.infrastructure.web.rest.dto.Requests.LLMConfigRequest;
 import com.kether.storyteller.infrastructure.web.rest.dto.Responses.LLMConfigResponse;
 import com.kether.storyteller.infrastructure.web.rest.dto.Responses.LLMHealthResponse;
 import com.kether.storyteller.infrastructure.web.rest.dto.Responses.LLMSaveResponse;
+import com.kether.storyteller.domain.model.LLMConfigModel;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

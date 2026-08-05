@@ -3,7 +3,7 @@ package com.kether.storyteller.infrastructure.llm.provider;
 
 import com.kether.storyteller.exception.ServiceUnavailableException;
 import com.kether.storyteller.infrastructure.llm.LLMHttpClient;
-import com.kether.storyteller.service.llm.LLMConfigModel;
+import com.kether.storyteller.domain.model.LLMConfigModel;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;

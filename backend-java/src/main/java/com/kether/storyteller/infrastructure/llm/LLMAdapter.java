@@ -3,7 +3,7 @@ package com.kether.storyteller.infrastructure.llm;
 
 import com.kether.storyteller.domain.port.out.llm.LLMGenerationPort;
 import com.kether.storyteller.infrastructure.llm.registry.LLMProviderRegistry;
-import com.kether.storyteller.service.llm.LLMConfigService;
+import com.kether.storyteller.infrastructure.llm.config.LLMConfigService;
 import org.springframework.stereotype.Component;
 
 /**
